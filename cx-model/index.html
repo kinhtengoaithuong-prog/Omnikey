@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CX Modeling — Mô hình 3 nhánh doanh thu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,400;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap&subset=vietnamese" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#080b14; --bg1:#121a2e;
+    --gold:#d4af6a; --teal:#4fd1c5; --rose:#e08a9e; --amber:#e0b04f;
+    --text:#e8ecf4; --text-dim:#9aa7bd; --text-faint:#5f6b82;
+    --line:rgba(255,255,255,.09);
+    --card:rgba(26,46,74,.45);
+    --node-fill:rgba(26,46,74,.55);
+    --edge:rgba(255,255,255,.13);
+    --good:#4fd1c5; --bad:#e08a9e; --warn:#e0b04f;
+    --header-bg:rgba(8,11,20,.6);
+    --font-display:'Noto Serif Display', serif;
+    --font-body:'Outfit', sans-serif;
+    --font-mono:'DM Mono', monospace;
+  }
+  html[data-theme='light']{
+    --bg0:#f4f6f4; --bg1:#e9ede9;
+    --gold:#9a6b12; --teal:#0d7d70; --rose:#c1476a; --amber:#a9781a;
+    --text:#161c20; --text-dim:#4a555c; --text-faint:#7b858c;
+    --line:rgba(20,24,29,.16);
+    --card:#ffffff;
+    --node-fill:#ffffff;
+    --edge:rgba(20,24,29,.28);
+    --good:#0d7d70; --bad:#c1476a; --warn:#a9781a;
+    --header-bg:rgba(255,255,255,.85);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;
+    background:linear-gradient(160deg,var(--bg0),var(--bg1));
+    font-family:var(--font-body); color:var(--text); font-size:14px;}
+
+  header{
+    height:54px; display:flex; align-items:center; gap:14px;
+    padding:0 18px; border-bottom:1px solid var(--line);
+    background:var(--header-bg); backdrop-filter:blur(6px); flex:0 0 auto;
+  }
+  .h-title{font-family:var(--font-display); font-size:16px; font-weight:600;}
+  .h-title em{font-style:italic; color:var(--gold);}
+  .h-sub{font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint); letter-spacing:.1em; text-transform:uppercase;}
+  .h-spacer{flex:1;}
+  .btn{font-family:var(--font-body); font-size:12px; font-weight:500; background:transparent; color:var(--text-dim);
+    border:1px solid var(--line); border-radius:6px; padding:6px 12px; cursor:pointer; transition:all .18s;}
+  .btn:hover{color:var(--text); border-color:rgba(150,150,150,.4);}
+  .btn:focus-visible{outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(79,209,197,.22);}
+  .release{font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint);}
+  .status-pill{font-family:var(--font-mono); font-size:11px; padding:5px 12px; border-radius:14px;
+    border:1px solid var(--line); color:var(--text-dim); opacity:0; transition:opacity .25s; max-width:360px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .status-pill.show{opacity:1;}
+  .status-pill.ok{border-color:rgba(79,209,197,.5); color:var(--teal);}
+  .status-pill.warn{border-color:rgba(224,176,79,.6); color:var(--amber);}
+
+  /* product tabs */
+  .prod-tabs{display:flex; gap:6px; padding:12px 18px 0; flex:0 0 auto;}
+  .prod-tab{font-family:var(--font-display); font-size:15px; font-weight:600; padding:9px 20px 11px;
+    border:1px solid var(--line); border-bottom:none; border-radius:8px 8px 0 0;
+    background:transparent; color:var(--text-dim); cursor:pointer; transition:all .18s;}
+  .prod-tab:hover{color:var(--text);}
+  .prod-tab.active{background:var(--card); color:var(--text); border-color:var(--line);}
+  .prod-tab .sub{font-family:var(--font-mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); display:block; margin-top:1px;}
+  .prod-tab.active .sub{color:var(--gold);}
+
+  .workspace{display:flex; height:calc(100vh - 54px - 40px - 42px); width:100vw;}
+  .panel{overflow-y:auto; overflow-x:hidden;}
+  #panelLeft{flex:0 0 34%; border-right:1px solid var(--line); padding:16px 16px 40px; min-width:300px;}
+  #panelRight{flex:1 1 auto; padding:16px 18px 40px; min-width:340px;}
+
+  .sec-title{font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--text-faint); margin:0 0 12px;}
+  .sec-title.mt{margin-top:24px;}
+
+  .field{margin-bottom:15px;}
+  .field-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; gap:8px;}
+  .field-name{font-size:12.5px; color:var(--text); line-height:1.3;}
+  .field-name .hint{color:var(--text-faint); font-size:10.5px;}
+  .field-val{font-family:var(--font-mono); font-size:13px; color:var(--gold); white-space:nowrap;}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:14px; background:transparent; outline:none; cursor:pointer;}
+  input[type=range]::-webkit-slider-runnable-track{height:4px; border-radius:2px;
+    background:linear-gradient(90deg,var(--gold) var(--fill,50%),rgba(128,128,128,.25) var(--fill,50%));}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+    background:var(--text); border:2px solid var(--bg0); box-shadow:0 0 0 2px var(--gold); margin-top:-5.5px; cursor:grab;}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(212,175,106,.4);}
+  input[type=range]::-moz-range-track{height:4px; border-radius:2px; background:rgba(128,128,128,.25);}
+  input[type=range]::-moz-range-progress{height:4px; border-radius:2px; background:var(--gold);}
+  input[type=range]::-moz-range-thumb{width:13px; height:13px; border-radius:50%; background:var(--text); border:2px solid var(--bg0); box-shadow:0 0 0 2px var(--gold); cursor:grab;}
+
+  .term-seg{display:flex; gap:5px;}
+  .term-seg button{flex:1; font-family:var(--font-mono); font-size:12px; padding:7px 0; border-radius:6px;
+    border:1px solid var(--line); background:transparent; color:var(--text-dim); cursor:pointer; transition:all .15s;}
+  .term-seg button:hover{color:var(--text);}
+  .term-seg button.active{background:var(--gold); color:var(--bg0); border-color:var(--gold); font-weight:600;}
+
+  .num-input{width:100%; font-family:var(--font-mono); font-size:13px; padding:7px 10px; border-radius:6px;
+    border:1px solid var(--line); background:var(--card); color:var(--text);}
+  .num-input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,106,.2);}
+
+  .assump{border:1px solid var(--line); border-radius:8px; margin-top:8px; overflow:hidden;}
+  .assump summary{padding:9px 12px; font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-dim); cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px;}
+  .assump summary::before{content:'▸'; transition:transform .2s;}
+  .assump[open] summary::before{transform:rotate(90deg);}
+  .assump .body{padding:4px 12px 12px;}
+  .assump-tag{display:inline-block; font-family:var(--font-mono); font-size:8.5px; letter-spacing:.05em;
+    padding:1px 6px; border-radius:8px; border:1px solid var(--amber); color:var(--amber); margin-left:6px;}
+
+  /* RIGHT panel */
+  .ceiling-block{border:1px solid var(--line); border-radius:12px; background:var(--card); padding:18px; margin-bottom:16px;}
+  .cb-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;}
+  .cb-head h3{font-family:var(--font-display); font-size:18px; font-weight:600; margin:0;}
+  .cb-head .verdict{font-family:var(--font-mono); font-size:11px; padding:4px 12px; border-radius:14px; border:1px solid;}
+  .verdict.ok{color:var(--good); border-color:var(--good);}
+  .verdict.warn{color:var(--warn); border-color:var(--warn);}
+  .verdict.bad{color:var(--bad); border-color:var(--bad);}
+
+  .retbar-wrap{margin:20px 0 8px;}
+  .retbar{position:relative; height:38px; border-radius:8px; background:rgba(128,128,128,.14); overflow:visible;}
+  .retbar .fill-exec{position:absolute; top:0; bottom:0; left:0; border-radius:8px 0 0 8px; background:linear-gradient(90deg, var(--teal), var(--good)); opacity:.85;}
+  .retbar .fill-struct{position:absolute; top:0; bottom:0; border-radius:0; background:repeating-linear-gradient(45deg, rgba(224,138,158,.35), rgba(224,138,158,.35) 6px, rgba(224,138,158,.15) 6px, rgba(224,138,158,.15) 12px); border-left:1px dashed var(--bad);}
+  .retbar .mark{position:absolute; top:-6px; bottom:-6px; width:2px;}
+  .retbar .mark.ceiling{background:var(--text); }
+  .retbar .mark.target{background:var(--gold);}
+  .retbar .mark .lab{position:absolute; top:-20px; left:50%; transform:translateX(-50%); white-space:nowrap;
+    font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim);}
+  .retbar .cur-lab{position:absolute; bottom:-22px; font-family:var(--font-mono); font-size:11px; color:var(--good); transform:translateX(-50%);}
+  .retbar-scale{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:9px; color:var(--text-faint); margin-top:26px;}
+  .gap-legend{display:flex; gap:16px; margin-top:14px; font-size:11px; color:var(--text-dim); flex-wrap:wrap;}
+  .gap-legend span{display:flex; align-items:center; gap:6px;}
+  .gap-legend i{width:14px; height:10px; border-radius:2px; display:inline-block;}
+  .gap-legend i.exec{background:linear-gradient(90deg,var(--teal),var(--good));}
+  .gap-legend i.struct{background:repeating-linear-gradient(45deg, rgba(224,138,158,.5), rgba(224,138,158,.5) 4px, rgba(224,138,158,.2) 4px, rgba(224,138,158,.2) 8px);}
+
+  .alert{border-radius:8px; padding:12px 14px; margin-top:16px; font-size:12.5px; line-height:1.5; display:flex; gap:10px;}
+  .alert.bad{background:rgba(224,138,158,.12); border:1px solid rgba(224,138,158,.4); color:var(--text);}
+  .alert.ok{background:rgba(79,209,197,.1); border:1px solid rgba(79,209,197,.35); color:var(--text);}
+  .alert .ic{font-size:16px; flex:0 0 auto;}
+  .alert b{color:var(--text);}
+
+  .kpi-row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px;}
+  .kpi{border:1px solid var(--line); border-radius:10px; background:var(--card); padding:12px;}
+  .kpi .k{font-size:10px; color:var(--text-dim); margin-bottom:5px; line-height:1.3; min-height:26px;}
+  .kpi .v{font-family:var(--font-mono); font-size:18px; color:var(--text); font-weight:500;}
+  .kpi .d{font-family:var(--font-mono); font-size:10px; margin-top:3px;}
+  .up{color:var(--good);} .down{color:var(--bad);} .flat{color:var(--text-faint);}
+
+  .proj-block{border:1px solid var(--line); border-radius:12px; background:var(--card); padding:14px; margin-bottom:16px;}
+  .proj-block h4{font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim); font-weight:400; margin:0 0 6px;}
+
+  .flow-block{border:1px solid var(--line); border-radius:12px; background:var(--card); padding:14px 16px; margin-bottom:16px;}
+  .flow-block h4{font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim); font-weight:400; margin:0 0 12px;}
+  .chain{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .chain-node{font-family:var(--font-mono); font-size:11px; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--node-fill); color:var(--text-dim); text-align:center; line-height:1.3;}
+  .chain-node b{display:block; color:var(--text); font-family:var(--font-body); font-size:12px; font-weight:600;}
+  .chain-node.hl{border-color:var(--gold); background:rgba(212,175,106,.1);}
+  .chain-node.hl b{color:var(--gold);}
+  .chain-arrow{color:var(--text-faint); font-size:14px;}
+
+  .note{font-size:10.5px; color:var(--text-faint); line-height:1.5; border-left:2px solid var(--gold); padding-left:10px; margin-top:14px;}
+
+  /* bảng tính chi tiết */
+  .calc-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .calc-head h4{font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim); font-weight:400; margin:0;}
+  .year-pick{display:flex; gap:4px;}
+  .year-pick button{font-family:var(--font-mono); font-size:11px; padding:5px 10px; border-radius:6px; border:1px solid var(--line); background:transparent; color:var(--text-dim); cursor:pointer; transition:all .15s;}
+  .year-pick button:hover{color:var(--text); border-color:rgba(150,150,150,.4);}
+  .year-pick button.active{background:var(--gold); color:var(--bg0); border-color:var(--gold); font-weight:600;}
+  .calc-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .calc-table td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  .calc-table .ct-section td{padding-top:16px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--line);}
+  .calc-table .ct-section:first-child td{padding-top:4px;}
+  .calc-table .ct-label{color:var(--text-dim);}
+  .calc-table .ct-op{width:24px; text-align:center; font-family:var(--font-mono); color:var(--text-faint); font-size:12px;}
+  .calc-table .ct-val{text-align:right; font-family:var(--font-mono); font-weight:500; color:var(--text); white-space:nowrap; width:90px;}
+  .calc-table .ct-src{color:var(--text-faint); font-size:10.5px; padding-left:14px;}
+  .calc-table .ct-result td{border-top:1.5px solid var(--edge); border-bottom:none;}
+  .calc-table .ct-result .ct-label{color:var(--text); font-weight:600;}
+  .calc-table .ct-result .ct-val{color:var(--gold); font-size:14px;}
+  .calc-table .ct-final .ct-val{color:var(--good); font-size:15px;}
+  .calc-table .ct-ceiling-warn .ct-val{color:var(--bad);}
+  .ct-badge{display:inline-block; font-family:var(--font-mono); font-size:8px; padding:1px 6px; border-radius:8px; border:1px solid var(--bad); color:var(--bad); margin-left:6px;}
+
+  /* thẻ hướng cải thiện định tính */
+  #qualCard{border-color:var(--teal);}
+  .qual-lead{font-size:12px; color:var(--text-dim); line-height:1.6; margin:0 0 14px;}
+  .qual-tree{padding:12px; background:var(--node-fill); border-radius:8px; margin-bottom:12px;}
+  .qual-node{font-size:12.5px; color:var(--text); font-weight:600; padding:4px 0;}
+  .qual-kids{margin-left:16px; border-left:2px solid var(--teal); padding-left:12px; margin-top:4px;}
+  .qual-item{font-size:12px; color:var(--text-dim); font-weight:400; padding:3px 0;}
+  .qual-node .qual-node{margin-top:6px;}
+  .qual-note{font-size:11px; color:var(--text-faint); line-height:1.6; margin:0; border-left:2px solid var(--teal); padding-left:10px;}
+
+  /* leverage coverage map */
+  .lev-legend{display:flex; gap:14px; font-size:10px; color:var(--text-dim); margin-bottom:14px; flex-wrap:wrap;}
+  .lev-legend span{display:flex; align-items:center; gap:5px;}
+  .lev-dot{width:10px; height:10px; border-radius:3px; display:inline-block; flex:0 0 auto;}
+  .lev-dot.active{background:var(--good);}
+  .lev-dot.assump{background:var(--amber);}
+  .lev-dot.gap{background:var(--bad); opacity:.6;}
+  .lev-group{margin-bottom:14px;}
+  .lev-group-head{font-family:var(--font-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text); margin-bottom:8px; padding-bottom:5px; border-bottom:1px solid var(--line);}
+  .lev-items{display:flex; flex-direction:column; gap:7px;}
+  .lev-item{display:flex; gap:9px; align-items:flex-start; font-size:12px; line-height:1.4;}
+  .lev-item .lev-dot{margin-top:3px;}
+  .lev-item .lev-name{color:var(--text); font-weight:500; flex:0 0 auto;}
+  .lev-item.gap .lev-name{color:var(--text-dim);}
+  .lev-item .lev-desc{color:var(--text-faint); font-size:10.5px;}
+  .lev-item .lev-badge{font-family:var(--font-mono); font-size:8px; padding:1px 5px; border-radius:6px; border:1px solid; margin-left:2px; white-space:nowrap;}
+  .lev-badge.active{color:var(--good); border-color:var(--good);}
+  .lev-badge.assump{color:var(--amber); border-color:var(--amber);}
+  .lev-badge.gap{color:var(--bad); border-color:var(--bad); opacity:.8;}
+
+  /* view-level tabs */
+  .view-tabs{display:flex; gap:0; padding:10px 18px 0; flex:0 0 auto; border-bottom:1px solid var(--line);}
+  .view-tab{font-family:var(--font-body); font-size:13px; font-weight:600; padding:9px 18px; cursor:pointer;
+    background:transparent; color:var(--text-dim); border:none; border-bottom:2px solid transparent; transition:all .18s;}
+  .view-tab:hover{color:var(--text);}
+  .view-tab.active{color:var(--gold); border-bottom-color:var(--gold);}
+
+  /* panel toggle + collapse */
+  .panel-toggle{position:absolute; top:10px; left:0; z-index:20; width:22px; height:44px;
+    border:1px solid var(--line); border-left:none; border-radius:0 8px 8px 0; background:var(--card);
+    color:var(--text-dim); cursor:pointer; font-size:12px; transition:all .18s;}
+  .panel-toggle:hover{color:var(--text); background:var(--node-fill);}
+  #panelLeft{transition:flex-basis .25s, padding .25s, opacity .2s;}
+  .workspace.dragging #panelLeft{transition:none;}
+  .divider{flex:0 0 6px; cursor:col-resize; background:transparent; position:relative; z-index:15; transition:background .15s;}
+  .divider::before{content:''; position:absolute; left:2px; top:0; bottom:0; width:1px; background:var(--line);}
+  .divider:hover, .divider.dragging{background:rgba(212,175,106,.15);}
+  .divider:hover::before, .divider.dragging::before{width:2px; left:2px; background:var(--gold);}
+  .workspace.dragging{cursor:col-resize; user-select:none;}
+  .workspace.left-collapsed .divider{display:none;}
+  .workspace.left-collapsed #panelLeft{flex:0 0 0 !important; min-width:0 !important; padding-left:0; padding-right:0; opacity:0; overflow:hidden; pointer-events:none;}
+  .workspace.left-collapsed .panel-toggle{transform:rotate(180deg); border-radius:8px 0 0 8px; border-left:1px solid var(--line); border-right:none; left:0;}
+  .workspace{position:relative;}
+
+  /* ceiling embedded inline under retention node */
+  .ret-node{position:relative;}
+  .ret-ceiling{position:absolute; left:0; right:0; bottom:-5px; height:3px; border-radius:2px; background:var(--line);}
+  .ceiling-inline{margin-top:16px; padding-top:16px; border-top:1px dashed var(--line);}
+  .ci-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; gap:10px; flex-wrap:wrap;}
+  .ci-title{font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--text);}
+  .ci-hint{font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint);}
+
+  /* strategy view — mind map builder */
+  .strategy-view{width:100vw; height:calc(100vh - 54px - 40px - 42px); display:flex; flex-direction:column;}
+  .mm-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 18px; border-bottom:1px solid var(--line); flex:0 0 auto; flex-wrap:wrap;}
+  .mm-tb-left{display:flex; align-items:baseline; gap:12px; min-width:0;}
+  .mm-title{font-family:var(--font-display); font-size:16px; font-weight:600;}
+  .mm-ver-label{font-family:var(--font-mono); font-size:11px; color:var(--gold);}
+  .mm-save-state{font-family:var(--font-mono); font-size:10px; color:var(--text-faint);}
+  .mm-tb-right{display:flex; gap:6px; flex-wrap:wrap;}
+  .mm-body{flex:1 1 auto; display:flex; min-height:0; position:relative;}
+  .mm-canvas{flex:1 1 auto; overflow:auto; position:relative; background:
+    radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0); background-size:22px 22px;}
+  #mmSvg{display:block;}
+  .mm-inspector{flex:0 0 300px; border-right:1px solid var(--line); padding:16px; overflow-y:auto; background:var(--card); transition:flex-basis .25s, padding .25s, opacity .2s;}
+  .mm-body.dragging .mm-inspector{transition:none;}
+  .mm-body.left-collapsed .mm-inspector{flex:0 0 0 !important; padding-left:0; padding-right:0; opacity:0; overflow:hidden; pointer-events:none;}
+  .mm-body.left-collapsed .divider{display:none;}
+  .mm-body #mmPanelToggle{position:absolute; top:10px; left:0; z-index:20;}
+  .mm-body.left-collapsed #mmPanelToggle{transform:rotate(180deg);}
+  .mm-insp-empty{font-size:12px; color:var(--text-faint); line-height:1.6;}
+  .mm-field{margin-bottom:14px;}
+  .mm-field label{display:block; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:6px;}
+  .mm-field label .hint{text-transform:none; letter-spacing:0;}
+  .mm-dom-row{display:flex; flex-wrap:wrap; gap:5px;}
+  .mm-dom-chip{display:flex; align-items:center; gap:5px; font-size:11px; padding:4px 9px; border-radius:14px; border:1px solid var(--line); cursor:pointer; color:var(--text-dim); transition:all .14s;}
+  .mm-dom-chip .dc-dot{width:9px; height:9px; border-radius:3px;}
+  .mm-dom-chip.on{border-color:var(--text); color:var(--text); background:var(--node-fill);}
+  .mm-origin{font-size:11px; color:var(--text-dim);}
+  .mm-origin .badge{font-family:var(--font-mono); font-size:9px; padding:2px 7px; border-radius:8px; border:1px solid;}
+  .mm-origin .badge.model{color:var(--teal); border-color:var(--teal);}
+  .mm-origin .badge.manual{color:var(--amber); border-color:var(--amber);}
+  .mm-insp-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:18px;}
+  .mm-del{border-color:var(--bad) !important; color:var(--bad) !important;}
+  .mm-hint-bar{flex:0 0 auto; padding:7px 18px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:9.5px; color:var(--text-faint);}
+
+  /* SVG nodes */
+  .mm-edge{fill:none; stroke:var(--edge); stroke-width:1.6;}
+  .mm-node{cursor:grab;}
+  .mm-node .nrect{stroke-width:1.5; rx:8; transition:filter .12s;}
+  .mm-node:hover .nrect{filter:brightness(1.12);}
+  .mm-node.sel .nrect{stroke-width:2.6;}
+  .mm-node.manual .nrect{stroke-dasharray:4 3;}
+  .mm-node .ntext{font-family:var(--font-body); font-size:12px; font-weight:500; pointer-events:none;}
+  .mm-node .nsub{font-family:var(--font-mono); font-size:8.5px; pointer-events:none;}
+  .mm-node .nmetric{font-family:var(--font-mono); font-size:9px; pointer-events:none;}
+  .mm-node .nstar{font-size:13px; fill:var(--gold); pointer-events:none;}
+  .mm-node.star .nrect{stroke-width:2.4;}
+  .mm-twist{cursor:pointer;}
+  .mm-add-dot{opacity:0; cursor:pointer; transition:opacity .14s;}
+  .mm-node:hover .mm-add-dot{opacity:1;}
+  body.mm-dragging{cursor:grabbing !important; user-select:none;}
+  body.mm-dragging .mm-node{cursor:grabbing !important;}
+  .mm-node.drop-target .nrect{stroke:var(--gold); stroke-width:3;}
+
+  /* versions dropdown */
+  .mm-ver-panel{position:fixed; top:150px; right:24px; width:300px; z-index:200; background:var(--card);
+    border:1px solid var(--line); border-radius:12px; padding:14px; box-shadow:0 16px 44px -12px rgba(0,0,0,.5); backdrop-filter:blur(8px);}
+  html[data-theme='light'] .mm-ver-panel{background:#fff;}
+  .mm-ver-head{font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:10px;}
+  .mm-ver-item{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; transition:background .14s;}
+  .mm-ver-item:hover{background:var(--node-fill);}
+  .mm-ver-item.cur{background:rgba(212,175,106,.12); border:1px solid rgba(212,175,106,.4);}
+  .mm-ver-item .vi-name{flex:1; font-size:12.5px; color:var(--text);}
+  .mm-ver-item .vi-date{font-family:var(--font-mono); font-size:9px; color:var(--text-faint);}
+  .mm-ver-item .vi-del{color:var(--bad); font-size:12px; opacity:.6; padding:2px 5px;}
+  .mm-ver-item .vi-del:hover{opacity:1;}
+  .mm-ver-new{display:flex; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
+  .mm-ver-status{font-family:var(--font-mono); font-size:9.5px; padding:6px 8px; border-radius:6px; margin-bottom:10px; line-height:1.5;}
+  .mm-ver-status.ok{background:rgba(79,209,197,.1); color:var(--teal);}
+  .mm-ver-status.warn{background:rgba(224,176,79,.12); color:var(--amber);}
+  .mm-ver-io{display:flex; gap:6px; margin-top:10px;}
+  .mm-ver-io .btn{flex:1; font-size:10.5px;}
+  .mm-ver-hint{font-size:10px; color:var(--text-faint); line-height:1.5; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+  .mm-ver-item .vi-nodes{font-family:var(--font-mono); font-size:9px; color:var(--text-faint); margin-right:6px;}
+  .btn-primary-mm{background:var(--gold); color:var(--bg0); border-color:var(--gold);}
+
+  @media (max-width:920px){
+    html,body{overflow:auto;}
+    .workspace{flex-direction:column; height:auto;}
+    #panelLeft,#panelRight{flex:0 0 auto; width:100%; min-width:0;}
+    .kpi-row{grid-template-columns:1fr 1fr;}
+    header{flex-wrap:wrap; height:auto; padding:8px 12px;}
+    .strategy-view{height:auto;}
+    .mm-body{flex-direction:column;}
+    .mm-inspector{flex:0 0 auto; width:100%; border-right:none; border-bottom:1px solid var(--line);}
+    .mm-body .divider{display:none;}
+    #mmPanelToggle{display:none;}
+    .panel-toggle{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="h-title">CX Modeling — <em>Mô hình 3 nhánh doanh thu</em></div>
+    <div class="h-sub">Bán mới + Gia hạn (1−C1−C2) + Cross-sell · định lượng tính · định tính diễn giải</div>
+  </div>
+  <div class="h-spacer"></div>
+  <div class="status-pill" id="statusPill"></div>
+  <button class="btn" id="themeBtn">☀ Sáng</button>
+  <button class="btn" id="resetBtn">Đặt lại</button>
+  <div class="release" id="releaseStamp"></div>
+</header>
+
+<div class="view-tabs" id="viewTabs">
+  <button class="view-tab active" id="vtab-analysis">Mô hình tính toán</button>
+  <button class="view-tab" id="vtab-strategy">Bản đồ chiến lược</button>
+</div>
+
+<div class="workspace" id="wsAnalysis">
+  <button class="panel-toggle" id="panelToggle" title="Ẩn/hiện bảng điều khiển">◀</button>
+  <div class="panel" id="panelLeft">
+    <div class="sec-title">① Doanh thu bán mới</div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">Lượng lead <span class="hint">(nghìn)</span></span><span class="field-val" id="v-lead"></span></div>
+      <input type="range" id="r-lead" min="0" max="500" step="10">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">Tỷ lệ chuyển đổi CR% <span class="hint">(lead → khách)</span></span><span class="field-val" id="v-cr"></span></div>
+      <input type="range" id="r-cr" min="0" max="60" step="1">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">Khách truyền miệng <span class="hint">(WOM, nghìn — nhập tay)</span></span><span class="field-val" id="v-wommoi"></span></div>
+      <input type="range" id="r-wommoi" min="0" max="100" step="5">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">AOV bán mới <span class="hint">(triệu/đơn)</span></span><span class="field-val" id="v-aovmoi"></span></div>
+      <input type="range" id="r-aovmoi" min="0.5" max="6" step="0.1">
+    </div>
+
+    <div class="sec-title mt">② Doanh thu gia hạn</div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">Số khách tới hạn <span class="hint">(nghìn)</span></span><span class="field-val" id="v-toihan"></span></div>
+      <input type="range" id="r-toihan" min="0" max="200" step="5">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">C1 — rời tự nhiên <span class="hint">(% khách đóng cửa)</span></span><span class="field-val" id="v-c1"></span></div>
+      <input type="range" id="r-c1" min="0" max="60" step="1">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">C2 — rời kỹ thuật <span class="hint">(% — mục tiêu kéo xuống)</span></span><span class="field-val" id="v-c2"></span></div>
+      <input type="range" id="r-c2" min="0" max="80" step="1">
+      <div class="note" style="margin-top:6px">Tỷ lệ gia hạn = 1 − C1 − C2. <b style="color:var(--text)" id="tyleReadout"></b> Kéo C2 xuống → gia hạn tăng. <i>Hướng cải thiện C2: xem thẻ bên phải.</i></div>
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">AOV gia hạn <span class="hint">(triệu/đơn)</span></span><span class="field-val" id="v-aovgh"></span></div>
+      <input type="range" id="r-aovgh" min="0.5" max="6" step="0.1">
+    </div>
+
+    <div class="sec-title mt">③ Doanh thu cross-sell</div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">Số khách hiện hữu <span class="hint">(nghìn)</span></span><span class="field-val" id="v-hienhuu"></span></div>
+      <input type="range" id="r-hienhuu" min="0" max="400" step="10">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">Attach rate <span class="hint">(tỷ lệ thâm nhập cross-sell)</span></span><span class="field-val" id="v-attach"></span></div>
+      <input type="range" id="r-attach" min="0" max="60" step="1">
+    </div>
+    <div class="field">
+      <div class="field-top"><span class="field-name">AOV cross-sell <span class="hint">(triệu/đơn)</span></span><span class="field-val" id="v-aovcross"></span></div>
+      <input type="range" id="r-aovcross" min="0.5" max="6" step="0.1">
+    </div>
+
+    <div class="note" style="border-color:var(--amber)"><b style="color:var(--amber)">[GIẢ ĐỊNH]</b> Các số seed ban đầu (lead 200, CR 20%, khách hiện hữu 120, attach 15%, AOV cross 1tr) là tạm — chỉnh theo số thật của bạn. Nhánh gia hạn (C1 20%, C2 55%, tới hạn 60, AOV 2) theo số đã chốt.</div>
+  </div>
+
+  <div class="divider" id="divider" title="Kéo để chỉnh độ rộng"></div>
+
+  <div class="panel" id="panelRight">
+    <div class="flow-block">
+      <div class="cb-head">
+        <h4 id="cbTitle" style="margin:0">Doanh thu eShop 2027 = Bán mới + Gia hạn + Cross-sell</h4>
+        <span class="verdict" id="cbVerdict"></span>
+      </div>
+      <div class="chain">
+        <div class="chain-node hl">① Bán mới<b id="cn-moi">—</b></div>
+        <div class="chain-arrow">＋</div>
+        <div class="chain-node hl">② Gia hạn<b id="cn-gh">—</b></div>
+        <div class="chain-arrow">＋</div>
+        <div class="chain-node hl">③ Cross-sell<b id="cn-cross">—</b></div>
+        <div class="chain-arrow">=</div>
+        <div class="chain-node hl" style="border-color:var(--gold)">Tổng doanh thu<b id="cn-tong">—</b></div>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="proj-block">
+      <div class="calc-head">
+        <h4 id="calcTitle">Bảng tính chi tiết — 3 nhánh doanh thu</h4>
+      </div>
+      <div id="calcTable"></div>
+    </div>
+
+    <!-- Thẻ hướng cải thiện định tính (kéo từ cây mind map) -->
+    <div class="proj-block" id="qualCard">
+      <div class="calc-head"><h4>Hướng cải thiện C2 (rời bỏ kỹ thuật) — tầng định tính</h4></div>
+      <div class="qual-body" id="qualBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW: BẢN ĐỒ CHIẾN LƯỢC (tab riêng) -->
+<div class="strategy-view" id="wsStrategy" style="display:none">
+  <div class="mm-toolbar">
+    <div class="mm-tb-left">
+      <span class="mm-title">Bản đồ chiến lược</span>
+      <span class="mm-ver-label" id="mmVerLabel">—</span>
+      <span class="mm-save-state" id="mmSaveState"></span>
+    </div>
+    <div class="mm-tb-right">
+      <button class="btn btn-sm" id="mmUndo" disabled>↩ Hoàn tác</button>
+      <button class="btn btn-sm" id="mmSaveNow" title="Lưu ngay vào bộ nhớ trình duyệt">💾 Lưu ngay</button>
+      <button class="btn btn-sm" id="mmCollapseAll" title="Thu tất cả nhánh, chỉ còn các nhánh chính">⊟ Thu hết</button>
+      <button class="btn btn-sm" id="mmExpandAll" title="Mở tất cả nhánh">⊞ Mở hết</button>
+      <button class="btn btn-sm" id="mmAddNode" title="Thêm nhân tố mới vào node đang chọn">+ Nhân tố</button>
+      <button class="btn btn-sm" id="mmVersions">Phiên bản ▾</button>
+      <button class="btn btn-sm" id="mmExport">Xuất file</button>
+      <button class="btn btn-sm" id="mmImport">Nhập file</button>
+      <button class="btn btn-sm" id="mmRegen" title="Dựng lại cây gốc từ mô hình (mất node thêm tay)">Dựng lại từ mô hình</button>
+    </div>
+  </div>
+  <div class="mm-body" id="mmWorkspace">
+    <button class="panel-toggle" id="mmPanelToggle" title="Ẩn/hiện bảng biên tập">◀</button>
+    <div class="mm-inspector" id="mmInspector">
+      <div class="mm-insp-empty" id="mmInspEmpty">Bấm một nhân tố để xem &amp; sửa.<br><br>Di chuột lên node để hiện nút thêm con. Kéo node thả vào node khác để đổi quan hệ.</div>
+      <div id="mmInspBody" style="display:none">
+        <div class="mm-field">
+          <label>Tên nhân tố</label>
+          <input type="text" class="num-input" id="mmName">
+        </div>
+        <div class="mm-field">
+          <label>Chỉ số <span class="hint">(hiện trong box — vd "47%", "20 tỷ", "NPS 30")</span></label>
+          <input type="text" class="num-input" id="mmMetric" placeholder="để trống nếu chưa có số">
+        </div>
+        <div class="mm-field">
+          <label>Nhóm (khối chức năng)</label>
+          <div class="mm-dom-row" id="mmDomRow"></div>
+        </div>
+        <div class="mm-field">
+          <label>Ghi chú <span class="hint">(cho thảo luận)</span></label>
+          <textarea class="num-input" id="mmNote" rows="3" style="resize:vertical"></textarea>
+        </div>
+        <div class="mm-field">
+          <label>Nguồn gốc</label>
+          <div class="mm-origin" id="mmOrigin"></div>
+        </div>
+        <div class="mm-field">
+          <label>Đánh dấu</label>
+          <button class="btn btn-sm" id="mmStar" style="width:100%">☆ Nhân tố quan trọng</button>
+        </div>
+        <div class="mm-insp-actions">
+          <button class="btn btn-sm" id="mmAddChild">+ Thêm con</button>
+          <button class="btn btn-sm" id="mmDup">Nhân bản</button>
+          <button class="btn btn-sm mm-del" id="mmDel">Xóa</button>
+        </div>
+      </div>
+    </div>
+    <div class="divider" id="mmDivider" title="Kéo để chỉnh độ rộng"></div>
+    <div class="mm-canvas" id="mmCanvas">
+      <svg id="mmSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+  <div class="mm-hint-bar">Màu: <b style="color:#8fb3e8">Tài chính</b> · <b style="color:#d4af6a">Vận hành</b> · <b style="color:#4fd1c5">Khách hàng</b> — node viền đứt = thêm tay · chỉ số hiện trong box · kéo để đổi cấu trúc · nút tròn ± thu/mở nhánh</div>
+</div>
+
+<!-- versions dropdown -->
+<div class="mm-ver-panel" id="mmVerPanel" style="display:none">
+  <div class="mm-ver-head">Phiên bản đã lưu <span id="mmVerClose" style="float:right;cursor:pointer;color:var(--text-dim);font-size:14px;line-height:1">✕</span></div>
+  <div class="mm-ver-status" id="mmVerStatus"></div>
+  <div id="mmVerList"></div>
+  <div class="mm-ver-new">
+    <input type="text" class="num-input" id="mmVerNewName" placeholder="Tên phiên bản mới…">
+    <button class="btn btn-sm btn-primary-mm" id="mmVerSaveNew">Lưu mới</button>
+  </div>
+  <div class="mm-ver-io">
+    <button class="btn btn-sm" id="mmVerExport">⭳ Xuất tất cả ra file</button>
+    <button class="btn btn-sm" id="mmVerImport">⭱ Nhập từ file</button>
+  </div>
+  <div class="mm-ver-hint">Bản lưu gắn với <b>đúng file HTML này</b> trên máy. Khi mình giao bản HTML mới, hãy <b>Xuất</b> ở file cũ rồi <b>Nhập</b> vào file mới để mang bản lưu qua — tránh mất dữ liệu.</div>
+</div>
+
+<script>
+'use strict';
+const APP_VERSION='v4.4';
+const RELEASE_SCOPE='Fix lưu: thử ghi thật mỗi lần (không khóa cứng khi 1 lần lỗi) · nút Lưu ngay có phản hồi rõ';
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const survival=(m,K)=>Math.pow(1-m,K);
+
+/* ===== STATE: mô hình 3 nhánh doanh thu (spec Mức 1) ===== */
+// ⚠ Số [GIẢ ĐỊNH] — user sửa sau. Nhánh gia hạn theo số đã chốt.
+const MODEL = {
+  // ① bán mới
+  lead: 200,        // [GIẢ ĐỊNH] nghìn
+  crPct: 20,        // [GIẢ ĐỊNH] %
+  womMoi: 0,        // WOM nhập tay (chốt 0)
+  aovMoi: 2,        // [GIẢ ĐỊNH] triệu
+  // ② gia hạn (đã chốt)
+  toihan: 60,       // nghìn
+  c1: 20,           // %
+  c2: 55,           // %
+  aovGh: 2,         // triệu
+  // ③ cross-sell
+  hienhuu: 120,     // [GIẢ ĐỊNH] nghìn
+  attach: 15,       // [GIẢ ĐỊNH] %
+  aovCross: 1       // [GIẢ ĐỊNH] triệu
+};
+const DEFAULTS = JSON.parse(JSON.stringify(MODEL));
+
+/* ===== MODEL: tính xuôi 3 nhánh ===== */
+function compute(m){
+  // ① bán mới
+  const khMoi = m.lead*(m.crPct/100) + m.womMoi;
+  const dtMoi = khMoi * m.aovMoi;
+  // ② gia hạn: tỷ lệ = 1 - C1 - C2 (chặn ≥0)
+  const tyLeGh = Math.max(0, 1 - m.c1/100 - m.c2/100);
+  const khGh = m.toihan * tyLeGh;
+  const dtGh = khGh * m.aovGh;
+  // ③ cross-sell
+  const khCross = m.hienhuu*(m.attach/100);
+  const dtCross = khCross * m.aovCross;
+  const dtTong = dtMoi + dtGh + dtCross;
+  return {khMoi,dtMoi, tyLeGh,khGh,dtGh, khCross,dtCross, dtTong};
+}
+
+/* ===== STATUS PILL ===== */
+let pillT=null;
+function pill(msg,kind){
+  const p=document.getElementById('statusPill');
+  p.textContent=msg; p.className='status-pill show '+(kind||'ok');
+  clearTimeout(pillT); pillT=setTimeout(()=>p.className='status-pill',4000);
+}
+
+/* ===== PRODUCT TABS ===== */
+/* ===== INPUTS (bind slider → MODEL → render) ===== */
+function bindR(id, key, fmt){
+  const el=document.getElementById(id); if(!el) return;
+  el.addEventListener('input', e=>{ MODEL[key]=Number(e.target.value); render(); });
+}
+function fmtK(x){ return x.toFixed(1)+'K'; }
+function fmtT(x){ return x.toFixed(0)+' tỷ'; }
+function fmtPct(x){ return (x*100).toFixed(0)+'%'; }
+
+function setR(id,val,min,max){ const el=document.getElementById(id); if(!el)return; el.value=val; el.style.setProperty('--fill', ((val-min)/(max-min)*100)+'%'); }
+function syncInputs(){
+  const m=MODEL;
+  setR('r-lead',m.lead,0,500);       document.getElementById('v-lead').textContent=m.lead+'K';
+  setR('r-cr',m.crPct,0,60);         document.getElementById('v-cr').textContent=m.crPct+'%';
+  setR('r-wommoi',m.womMoi,0,100);   document.getElementById('v-wommoi').textContent=m.womMoi+'K';
+  setR('r-aovmoi',m.aovMoi,0.5,6);   document.getElementById('v-aovmoi').textContent=m.aovMoi.toFixed(1)+' tr';
+  setR('r-toihan',m.toihan,0,200);   document.getElementById('v-toihan').textContent=m.toihan+'K';
+  setR('r-c1',m.c1,0,60);            document.getElementById('v-c1').textContent=m.c1+'%';
+  setR('r-c2',m.c2,0,80);            document.getElementById('v-c2').textContent=m.c2+'%';
+  setR('r-aovgh',m.aovGh,0.5,6);     document.getElementById('v-aovgh').textContent=m.aovGh.toFixed(1)+' tr';
+  setR('r-hienhuu',m.hienhuu,0,400); document.getElementById('v-hienhuu').textContent=m.hienhuu+'K';
+  setR('r-attach',m.attach,0,60);    document.getElementById('v-attach').textContent=m.attach+'%';
+  setR('r-aovcross',m.aovCross,0.5,6);document.getElementById('v-aovcross').textContent=m.aovCross.toFixed(1)+' tr';
+  const tyle=Math.max(0,1-m.c1/100-m.c2/100);
+  const tr=document.getElementById('tyleReadout'); if(tr) tr.textContent='Tỷ lệ gia hạn hiện tại = '+(tyle*100).toFixed(0)+'%.';
+}
+function bindInputs(){
+  bindR('r-lead','lead'); bindR('r-cr','crPct'); bindR('r-wommoi','womMoi'); bindR('r-aovmoi','aovMoi');
+  bindR('r-toihan','toihan'); bindR('r-c1','c1'); bindR('r-c2','c2'); bindR('r-aovgh','aovGh');
+  bindR('r-hienhuu','hienhuu'); bindR('r-attach','attach'); bindR('r-aovcross','aovCross');
+}
+
+/* ===== RENDER ===== */
+function render(){
+  syncInputs();
+  const m=MODEL, r=compute(m);
+  // chuỗi tổng hợp
+  document.getElementById('cn-moi').textContent=fmtT(r.dtMoi);
+  document.getElementById('cn-gh').textContent=fmtT(r.dtGh);
+  document.getElementById('cn-cross').textContent=fmtT(r.dtCross);
+  document.getElementById('cn-tong').textContent=fmtT(r.dtTong);
+  document.getElementById('cbVerdict').className='verdict ok';
+  document.getElementById('cbVerdict').textContent='3 nhánh';
+  // KPI
+  const kpis=[
+    {k:'Tổng doanh thu 2027 (tỷ)', v:r.dtTong.toFixed(0)},
+    {k:'Bán mới (tỷ)', v:r.dtMoi.toFixed(0)},
+    {k:'Gia hạn (tỷ)', v:r.dtGh.toFixed(0)},
+    {k:'Cross-sell (tỷ)', v:r.dtCross.toFixed(0)}
+  ];
+  document.getElementById('kpiRow').innerHTML=kpis.map(k=>'<div class="kpi"><div class="k">'+k.k+'</div><div class="v">'+k.v+'</div></div>').join('');
+  buildCalcTable(m,r);
+  buildQualCard();
+}
+
+/* ===== BẢNG TÍNH CHI TIẾT 3 NHÁNH ===== */
+function buildCalcTable(m,r){
+  const R=[];
+  R.push(['section','① DOANH THU BÁN MỚI','','']);
+  R.push(['row','Lượng lead',fmtK(m.lead),'[GIẢ ĐỊNH]']);
+  R.push(['row','× Tỷ lệ chuyển đổi CR%',m.crPct+'%','[GIẢ ĐỊNH]']);
+  R.push(['row','+ Khách truyền miệng',fmtK(m.womMoi),'nhập tay (WOM→NPS định tính)']);
+  R.push(['result','= Số khách mới',fmtK(r.khMoi),'']);
+  R.push(['row','× AOV bán mới',m.aovMoi.toFixed(1)+' tr','[GIẢ ĐỊNH]']);
+  R.push(['result','= Doanh thu bán mới',fmtT(r.dtMoi),'']);
+
+  R.push(['section','② DOANH THU GIA HẠN','','']);
+  R.push(['row','Số khách tới hạn',fmtK(m.toihan),'nghìn']);
+  R.push(['row','× Tỷ lệ gia hạn = 1 − C1 − C2',(r.tyLeGh*100).toFixed(0)+'%','C1='+m.c1+'% (tự nhiên), C2='+m.c2+'% (kỹ thuật)']);
+  R.push(['result','= Số khách gia hạn',fmtK(r.khGh),'']);
+  R.push(['row','× AOV gia hạn',m.aovGh.toFixed(1)+' tr','']);
+  R.push(['result','= Doanh thu gia hạn',fmtT(r.dtGh),'']);
+
+  R.push(['section','③ DOANH THU CROSS-SELL','','']);
+  R.push(['row','Số khách hiện hữu',fmtK(m.hienhuu),'[GIẢ ĐỊNH]']);
+  R.push(['row','× Attach rate',m.attach+'%','[GIẢ ĐỊNH] tỷ lệ thâm nhập']);
+  R.push(['result','= Số khách cross-sell',fmtK(r.khCross),'']);
+  R.push(['row','× AOV cross-sell',m.aovCross.toFixed(1)+' tr','[GIẢ ĐỊNH]']);
+  R.push(['result','= Doanh thu cross-sell',fmtT(r.dtCross),'']);
+
+  R.push(['section','TỔNG HỢP','','']);
+  R.push(['final','= Tổng doanh thu eShop 2027',fmtT(r.dtTong),fmtT(r.dtMoi)+' + '+fmtT(r.dtGh)+' + '+fmtT(r.dtCross)]);
+
+  const html='<table class="calc-table"><tbody>'+R.map(([cls,label,val,src])=>{
+    if(cls==='section') return '<tr class="ct-section"><td colspan="3">'+label+'</td></tr>';
+    const rowcls = cls==='row' ? '' : (' class="ct-'+cls+'"');
+    return '<tr'+rowcls+'><td class="ct-label">'+label+'</td><td class="ct-val">'+val+'</td><td class="ct-src">'+(src||'')+'</td></tr>';
+  }).join('')+'</tbody></table>';
+  document.getElementById('calcTable').innerHTML=html;
+  document.getElementById('calcTitle').textContent='Bảng tính chi tiết 2027 — 3 nhánh doanh thu eShop';
+}
+
+/* ===== THẺ HƯỚNG CẢI THIỆN ĐỊNH TÍNH (kéo từ cây mind map) ===== */
+function buildQualCard(){
+  const body=document.getElementById('qualBody'); if(!body) return;
+  body.innerHTML=
+    '<p class="qual-lead">C2 (rời bỏ kỹ thuật) là biến số bạn kéo trong mô hình. Nhưng <b>kéo được xuống hay không phụ thuộc tầng định tính dưới đây</b> — đây là đường dẫn khái niệm từ bản đồ chiến lược, không phải công thức số.</p>'+
+    '<div class="qual-tree">'+
+      '<div class="qual-node">C2 — rời bỏ kỹ thuật (55% → mục tiêu 30%)'+
+        '<div class="qual-kids">'+
+          '<div class="qual-item">3 lý do rời bỏ top: <i>có sp tốt/rẻ hơn · chuyển đối thủ · mua chưa dùng</i></div>'+
+          '<div class="qual-node">← cải thiện qua NPS (chỉ số thiện cảm)'+
+            '<div class="qual-kids">'+
+              '<div class="qual-item">Giá trị sản phẩm</div>'+
+              '<div class="qual-item">Trải nghiệm sử dụng</div>'+
+              '<div class="qual-item">Hướng dẫn sử dụng ban đầu</div>'+
+              '<div class="qual-item">Dịch vụ / Support</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<p class="qual-note">Muốn C2 từ 55% → 30%: tác động 4 root-cause của NPS ở trên. Quan hệ NPS→C2 là <b>định tính</b> — không có hệ số cố định, nên mô hình để bạn nhập C2 trực tiếp theo mục tiêu, còn cây này chỉ ra <i>làm gì để đạt được</i>.</p>';
+}
+
+
+/* ===== THEME / RESET ===== */
+let theme='dark';
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  theme=theme==='dark'?'light':'dark';
+  const btn=document.getElementById('themeBtn');
+  if(theme==='light'){ document.documentElement.setAttribute('data-theme','light'); btn.textContent='🌙 Tối'; }
+  else { document.documentElement.removeAttribute('data-theme'); btn.textContent='☀ Sáng'; }
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  Object.keys(DEFAULTS).forEach(k=>{ MODEL[k]=DEFAULTS[k]; });
+  syncInputs(); render();
+  pill('Đã reset về giả định mặc định','warn');
+});
+
+/* ===== BIND ===== */
+bindInputs();
+
+/* =========================================================
+   MIND MAP BUILDER — Bản đồ chiến lược (kéo thả, thêm node tay)
+   ========================================================= */
+const MM_LS_KEY = 'gpbl_strategy_map_v1';
+// KHÔNG khóa cứng khả năng lưu bằng 1 lần test lúc load — thử thật mỗi lần lưu.
+let mmLSok = true;  // trạng thái hiển thị gần nhất; cập nhật theo kết quả lưu thực tế
+function mmLSTest(){ try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); return true; }catch(e){ return false; } }
+mmLSok = mmLSTest();
+
+// Khối chức năng (nhóm) — 3 domain: Tài chính / Vận hành / Khách hàng
+const MM_DOMAINS = [
+  {id:'fin',  name:'Tài chính',  color:'#8fb3e8'},
+  {id:'ops',  name:'Vận hành',   color:'#d4af6a'},
+  {id:'cust', name:'Khách hàng', color:'#4fd1c5'},
+  {id:'none', name:'Chưa phân',  color:'#7a8699'}
+];
+function mmDomColor(id){ const d=MM_DOMAINS.find(x=>x.id===id); return d?d.color:'#7a8699'; }
+function mmDomName(id){ const d=MM_DOMAINS.find(x=>x.id===id); return d?d.name:'Chưa phân'; }
+
+let mmNid=1; const mkId=()=>'n'+(mmNid++);
+// origin: 'model' (tự sinh từ mô hình) | 'manual' (thêm tay)
+// metric: chỉ số hiển thị trong box (tự do, vd "47%", "20 tỷ", "NPS 30")
+function mmNode(title, domain, origin, metric){
+  return {id:mkId(), title, domain:domain||'none', origin:origin||'manual', metric:metric||'', note:'', collapsed:false, kids:[]};
+}
+// Cây gốc tự sinh từ cấu trúc mô hình số hiện tại — gán 3 domain mới
+function mmGenerateFromModel(){
+  const root = mmNode('Doanh thu','fin','model');
+  const due = mmNode('Khách tới hạn','cust','model','pool đến hạn');
+  due.kids = [
+    mmNode('Lịch sử mua 2023–25','fin','model','sinh pool đến hạn'),
+    mmNode('Kỳ hạn gói','fin','model','dài → rời ngành ↑'),
+    mmNode('Tỷ lệ rời ngành (tệp khách)','cust','model','định trần giữ chân')
+  ];
+  const ret = mmNode('Giữ chân (gross)','cust','model','= f(NPS), chặn trần');
+  const nps = mmNode('NPS','cust','model','cửa vào giữ chân');
+  nps.kids = [ mmNode('CSAT — mức hài lòng','cust','model','nuôi NPS'), mmNode('Cảm nhận sản phẩm','cust','model','eShop/Cukcuk') ];
+  ret.kids = [ nps ];
+  const aov = mmNode('Giá trị đơn (AOV)','fin','model','cố định trong mô hình');
+  const acq = mmNode('Khách mới','cust','model');
+  acq.kids = [
+    mmNode('Ngân sách thu hút','fin','model','÷ CAC hiệu dụng'),
+    mmNode('Hiệu suất kênh','ops','model','đội bán hàng + lead'),
+    mmNode('Truyền miệng (WOM)','cust','model','NPS cao → khách miễn phí')
+  ];
+  root.kids = [due, ret, aov, acq];
+  return [root];
+}
+
+// State cây hiện hành + phiên bản
+let mmRoots = mmGenerateFromModel();
+let mmSel = null;
+let mmVersions = [];      // [{id,name,roots,updated}]
+let mmCurVerId = null;
+let mmDirty = false;
+
+/* ---- UNDO STACK (chuẩn Workbench: ≥40 bước, snapshot trước mọi mutation) ---- */
+const MM_UNDO_MAX = 60;
+let mmUndoStack = [];
+function mmSnapshot(){
+  mmUndoStack.push(JSON.stringify({roots:mmRoots, sel:mmSel}));
+  if(mmUndoStack.length > MM_UNDO_MAX) mmUndoStack.shift();
+  mmUpdateUndoBtn();
+}
+function mmUndo(){
+  if(!mmUndoStack.length){ pill('Không còn gì để hoàn tác','warn'); return; }
+  const snap = JSON.parse(mmUndoStack.pop());
+  mmRoots = snap.roots; mmSel = snap.sel;
+  mmSaveSession(); mmRender(); mmUpdateUndoBtn();
+  pill('Đã hoàn tác','ok');
+}
+function mmUpdateUndoBtn(){
+  const b=document.getElementById('mmUndo'); if(!b) return;
+  b.disabled = mmUndoStack.length===0;
+  b.textContent = '↩ Hoàn tác'+(mmUndoStack.length?' ('+mmUndoStack.length+')':'');
+}
+
+/* ---- persistence ---- */
+function mmSerialize(){ return {roots:mmRoots, sel:mmSel}; }
+function mmSaveSession(){
+  // auto-save vào phiên bản đang mở (nếu có) + localStorage
+  mmDirty=true; mmUpdateSaveState();
+  if(mmCurVerId){
+    const v=mmVersions.find(x=>x.id===mmCurVerId);
+    if(v){ v.roots=JSON.parse(JSON.stringify(mmRoots)); v.updated=Date.now(); }
+  }
+  mmPersist();
+}
+function mmPersist(){
+  // LUÔN thử ghi thật — không bỏ qua vì một lần trước đó thất bại
+  try{
+    localStorage.setItem(MM_LS_KEY, JSON.stringify({versions:mmVersions, curId:mmCurVerId, working:mmRoots, nid:mmNid}));
+    mmDirty=false; mmLSok=true; mmUpdateSaveState();
+    return true;
+  }catch(e){
+    mmLSok=false; mmUpdateSaveState();
+    return false;
+  }
+}
+function mmLoadLS(){
+  if(!mmLSTest()){ mmLSok=false; return false; }
+  mmLSok=true;
+  try{
+    const raw=localStorage.getItem(MM_LS_KEY); if(!raw) return false;
+    const o=JSON.parse(raw);
+    mmVersions=o.versions||[]; mmCurVerId=o.curId||null; mmNid=o.nid||mmNid;
+    mmRoots = o.working || (mmCurVerId && mmVersions.find(v=>v.id===mmCurVerId)?.roots) || mmGenerateFromModel();
+    return true;
+  }catch(e){ return false; }
+}
+function mmUpdateSaveState(){
+  const el=document.getElementById('mmSaveState'); if(!el) return;
+  const vl=document.getElementById('mmVerLabel');
+  const v=mmVersions.find(x=>x.id===mmCurVerId);
+  if(vl) vl.textContent = v ? ('Phiên bản: '+v.name) : 'Chưa đặt tên phiên bản';
+  if(!mmLSok){ el.textContent='⚠ trình duyệt chặn lưu — hãy Xuất file'; el.style.color='var(--amber)'; return; }
+  el.textContent = mmDirty ? 'đang lưu…' : '✓ đã lưu tự động';
+  el.style.color = 'var(--text-faint)';
+}
+
+/* ---- tree ops ---- */
+function mmFind(id, list){ list=list||mmRoots; for(const n of list){ if(n.id===id) return n; const r=mmFind(id,n.kids); if(r) return r; } return null; }
+function mmParent(id, list){ list=list||mmRoots; for(const n of list){ if(n.kids.some(k=>k.id===id)) return n; const r=mmParent(id,n.kids); if(r) return r; } return null; }
+function mmIsDesc(ancId, id){ const a=mmFind(ancId); if(!a) return false; let f=false; const rec=l=>l.forEach(x=>{ if(x.id===id)f=true; rec(x.kids); }); rec(a.kids); return f; }
+function mmMove(dragId, dropId){
+  if(dragId===dropId) return {ok:false,msg:'Không thể thả vào chính nó'};
+  if(mmIsDesc(dragId,dropId)) return {ok:false,msg:'Không thể thả vào node con của nó'};
+  const n=mmFind(dragId), oldP=mmParent(dragId);
+  if(oldP) oldP.kids=oldP.kids.filter(k=>k.id!==dragId); else mmRoots=mmRoots.filter(k=>k.id!==dragId);
+  const newP=mmFind(dropId); newP.kids.push(n); newP.collapsed=false; return {ok:true};
+}
+function mmAddChild(pid){ mmSnapshot(); const p=mmFind(pid); const c=mmNode('Nhân tố mới','none','manual'); p.kids.push(c); p.collapsed=false; mmSel=c.id; mmSaveSession(); mmRender(); }
+function mmDup(id){ mmSnapshot(); const n=mmFind(id), p=mmParent(id); const copy=JSON.parse(JSON.stringify(n));
+  const reid=x=>{ x.id=mkId(); x.origin='manual'; x.kids.forEach(reid); }; reid(copy); copy.title=n.title+' (sao)';
+  if(p) p.kids.push(copy); else mmRoots.push(copy); mmSel=copy.id; mmSaveSession(); mmRender(); }
+function mmDel(id){ mmSnapshot(); const p=mmParent(id);
+  if(p) p.kids=p.kids.filter(k=>k.id!==id); else mmRoots=mmRoots.filter(k=>k.id!==id);
+  mmSel=null; mmSaveSession(); mmRender(); }
+
+/* ---- layout + render ---- */
+const MM_NW_MIN=150, MM_NW_MAX=280, MM_HGAP=56, MM_VGAP=16;
+const MM_CHAR_W=7.0;      // ước lượng bề rộng ký tự tên (px) ở font 12px
+const MM_PAD_X=26;         // padding trái+phải trong box
+// đo kích thước box theo nội dung: bề rộng vừa tên/chỉ số (kẹp min/max), cao thêm nếu tên xuống 2 dòng
+function mmNodeSize(n){
+  const title=String(n.title||'');
+  const metric=n.metric||n.sub||'';
+  const star=!!n.star;
+  const reserveRight = star ? 22 : 0;          // chừa chỗ dấu sao
+  // bề rộng lý tưởng theo tên
+  const wTitle = title.length*MM_CHAR_W + MM_PAD_X + reserveRight;
+  const wMetric = metric ? (metric.length*6.0 + MM_PAD_X) : 0;
+  let w = Math.max(wTitle, wMetric);
+  w = Math.max(MM_NW_MIN, Math.min(MM_NW_MAX, w));
+  // số ký tự vừa 1 dòng ở bề rộng w
+  const charsPerLine = Math.floor((w - MM_PAD_X - reserveRight)/MM_CHAR_W);
+  const twoLine = title.length > charsPerLine;   // cần 2 dòng
+  n._titleLines = twoLine ? mmWrap(title, charsPerLine) : [title];
+  n._w = w;
+  // chiều cao: 1 dòng tên = 48; 2 dòng = 62; + chỗ chỉ số đã nằm trong
+  const base = metric ? 48 : 40;
+  n._h2 = (n._titleLines.length>1 ? base+14 : base);
+  return n;
+}
+// tách tên thành tối đa 2 dòng theo số ký tự/dòng, cắt "…" nếu vượt
+function mmWrap(s, cpl){
+  const words=s.split(' '); const lines=['']; 
+  for(const w of words){
+    const test=(lines[lines.length-1]?lines[lines.length-1]+' ':'')+w;
+    if(test.length<=cpl){ lines[lines.length-1]=test; }
+    else if(lines.length<2){ lines.push(w); }
+    else { // dòng 2 đã đầy → cắt
+      lines[1]=lines[1].slice(0, Math.max(0,cpl-1))+'…'; return lines;
+    }
+  }
+  if(lines.length>2) return [lines[0], lines[1].slice(0,cpl-1)+'…'];
+  return lines;
+}
+function mmMeasure(n){ mmNodeSize(n); if(n.collapsed||!n.kids.length){ n._h=n._h2; return n._h; } let h=0; n.kids.forEach(k=>h+=mmMeasure(k)+MM_VGAP); h-=MM_VGAP; n._h=Math.max(h,n._h2); return n._h; }
+function mmLayout(n,x,yTop){ n._x=x; n._y=yTop+n._h/2-n._h2/2; if(n.collapsed||!n.kids.length) return; let cy=yTop; n.kids.forEach(k=>{ mmLayout(k,x+n._w+MM_HGAP,cy); cy+=k._h+MM_VGAP; }); }
+function mmEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function mmTrim(s,n){ s=String(s); return s.length>n?s.slice(0,n-1)+'…':s; }
+function mmRender(){
+  const svg=document.getElementById('mmSvg'); if(!svg) return;
+  let cy=0; mmRoots.forEach(r=>{ mmMeasure(r); mmLayout(r,0,cy); cy+=r._h+MM_VGAP; });
+  let maxX=0,maxY=0; const scan=l=>l.forEach(n=>{ if(n._x+n._w>maxX)maxX=n._x+n._w; if(n._y+n._h2>maxY)maxY=n._y+n._h2; if(!n.collapsed)scan(n.kids); }); scan(mmRoots);
+  svg.setAttribute('width',maxX+40); svg.setAttribute('height',Math.max(maxY+40,200));
+  svg.setAttribute('viewBox','-10 -10 '+(maxX+50)+' '+(maxY+50));
+  let edges='',nodes='';
+  const visit=fn=>{ const rec=l=>l.forEach(n=>{ fn(n); if(!n.collapsed)rec(n.kids); }); rec(mmRoots); };
+  visit(n=>{ if(!n.collapsed) n.kids.forEach(k=>{ const x1=n._x+n._w,y1=n._y+n._h2/2,x2=k._x,y2=k._y+k._h2/2,mx=(x1+x2)/2;
+    edges+='<path class="mm-edge" d="M'+x1+','+y1+' C'+mx+','+y1+' '+mx+','+y2+' '+x2+','+y2+'"/>'; }); });
+  visit(n=>{
+    const c=mmDomColor(n.domain), sel=n.id===mmSel, manual=n.origin==='manual', star=!!n.star;
+    const fillBg = manual ? c+'33' : c+'55';
+    const stroke = c;
+    const metric = n.metric || n.sub || '';
+    const W=n._w, H=n._h2, cyMid=n._y+H/2;
+    const twist = n.kids.length ? '<g class="mm-twist" data-twist="'+n.id+'"><circle cx="'+(n._x-2)+'" cy="'+cyMid+'" r="8" fill="var(--card)" stroke="'+c+'" stroke-width="1.4"/><text x="'+(n._x-2)+'" y="'+(cyMid+4)+'" text-anchor="middle" font-size="12" fill="'+c+'">'+(n.collapsed?'+':'–')+'</text><circle cx="'+(n._x-2)+'" cy="'+cyMid+'" r="13" fill="transparent"/></g>' : '';
+    const addDot = '<g class="mm-add-dot" data-add="'+n.id+'"><circle cx="'+(n._x+W)+'" cy="'+cyMid+'" r="9" fill="var(--gold)"/><text x="'+(n._x+W)+'" y="'+(cyMid+4)+'" text-anchor="middle" font-size="13" fill="var(--bg0)" style="pointer-events:none">+</text></g>';
+    // tên: 1 hoặc 2 dòng
+    const lines=n._titleLines||[n.title];
+    const twoLine=lines.length>1;
+    const titleTop = metric ? (twoLine? n._y+16 : n._y+20) : (twoLine? n._y+20 : n._y+H/2+4);
+    let titleEl='';
+    lines.forEach((ln,i)=>{ titleEl+='<text class="ntext" x="'+(n._x+13)+'" y="'+(titleTop+i*15)+'" fill="var(--text)">'+mmEsc(ln)+'</text>'; });
+    // chỉ số dưới cùng
+    const metricY = n._y+H-13;
+    const metricEl = metric
+      ? '<g><rect x="'+(n._x+11)+'" y="'+(metricY-11)+'" width="'+Math.min(W-22, 10+metric.length*6.0)+'" height="14" rx="4" fill="var(--card)" opacity="0.72"/>'+
+        '<text class="nmetric" x="'+(n._x+15)+'" y="'+(metricY)+'" fill="var(--text)" style="font-weight:600">'+mmEsc(mmTrim(metric,38))+'</text></g>'
+      : '';
+    const starEl = star ? '<text class="nstar" x="'+(n._x+W-13)+'" y="'+(n._y+17)+'" text-anchor="middle">★</text>' : '';
+    nodes+='<g class="mm-node'+(sel?' sel':'')+(manual?' manual':'')+(star?' star':'')+'" data-id="'+n.id+'">'+
+      '<rect class="nrect" x="'+n._x+'" y="'+n._y+'" width="'+W+'" height="'+H+'" fill="'+fillBg+'" stroke="'+stroke+'"/>'+
+      titleEl + metricEl + starEl + twist + addDot + '</g>';
+  });
+  svg.innerHTML=edges+nodes;
+  mmWireNodes(svg);
+  mmRenderInspector();
+  mmUpdateSaveState();
+}
+
+/* ---- interaction: click, twist, add, drag ---- */
+let mmDragId=null;
+function mmWireNodes(svg){
+  svg.querySelectorAll('.mm-twist').forEach(g=>{
+    // dùng mousedown + chặn lan để node không nuốt sự kiện rồi re-render mất nút
+    g.addEventListener('mousedown',e=>{ e.stopPropagation(); e.preventDefault(); mmSnapshot(); const n=mmFind(g.dataset.twist); n.collapsed=!n.collapsed; mmSaveSession(); mmRender(); });
+  });
+  svg.querySelectorAll('.mm-add-dot').forEach(g=>{
+    g.addEventListener('mousedown',e=>{ e.stopPropagation(); e.preventDefault(); mmAddChild(g.dataset.add); });
+  });
+  svg.querySelectorAll('.mm-node').forEach(g=>{
+    g.addEventListener('mousedown',e=>{
+      if(e.button!==0) return;
+      // nếu bấm trúng nút thu/mở hoặc thêm-con thì để chúng tự xử lý
+      if(e.target.closest && (e.target.closest('.mm-twist')||e.target.closest('.mm-add-dot'))) return;
+      const id=g.dataset.id; let moved=false; const sx=e.clientX, sy=e.clientY;
+      const onMove=ev=>{ if(!moved && (Math.abs(ev.clientX-sx)>5||Math.abs(ev.clientY-sy)>5)){ moved=true; mmDragId=id; document.body.classList.add('mm-dragging'); } };
+      const onUp=ev=>{
+        window.removeEventListener('mousemove',onMove); window.removeEventListener('mouseup',onUp);
+        document.body.classList.remove('mm-dragging');
+        if(moved && mmDragId){
+          const tgt=document.elementFromPoint(ev.clientX,ev.clientY);
+          const box=tgt&&tgt.closest?tgt.closest('.mm-node'):null;
+          if(box && box.dataset.id!==mmDragId){ mmSnapshot(); const r=mmMove(mmDragId,box.dataset.id); if(r.ok){ mmSaveSession(); mmRender(); pill('Đã chuyển nhánh','ok'); } else { mmUndoStack.pop(); mmUpdateUndoBtn(); pill(r.msg,'warn'); } }
+        } else { mmSel=id; mmSaveSession(); mmRender(); }
+        mmDragId=null;
+      };
+      window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
+    });
+  });
+}
+
+/* ---- inspector ---- */
+function mmRenderInspector(){
+  const empty=document.getElementById('mmInspEmpty'), body=document.getElementById('mmInspBody');
+  if(!mmSel || !mmFind(mmSel)){ empty.style.display=''; body.style.display='none'; return; }
+  empty.style.display='none'; body.style.display='';
+  const n=mmFind(mmSel);
+  document.getElementById('mmName').value=n.title;
+  document.getElementById('mmMetric').value = n.metric || n.sub || '';
+  document.getElementById('mmNote').value=n.note||'';
+  document.getElementById('mmDomRow').innerHTML=MM_DOMAINS.map(d=>
+    '<span class="mm-dom-chip'+(n.domain===d.id?' on':'')+'" data-dom="'+d.id+'"><span class="dc-dot" style="background:'+d.color+'"></span>'+d.name+'</span>').join('');
+  document.getElementById('mmDomRow').querySelectorAll('[data-dom]').forEach(c=>c.onclick=()=>{ mmSnapshot(); n.domain=c.dataset.dom; mmSaveSession(); mmRender(); });
+  const originBadge = n.origin==='model'
+    ? '<span class="badge model">TỪ MÔ HÌNH</span> nhân tố mô hình số đang có'
+    : '<span class="badge manual">THÊM TAY</span> chỉ trực quan, không ảnh hưởng số';
+  document.getElementById('mmOrigin').innerHTML=originBadge;
+  const sb=document.getElementById('mmStar');
+  sb.textContent = n.star ? '★ Nhân tố quan trọng' : '☆ Nhân tố quan trọng';
+  sb.style.borderColor = n.star ? 'var(--gold)' : '';
+  sb.style.color = n.star ? 'var(--gold)' : '';
+}
+document.getElementById('mmName').addEventListener('focus',()=>{ if(mmFind(mmSel)) mmSnapshot(); });
+document.getElementById('mmMetric').addEventListener('focus',()=>{ if(mmFind(mmSel)) mmSnapshot(); });
+document.getElementById('mmNote').addEventListener('focus',()=>{ if(mmFind(mmSel)) mmSnapshot(); });
+document.getElementById('mmName').addEventListener('input',e=>{ const n=mmFind(mmSel); if(n){ n.title=e.target.value; n.origin='manual'; mmSaveSession(); mmRenderThrottled(); } });
+document.getElementById('mmMetric').addEventListener('input',e=>{ const n=mmFind(mmSel); if(n){ n.metric=e.target.value; delete n.sub; mmSaveSession(); mmRenderThrottled(); } });
+document.getElementById('mmNote').addEventListener('input',e=>{ const n=mmFind(mmSel); if(n){ n.note=e.target.value; mmSaveSession(); } });
+document.getElementById('mmAddChild').addEventListener('click',()=>{ if(mmSel) mmAddChild(mmSel); });
+document.getElementById('mmDup').addEventListener('click',()=>{ if(mmSel) mmDup(mmSel); });
+document.getElementById('mmDel').addEventListener('click',()=>{ if(mmSel) mmDel(mmSel); });
+document.getElementById('mmStar').addEventListener('click',()=>{ const n=mmFind(mmSel); if(n){ mmSnapshot(); n.star=!n.star; mmSaveSession(); mmRender(); } });
+let mmRT=null; function mmRenderThrottled(){ clearTimeout(mmRT); mmRT=setTimeout(mmRender,250); }
+
+/* ---- toolbar ---- */
+document.getElementById('mmAddNode').addEventListener('click',()=>{
+  const pid = mmSel || (mmRoots[0] && mmRoots[0].id);
+  if(pid) mmAddChild(pid); else { mmSnapshot(); mmRoots.push(mmNode('Nhân tố mới','none','manual')); mmSaveSession(); mmRender(); }
+});
+document.getElementById('mmRegen').addEventListener('click',()=>{
+  mmConfirm('Dựng lại từ mô hình','Thao tác này thay cây hiện tại bằng cây gốc tự sinh từ mô hình số — <b>mất hết node thêm tay chưa lưu thành phiên bản riêng</b>. Tiếp tục?',()=>{
+    mmSnapshot(); mmRoots=mmGenerateFromModel(); mmSel=null; mmSaveSession(); mmRender(); pill('Đã dựng lại cây từ mô hình','ok');
+  });
+});
+
+/* ---- versions ---- */
+document.getElementById('mmVersions').addEventListener('click',(e)=>{
+  e.stopPropagation();
+  const p=document.getElementById('mmVerPanel');
+  const showing = p.style.display!=='none';
+  p.style.display = showing ? 'none' : '';
+  if(!showing) mmRenderVerList();
+});
+document.getElementById('mmVerClose').addEventListener('click',()=>{ document.getElementById('mmVerPanel').style.display='none'; });
+document.getElementById('mmVerExport').addEventListener('click',()=>document.getElementById('mmExport').click());
+document.getElementById('mmVerImport').addEventListener('click',()=>document.getElementById('mmImport').click());
+// đóng box phiên bản khi bấm ra ngoài
+document.addEventListener('click',(e)=>{
+  const p=document.getElementById('mmVerPanel');
+  if(!p || p.style.display==='none') return;
+  if(p.contains(e.target)) return;                       // bấm trong box → giữ
+  if(e.target.closest && e.target.closest('#mmVersions')) return; // nút toggle tự xử lý
+  p.style.display='none';
+});
+function mmCountNodes(roots){ let c=0; const w=l=>l.forEach(n=>{c++;w(n.kids||[]);}); w(roots||[]); return c; }
+function mmRenderVerList(){
+  const list=document.getElementById('mmVerList');
+  // dòng trạng thái
+  const st=document.getElementById('mmVerStatus');
+  if(st){
+    if(!mmLSok){ st.className='mm-ver-status warn'; st.innerHTML='⚠ Trình duyệt đang chặn lưu tự động. Hãy dùng <b>Xuất ra file</b> để giữ bản đồ.'; }
+    else {
+      const cur=mmVersions.find(v=>v.id===mmCurVerId);
+      st.className='mm-ver-status ok';
+      st.innerHTML='✓ Tự lưu vào file HTML này. '+(cur?('Đang mở & tự lưu vào: <b>'+mmEsc(cur.name)+'</b>'):'Chưa mở phiên bản nào — bản làm việc lưu tạm.');
+    }
+  }
+  if(!mmVersions.length){ list.innerHTML='<div style="font-size:11px;color:var(--text-faint);padding:6px 2px">Chưa có phiên bản nào. Đặt tên &amp; lưu bên dưới, hoặc Nhập từ file.</div>'; return; }
+  list.innerHTML=mmVersions.map(v=>
+    '<div class="mm-ver-item'+(v.id===mmCurVerId?' cur':'')+'" data-ver="'+v.id+'">'+
+    '<span class="vi-name">'+(v.id===mmCurVerId?'● ':'')+mmEsc(v.name)+'</span>'+
+    '<span class="vi-nodes">'+mmCountNodes(v.roots)+' node</span>'+
+    '<span class="vi-date">'+new Date(v.updated).toLocaleDateString('vi-VN')+'</span>'+
+    '<span class="vi-del" data-verdel="'+v.id+'">✕</span></div>').join('');
+  list.querySelectorAll('[data-ver]').forEach(it=>it.addEventListener('click',e=>{
+    if(e.target.dataset.verdel) return;
+    const v=mmVersions.find(x=>x.id===it.dataset.ver);
+    if(v){ mmRoots=JSON.parse(JSON.stringify(v.roots)); mmCurVerId=v.id; mmSel=null; mmUndoStack=[]; mmUpdateUndoBtn(); mmPersist(); mmRender(); mmRenderVerList(); pill('Đã mở phiên bản: '+v.name+' — sửa sẽ tự lưu','ok'); }
+  }));
+  list.querySelectorAll('[data-verdel]').forEach(d=>d.addEventListener('click',e=>{
+    e.stopPropagation(); const id=d.dataset.verdel; const v=mmVersions.find(x=>x.id===id);
+    mmConfirm('Xóa phiên bản','Xóa phiên bản "<b>'+mmEsc(v.name)+'</b>"? Không hoàn tác.',()=>{
+      mmVersions=mmVersions.filter(x=>x.id!==id); if(mmCurVerId===id)mmCurVerId=null; mmPersist(); mmRenderVerList(); mmUpdateSaveState();
+    });
+  }));
+}
+document.getElementById('mmVerSaveNew').addEventListener('click',()=>{
+  const name=document.getElementById('mmVerNewName').value.trim();
+  if(!name){ pill('Nhập tên phiên bản','warn'); return; }
+  const existing = mmVersions.find(v=>v.name===name);
+  const doSave=()=>{
+    if(existing){ existing.roots=JSON.parse(JSON.stringify(mmRoots)); existing.updated=Date.now(); mmCurVerId=existing.id; }
+    else { const v={id:'v'+Date.now().toString(36), name, roots:JSON.parse(JSON.stringify(mmRoots)), updated:Date.now()}; mmVersions.push(v); mmCurVerId=v.id; }
+    document.getElementById('mmVerNewName').value=''; mmPersist(); mmRenderVerList(); mmUpdateSaveState(); pill('Đã lưu phiên bản: '+name,'ok');
+  };
+  if(existing) mmConfirm('Đè phiên bản','Đã có phiên bản tên "<b>'+mmEsc(name)+'</b>". Ghi đè nó bằng cây hiện tại?',doSave);
+  else doSave();
+});
+
+/* ---- export / import ---- */
+document.getElementById('mmExport').addEventListener('click',()=>{
+  const data={ app:'gpbl-strategy-map', version:1, exported:new Date().toISOString(), versions:mmVersions, working:mmRoots, curId:mmCurVerId };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='ban-do-chien-luoc_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000); pill('Đã xuất file bản đồ','ok');
+});
+document.getElementById('mmImport').addEventListener('click',()=>{
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json,.json';
+  inp.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const rd=new FileReader();
+    rd.onload=()=>{ try{ const o=JSON.parse(rd.result);
+      if(!o.working && !o.versions) throw 0;
+      const fname=(f.name||'bản nhập').replace(/\.json$/i,'');
+      mmConfirm('Nhập file','Nạp bản đồ từ "<b>'+mmEsc(fname)+'</b>". Các phiên bản trong file sẽ được <b>gộp thêm</b> vào danh sách hiện có (không xóa bản cũ). Tiếp tục?',()=>{
+        const incoming = o.versions||[];
+        const workingTree = o.working || (incoming[0] && incoming[0].roots) || mmGenerateFromModel();
+        // GỘP versions thay vì thay thế — không mất bản lưu cũ
+        incoming.forEach(v=>{
+          if(!mmVersions.some(x=>x.id===v.id)) mmVersions.push(v);
+        });
+        mmRoots = JSON.parse(JSON.stringify(workingTree));
+        mmSel=null; mmUndoStack=[]; mmUpdateUndoBtn();
+        // reindex nid tránh trùng
+        let mx=0; const scan=l=>l.forEach(n=>{ const num=parseInt((n.id||'').replace('n',''),10); if(num>mx)mx=num; scan(n.kids||[]); }); scan(mmRoots); mmVersions.forEach(v=>scan(v.roots||[])); mmNid=mx+1;
+        // IMPORT = MỞ BẢN ĐÓ ĐỂ SỬA → luôn có phiên bản đang mở để auto-lưu
+        let openVer;
+        if(o.curId && mmVersions.find(v=>v.id===o.curId)) openVer=mmVersions.find(v=>v.id===o.curId);
+        else if(incoming[0]) openVer=mmVersions.find(v=>v.id===incoming[0].id);
+        if(!openVer){
+          // file chỉ có cây, không versions → tạo 1 phiên bản theo tên file
+          openVer={id:'v'+Date.now().toString(36), name:fname, roots:JSON.parse(JSON.stringify(mmRoots)), updated:Date.now()};
+          mmVersions.push(openVer);
+        }
+        mmCurVerId=openVer.id;
+        mmRoots=JSON.parse(JSON.stringify(openVer.roots));
+        mmPersist(); mmRender();
+        if(document.getElementById('mmVerPanel').style.display!=='none') mmRenderVerList();
+        pill('Đã nhập & mở phiên bản "'+openVer.name+'" — sửa sẽ tự lưu','ok');
+      });
+    }catch(err){ pill('File không hợp lệ','err'); } };
+    rd.readAsText(f); };
+  inp.click();
+});
+
+/* ---- confirm modal (dùng chung, nhẹ) ---- */
+function mmConfirm(title,msg,onOk){
+  let bg=document.getElementById('mmModalBg');
+  if(!bg){
+    bg=document.createElement('div'); bg.id='mmModalBg';
+    bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;';
+    bg.innerHTML='<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;max-width:420px;box-shadow:0 20px 60px -12px rgba(0,0,0,.6);backdrop-filter:blur(10px)">'+
+      '<h3 id="mmModalTitle" style="font-family:var(--font-display);font-size:17px;margin:0 0 10px;color:var(--text)"></h3>'+
+      '<div id="mmModalMsg" style="font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:18px"></div>'+
+      '<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-sm" id="mmModalCancel">Hủy</button>'+
+      '<button class="btn btn-sm" id="mmModalOk" style="background:var(--gold);color:var(--bg0);border-color:var(--gold)">Đồng ý</button></div></div>';
+    document.body.appendChild(bg);
+  }
+  document.getElementById('mmModalTitle').textContent=title;
+  document.getElementById('mmModalMsg').innerHTML=msg;
+  bg.style.display='flex';
+  document.getElementById('mmModalCancel').onclick=()=>bg.style.display='none';
+  document.getElementById('mmModalOk').onclick=()=>{ bg.style.display='none'; onOk(); };
+  bg.onclick=e=>{ if(e.target===bg) bg.style.display='none'; };
+}
+
+/* ---- init mind map ---- */
+function mmInit(){
+  if(mmLoadLS()){ /* đã nạp từ localStorage */ }
+  else { mmRoots=mmGenerateFromModel(); }
+  mmUndoStack=[]; mmUpdateUndoBtn();
+  mmRender();
+}
+
+/* ===== VIEW TABS (Phân tích / Bản đồ chiến lược) ===== */
+document.getElementById('vtab-analysis').addEventListener('click',()=>switchView('analysis'));
+document.getElementById('vtab-strategy').addEventListener('click',()=>switchView('strategy'));
+function switchView(v){
+  const isAna = v==='analysis';
+  document.getElementById('vtab-analysis').classList.toggle('active', isAna);
+  document.getElementById('vtab-strategy').classList.toggle('active', !isAna);
+  document.getElementById('wsAnalysis').style.display = isAna ? '' : 'none';
+  document.getElementById('wsStrategy').style.display = isAna ? 'none' : '';
+  if(!isAna) mmRender();   // vẽ lại cây khi mở tab chiến lược (canvas cần kích thước thật)
+}
+
+/* ===== PANEL TOGGLE (ẩn/hiện bảng điều khiển) ===== */
+document.getElementById('panelToggle').addEventListener('click',()=>{
+  document.getElementById('wsAnalysis').classList.toggle('left-collapsed');
+});
+
+/* ===== DIVIDER (kéo chỉnh độ rộng panel trái) ===== */
+(function(){
+  const divider=document.getElementById('divider');
+  const ws=document.getElementById('wsAnalysis');
+  const panel=document.getElementById('panelLeft');
+  let dragging=false;
+  function onMove(e){
+    if(!dragging) return;
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    const rect = ws.getBoundingClientRect();
+    let w = x - rect.left;
+    const min = 260, max = rect.width - 360;   // chừa tối thiểu 360px cho khung chính
+    w = Math.max(min, Math.min(max, w));
+    panel.style.flex = '0 0 '+w+'px';
+  }
+  function stop(){
+    if(!dragging) return;
+    dragging=false;
+    divider.classList.remove('dragging'); ws.classList.remove('dragging');
+  }
+  function start(e){
+    if(ws.classList.contains('left-collapsed')) return;
+    dragging=true;
+    divider.classList.add('dragging'); ws.classList.add('dragging');
+    e.preventDefault();
+  }
+  divider.addEventListener('mousedown',start);
+  divider.addEventListener('touchstart',start,{passive:false});
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('mouseup',stop);
+  window.addEventListener('touchend',stop);
+})();
+
+/* ===== MIND MAP PANEL: toggle + divider (giống panel Mô hình tính toán) ===== */
+document.getElementById('mmUndo').addEventListener('click', mmUndo);
+document.getElementById('mmSaveNow').addEventListener('click',()=>{
+  // đảm bảo có phiên bản đang mở để ghi vào; nếu chưa, ghi vào working
+  const ok = mmPersist();
+  if(ok){
+    const v=mmVersions.find(x=>x.id===mmCurVerId);
+    pill(v ? ('Đã lưu vào "'+v.name+'" (bộ nhớ trình duyệt)') : 'Đã lưu bản làm việc (bộ nhớ trình duyệt)','ok');
+  } else {
+    pill('⚠ Trình duyệt chặn lưu — hãy dùng "Xuất file" để giữ dữ liệu','err');
+  }
+});
+// Thu hết: collapse mọi node có con TRỪ node gốc (để còn thấy các nhánh chính)
+document.getElementById('mmCollapseAll').addEventListener('click',()=>{
+  mmSnapshot();
+  const roots=new Set(mmRoots.map(r=>r.id));
+  const walk=l=>l.forEach(n=>{ if(n.kids.length && !roots.has(n.id)) n.collapsed=true; walk(n.kids); });
+  // gốc mở, con của gốc (nhánh chính) thu lại
+  mmRoots.forEach(r=>{ r.collapsed=false; r.kids.forEach(k=>{ if(k.kids.length) k.collapsed=true; walk(k.kids); }); });
+  mmSaveSession(); mmRender(); pill('Đã thu về các nhánh chính','ok');
+});
+document.getElementById('mmExpandAll').addEventListener('click',()=>{
+  mmSnapshot();
+  const walk=l=>l.forEach(n=>{ n.collapsed=false; walk(n.kids); });
+  walk(mmRoots);
+  mmSaveSession(); mmRender(); pill('Đã mở tất cả nhánh','ok');
+});
+document.addEventListener('keydown',e=>{
+  // Ctrl/Cmd+Z chỉ khi đang ở tab bản đồ chiến lược và không đang gõ trong ô input
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z'){
+    const inStrategy = document.getElementById('wsStrategy').style.display!=='none';
+    const typing = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
+    if(inStrategy && !typing){ e.preventDefault(); mmUndo(); }
+  }
+});
+document.getElementById('mmPanelToggle').addEventListener('click',()=>{
+  document.getElementById('mmWorkspace').classList.toggle('left-collapsed');
+});
+(function(){
+  const divider=document.getElementById('mmDivider');
+  const ws=document.getElementById('mmWorkspace');
+  const panel=document.getElementById('mmInspector');
+  let dragging=false;
+  function onMove(e){
+    if(!dragging) return;
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    const rect = ws.getBoundingClientRect();
+    let w = x - rect.left;
+    const min = 240, max = rect.width - 360;   // chừa tối thiểu 360px cho canvas
+    w = Math.max(min, Math.min(max, w));
+    panel.style.flex = '0 0 '+w+'px';
+  }
+  function stop(){ if(!dragging) return; dragging=false; divider.classList.remove('dragging'); ws.classList.remove('dragging'); }
+  function start(e){ if(ws.classList.contains('left-collapsed')) return; dragging=true; divider.classList.add('dragging'); ws.classList.add('dragging'); e.preventDefault(); }
+  divider.addEventListener('mousedown',start);
+  divider.addEventListener('touchstart',start,{passive:false});
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('mouseup',stop);
+  window.addEventListener('touchend',stop);
+})();
+
+/* ===== INIT ===== */
+document.getElementById('releaseStamp').textContent=APP_VERSION+' · '+new Date().toLocaleDateString('vi-VN')+' · '+RELEASE_SCOPE;
+document.title='CX Modeling '+APP_VERSION;
+mmInit();
+syncInputs();
+render();
+pill('Mô hình 3 nhánh doanh thu + Bản đồ chiến lược','ok');
+</script>
+</body>
+</html>
