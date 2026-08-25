@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omnikey &amp; Idealab × GOLDCOAST — Phân tích nhu cầu &amp; Đề xuất giải pháp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+  --cream:#F7F5EF; --paper:#FFFFFF; --cream-2:#F1EEE5;
+  --green:#00704A; --forest:#1E3932; --green-soft:#E6F0EA; --green-line:#B9D3C6;
+  --ink:#1E3932; --body:#3D5049; --muted:#6B7A72; --faint:#9AA69F;
+  --line:#E2DED3; --line-2:#EDEAE1;
+  --warn:#B45309; --warn-soft:#FDF3E3; --warn-line:#E5C89A;
+  --serif:'Noto Serif Display',Georgia,serif;
+  --sans:'Outfit',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+  --maxw:1120px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--body);font-family:var(--sans);font-weight:400;
+  font-size:15.5px;line-height:1.72;-webkit-font-smoothing:antialiased}
+
+#prog{position:fixed;top:0;left:0;height:3px;width:0;background:var(--green);z-index:200;transition:width .1s linear}
+nav{position:sticky;top:0;z-index:100;background:rgba(247,245,239,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:var(--maxw);margin:0 auto;padding:12px 30px;display:flex;align-items:center;gap:20px}
+.nav-brand{font-family:var(--serif);font-size:15px;color:var(--forest);font-weight:600;white-space:nowrap}
+.nav-brand span{color:var(--faint);font-weight:400}
+.nav-links{display:flex;gap:8px;margin-left:auto}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap;
+  padding:5px 14px;border-radius:100px;transition:.18s}
+.nav-links a:hover{background:var(--green-soft);color:var(--green)}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px}
+section{padding:60px 0;border-top:1px solid var(--line);scroll-margin-top:62px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-bottom:14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4.8vw,50px);line-height:1.15;color:var(--forest);letter-spacing:-.015em}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(23px,3.2vw,32px);line-height:1.25;color:var(--forest);margin-bottom:16px;letter-spacing:-.01em}
+h3{font-family:var(--sans);font-weight:600;font-size:17.5px;color:var(--forest);margin:34px 0 12px}
+h4{font-family:var(--sans);font-weight:600;font-size:14.5px;color:var(--forest);margin-bottom:7px}
+p{margin-bottom:14px}
+p.lead{font-size:17.5px;line-height:1.7;color:var(--ink)}
+strong{font-weight:600;color:var(--forest)}
+em{font-style:normal;font-weight:600;color:var(--green)}
+ul{list-style:none;margin:0 0 14px 0}
+li{position:relative;padding-left:18px;margin-bottom:7px}
+li::before{content:'';position:absolute;left:2px;top:10px;width:5px;height:5px;border-radius:50%;background:var(--green);opacity:.5}
+
+.hero{padding:76px 0 56px}
+.hero .sub{font-size:19px;color:var(--muted);margin-top:20px;max-width:690px;font-weight:300}
+.meta{display:flex;flex-wrap:wrap;gap:34px;margin-top:38px;padding-top:22px;border-top:1px solid var(--line)}
+.meta .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.meta .v{font-size:14.5px;color:var(--forest);margin-top:3px;font-weight:500}
+
+.pill{display:inline-block;font-family:var(--sans);font-size:11.5px;font-weight:500;
+  padding:3px 11px;border-radius:100px;white-space:nowrap;line-height:1.6}
+.pill.us{background:var(--green);color:#fff}
+.pill.cond{background:var(--green-soft);color:var(--green);border:1px solid var(--green-line)}
+.pill.other{background:transparent;color:var(--warn);border:1px solid var(--warn-line)}
+.pill.out{background:#EAE7DE;color:#7C8A82;border:1px solid var(--line)}
+
+.grid{display:grid;gap:15px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:21px 22px}
+.card .n{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;margin-bottom:9px}
+.card p{font-size:14px;color:var(--muted);margin-bottom:0;line-height:1.66}
+.card p+p{margin-top:9px}
+.card.ext{border-color:var(--warn-line);background:#FDFBF6}
+.card.ext .n{color:var(--warn)}
+
+.note{background:var(--green-soft);border-radius:10px;padding:20px 24px;margin:24px 0}
+.note p:last-child{margin-bottom:0}
+.note .q{font-family:var(--serif);font-size:19px;line-height:1.55;color:var(--forest);font-weight:500}
+.note.warn{background:var(--warn-soft)}
+.note.plain{background:var(--paper);border:1px solid var(--line)}
+
+.tw{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table{width:100%;border-collapse:collapse;font-size:13.2px;min-width:960px}
+th{background:var(--forest);color:#fff;font-family:var(--sans);font-size:12px;font-weight:600;
+  text-align:left;padding:13px 15px;vertical-align:top;line-height:1.45}
+th .th-sub{display:block;font-family:var(--mono);font-size:10px;font-weight:400;
+  letter-spacing:.08em;color:#9BB8AC;margin-top:3px;text-transform:uppercase}
+td{padding:14px 15px;border-bottom:1px solid var(--line-2);color:var(--body);vertical-align:top;line-height:1.6}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FBFAF6}
+td.rowh{background:var(--cream-2);color:var(--forest);font-weight:600;font-size:13.5px;
+  border-right:1px solid var(--line);position:sticky;left:0;z-index:1}
+td.rowh .rowh-sub{display:block;font-weight:400;font-size:11.8px;color:var(--muted);margin-top:4px;line-height:1.5}
+td ul{margin:0}
+td li{font-size:12.8px;padding-left:13px;margin-bottom:5px;line-height:1.55}
+td li::before{width:4px;height:4px;top:8px;left:1px}
+td li:last-child{margin-bottom:0}
+tr.ext td{background:#FDFBF6}
+tr.ext:hover td{background:#FBF7EE}
+tr.ext td.rowh{background:#F5EFE2}
+td.void{background:#F4F2EC!important;color:var(--faint)}
+td.void .vt{font-size:12.6px;line-height:1.55;display:block;margin-bottom:9px}
+.cell-own{margin-top:8px}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0 0;font-size:12.8px;color:var(--muted)}
+.legend div{display:flex;align-items:center;gap:7px}
+
+.cap{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cap-h{background:var(--forest);color:#fff;padding:14px 18px}
+.cap-h .num{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;color:#9BB8AC}
+.cap-h h4{color:#fff;margin:3px 0 0;font-size:15.5px}
+.cap-b{padding:16px 18px}
+.cap-b li{font-size:13.3px;margin-bottom:7px;color:var(--body);line-height:1.6}
+.cap-b .foot{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.4px;color:var(--muted)}
+
+.rule{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-2)}
+.rule:last-child{border-bottom:none}
+.rule .rn{font-family:var(--serif);font-size:26px;color:var(--green-line);line-height:1;flex-shrink:0;width:34px}
+.rule p{margin-bottom:0;font-size:14.5px}
+
+.fill{font-family:var(--mono);font-size:12px;color:var(--warn);background:var(--warn-soft);
+  padding:1px 7px;border-radius:5px;border:1px dashed var(--warn-line)}
+
+footer{padding:40px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+.stamp{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.05em;margin-top:10px}
+
+@media(max-width:900px){
+  .wrap{padding:0 20px}
+  section{padding:44px 0}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .nav-links{display:none}
+  td.rowh{position:static}
+  .meta{gap:20px}
+}
+@media print{
+  nav,#prog{display:none}
+  body{background:#fff;font-size:11pt}
+  section{page-break-inside:avoid;padding:24px 0}
+  .tw{overflow:visible;page-break-inside:avoid}
+  table{min-width:0;font-size:8.5pt}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+
+<nav>
+  <div class="nav-in">
+    <span class="nav-brand">OMNIKEY &amp; IDEALAB <span>× GOLDCOAST</span></span>
+    <span class="nav-links">
+      <a href="#s1">1 · Phân tích nhu cầu</a>
+      <a href="#s2">2 · Ma trận giải pháp</a>
+      <a href="#s3">3 · Phạm vi thực hiện</a>
+    </span>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Phân tích nhu cầu &amp; Đề xuất giải pháp</div>
+  <h1>Bảy nhóm nhu cầu,<br>bốn cấu phần giải pháp</h1>
+  <p class="sub">Rà soát toàn bộ yêu cầu từ ba khối Marketing, Leasing và Vận hành của TTTM GOLDCOAST — quy về bảy nhóm nhu cầu, phân rã theo bốn cấu phần, và xác định rõ phạm vi Omnikey &amp; Idealab đảm nhiệm.</p>
+  <div class="meta">
+    <div><div class="k">Đơn vị đề xuất</div><div class="v">Omnikey &amp; Idealab</div></div>
+    <div><div class="k">Khách hàng</div><div class="v">TTTM GOLDCOAST, Nha Trang</div></div>
+    <div><div class="k">Cơ sở rà soát</div><div class="v">Proposal v6 — 14 hạng mục</div></div>
+    <div><div class="k">Ngày</div><div class="v">25/08/2026</div></div>
+    <div><div class="k">Người nhận</div><div class="v"><span class="fill">[[CẦN ĐIỀN]]</span></div></div>
+  </div>
+</header>
+
+<!-- ===== 1 ===== -->
+<section id="s1">
+  <div class="eyebrow">Phần 1</div>
+  <h2>Phân tích nhu cầu</h2>
+  <p class="lead">Bản đề xuất v6 tập hợp 14 hạng mục từ ba khối chức năng. Đọc theo phòng ban, đây là ba danh sách độc lập. Đọc theo <em>bản chất nhu cầu</em>, các hạng mục quy về bảy nhóm, trong đó nhiều nhu cầu của các khối khác nhau cùng dựa trên một nền dữ liệu.</p>
+
+  <h3>1.1 — Bảy nhóm nhu cầu</h3>
+  <div class="grid g3">
+    <div class="card"><div class="n">Nhóm 1</div><h4>Hợp đồng &amp; khách thuê</h4><p>Soạn hợp đồng, phụ lục, theo dõi gia hạn, quản lý hồ sơ khách thuê và danh sách đối tác tiềm năng.</p></div>
+    <div class="card"><div class="n">Nhóm 2</div><h4>Doanh thu &amp; báo cáo trung tâm</h4><p>Turnover theo shop, tầng, ngành hàng; hiệu suất khai thác diện tích; tỷ lệ lấp đầy; xếp hạng và kỷ lục.</p></div>
+    <div class="card"><div class="n">Nhóm 3</div><h4>Doanh thu quảng cáo</h4><p>Khai thác tài sản quảng cáo trong trung tâm: vị trí, lịch đặt chỗ, tỷ lệ lấp đầy, công nợ khách hàng.</p></div>
+    <div class="card"><div class="n">Nhóm 4</div><h4>Khách hàng &amp; thành viên</h4><p>Thu thập dữ liệu khách, chương trình thành viên, tích điểm, ưu đãi và đo hiệu quả chăm sóc.</p></div>
+    <div class="card ext"><div class="n">Nhóm 5</div><h4>Thị trường &amp; xu hướng</h4><p>Theo dõi thị trường bán lẻ, thương hiệu mới, brand mix các trung tâm khác, dòng khách du lịch tới Nha Trang.</p></div>
+    <div class="card"><div class="n">Nhóm 6</div><h4>Vận hành gian hàng</h4><p>Thông báo tới shop, ghi nhận vi phạm, lập biên bản, theo dõi nhân viên tái phạm.</p></div>
+    <div class="card ext"><div class="n">Nhóm 7</div><h4>Luồng khách &amp; an ninh</h4><p>Đo lượng khách trong trung tâm, phân tích luồng di chuyển; cảnh báo an ninh và an toàn.</p></div>
+  </div>
+  <p style="font-size:13.2px;color:var(--muted);margin-top:12px">Hai nhóm được đánh dấu khác màu là những nhóm có khâu tạo dữ liệu do đơn vị khác đảm nhiệm — chi tiết tại Phần 2.</p>
+
+  <h3>1.2 — Bốn điểm cần làm rõ trước khi triển khai</h3>
+  <div class="grid g2">
+    <div class="card">
+      <div class="n">Điểm 1</div><h4>Nguồn dữ liệu turnover chưa xác định</h4>
+      <p>Nhóm 2 là phần được mô tả chi tiết nhất trong v6, song tài liệu chưa đề cập dữ liệu doanh thu từng shop hiện được thu thập bằng cách nào — kết nối POS tập trung, nhiều POS riêng lẻ, hay shop tự khai báo.</p>
+      <p>Ba khả năng này tương ứng với ba khối lượng công việc khác nhau đáng kể. Riêng trường hợp shop tự khai báo, các chỉ số hiệu suất và xếp hạng cần được bổ sung cơ chế đối soát để bảo đảm giá trị sử dụng.</p>
+    </div>
+    <div class="card">
+      <div class="n">Điểm 2</div><h4>Hai lập trường khác nhau về dữ liệu cá nhân</h4>
+      <p>Khối Marketing nêu rõ nguyên tắc không lưu ảnh khuôn mặt và không gán danh tính cá nhân. Trong khi đó, khối Vận hành đề xuất nhận diện khách quay lại và phân loại khách VIP — vốn đòi hỏi lưu trữ dữ liệu sinh trắc học, thuộc nhóm dữ liệu cá nhân nhạy cảm theo Nghị định 13/2023/NĐ-CP.</p>
+      <p><strong>Hướng xử lý đề xuất:</strong> nhu cầu nhận diện khách quay lại có thể được đáp ứng đầy đủ thông qua chương trình thành viên tại Nhóm 4 — khách hàng chủ động đăng ký trên cơ sở đồng ý minh bạch. Đây là phương án chúng tôi khuyến nghị và sẵn sàng triển khai.</p>
+    </div>
+    <div class="card">
+      <div class="n">Điểm 3</div><h4>Nhóm 5 phụ thuộc nguồn dữ liệu bên ngoài</h4>
+      <p>Các nhu cầu về thị trường và xu hướng đều dựa trên dữ liệu mà trung tâm không tự sinh ra: lịch bay, báo cáo ngành bán lẻ, dữ liệu thương hiệu tại các trung tâm khác, dữ liệu mạng xã hội.</p>
+      <p>Việc cung cấp các nguồn dữ liệu này nằm ngoài phạm vi dịch vụ của Omnikey &amp; Idealab. Chúng tôi đảm nhiệm phần xử lý, tổng hợp và phân tích tự động <strong>sau khi</strong> GOLDCOAST đã có nguồn hợp lệ và cấp quyền truy cập.</p>
+    </div>
+    <div class="card ext">
+      <div class="n">Điểm 4</div><h4>Nhóm 7 thuộc lĩnh vực an ninh</h4>
+      <p>Camera, cảm biến và cảnh báo an ninh là lĩnh vực có yêu cầu chuyên môn, cam kết vận hành và trách nhiệm pháp lý đặc thù, nằm ngoài phạm vi chuyên môn của Omnikey &amp; Idealab.</p>
+      <p>Chúng tôi khuyến nghị GOLDCOAST làm việc trực tiếp với đơn vị chuyên trách cho toàn bộ hạng mục, bao gồm cả khâu xây dựng yêu cầu kỹ thuật và lựa chọn nhà cung cấp, nhằm bảo đảm tính thống nhất về trách nhiệm.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2 ===== -->
+<section id="s2">
+  <div class="eyebrow">Phần 2</div>
+  <h2>Ma trận đề xuất giải pháp</h2>
+  <p class="lead">Mỗi nhóm nhu cầu được phân rã theo bốn cấu phần. Cách đọc ma trận này quan trọng: giá trị không nằm ở từng ô riêng lẻ, mà ở chỗ bốn ô trên cùng một hàng nối được với nhau — dữ liệu thu về nuôi quy trình, quy trình sinh ra phân tích, phân tích dẫn tới một quyết định cụ thể.</p>
+  <div class="legend">
+    <div><span class="pill us">Omnikey &amp; Idealab</span> thực hiện</div>
+    <div><span class="pill cond">Có điều kiện</span> triển khai sau khi nguồn dữ liệu sẵn sàng</div>
+    <div><span class="pill other">Đơn vị khác</span> GOLDCOAST hoặc đơn vị chuyên trách đảm nhiệm</div>
+    <div><span class="pill out">Ngoài phạm vi</span> do đơn vị chuyên trách đảm nhiệm trọn vẹn</div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:15%">Nhóm nhu cầu</th>
+          <th style="width:21%">Thu thập thông tin<span class="th-sub">Dữ liệu về từ đâu</span></th>
+          <th style="width:21%">Tự động hóa quy trình<span class="th-sub">Việc gì máy làm thay người</span></th>
+          <th style="width:21%">Phân tích dữ liệu<span class="th-sub">Con số nói lên điều gì</span></th>
+          <th style="width:22%">Gợi ý ra quyết định<span class="th-sub">Ai làm gì khác đi</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rowh">1. Hợp đồng &amp; khách thuê<span class="rowh-sub">Leasing</span></td>
+          <td><ul>
+            <li>Số hóa hợp đồng &amp; phụ lục hiện hữu</li>
+            <li>Trích xuất tự động giấy ĐKKD khách thuê</li>
+            <li>Hồ sơ khách thuê &amp; đối tác tiềm năng theo từng bước tiếp cận</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li>Sinh hợp đồng, phụ lục từ mẫu chuẩn; chỉ mở các trường được phép thay đổi</li>
+            <li>Cảnh báo danh sách shop đến hạn trước 6 tháng</li>
+            <li>Luồng trình duyệt và lưu vết phiên bản</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li>Lịch sử doanh số của thương hiệu đến hạn gia hạn</li>
+            <li>Các tháng không đạt doanh thu tối thiểu</li>
+            <li>Hiệu suất khai thác theo thời gian, so với mặt bằng cùng tầng</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li><strong>Hồ sơ gia hạn tự động:</strong> đề xuất tăng, giữ hay dừng — kèm căn cứ số liệu</li>
+            <li>Cảnh báo sớm khách thuê có nguy cơ rời đi</li>
+            <li>Thứ tự ưu tiên tiếp cận trong danh sách khách tiềm năng</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+        </tr>
+
+        <tr>
+          <td class="rowh">2. Doanh thu &amp; báo cáo trung tâm<span class="rowh-sub">Leasing · Điều hành</span></td>
+          <td><ul>
+            <li>Kết nối nguồn turnover từng shop</li>
+            <li>Chuẩn hóa danh mục shop, diện tích cho thuê, phân loại hợp đồng</li>
+            <li>Cơ chế đối soát và phát hiện số liệu bất thường</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span> <span class="pill other">Thống nhất định nghĩa &amp; nguồn</span></div></td>
+          <td><ul>
+            <li>Báo cáo ngày, tuần, tháng, kỷ lục tự chạy đúng lịch</li>
+            <li>Tự động gửi tới đúng người nhận</li>
+            <li>Không còn bước tổng hợp thủ công giữa chừng</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li>Doanh thu theo tầng, tách phí thuê và phí dịch vụ, theo loại hợp đồng</li>
+            <li>Hiệu suất trên diện tích, tỷ lệ lấp đầy, sức mua trên hóa đơn</li>
+            <li>Xếp hạng và các mốc kỷ lục theo ngày, tháng, dịp lễ</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li><strong>Danh sách shop cần can thiệp:</strong> chưa đạt doanh thu tối thiểu, kèm mức độ và xu hướng</li>
+            <li>Tầng hoặc ngành hàng đang dưới kế hoạch, phát hiện sớm trong tháng</li>
+            <li>Căn cứ điều chỉnh cơ cấu ngành hàng theo hiệu suất thật</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+        </tr>
+
+        <tr>
+          <td class="rowh">3. Doanh thu quảng cáo<span class="rowh-sub">Marketing</span></td>
+          <td><ul>
+            <li>Trích xuất dữ liệu hợp đồng quảng cáo</li>
+            <li>Danh mục vị trí quảng cáo và lịch đặt chỗ</li>
+            <li>Theo dõi công nợ và lịch thanh toán</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li>Nhắc hạn thanh toán và hạn hợp đồng tự động</li>
+            <li>Cập nhật trạng thái vị trí: trống, đang thuê, sắp hết hạn</li>
+            <li>Sinh báo giá và hợp đồng theo mẫu</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li>Doanh thu theo vị trí và theo khách hàng</li>
+            <li>Tỷ lệ lấp đầy theo thời gian</li>
+            <li>Giá thực hiện so với giá niêm yết</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li><strong>Vị trí cần điều chỉnh giá:</strong> trống lâu hoặc bán dưới giá liên tục</li>
+            <li>Khách hàng nên ưu tiên mời tái ký</li>
+            <li>Thời điểm nên giữ giá, thời điểm nên linh hoạt</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+        </tr>
+
+        <tr>
+          <td class="rowh">4. Khách hàng &amp; thành viên<span class="rowh-sub">Marketing</span></td>
+          <td><ul>
+            <li>Đăng ký qua mã QR, website, ki-ốt; xác thực OTP</li>
+            <li>Lịch sử giao dịch và tích điểm</li>
+            <li><strong>Đây là kênh hợp quy để nhận diện khách quay lại</strong></li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span> <span class="pill other">Thiết bị ki-ốt</span></div></td>
+          <td><ul>
+            <li>Tích điểm, hoàn tiền, phát hành ưu đãi tự động</li>
+            <li>Đồng bộ dữ liệu và báo cáo định kỳ</li>
+            <li>Chăm sóc theo kịch bản: sinh nhật, lâu không quay lại</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li>Tăng trưởng thành viên theo kênh đăng ký</li>
+            <li>Tần suất quay lại, giá trị giỏ hàng, phân nhóm khách theo hành vi</li>
+            <li>Hiệu quả từng chương trình ưu đãi</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+          <td><ul>
+            <li><strong>Nhóm khách nên tập trung chăm sóc</strong> và nhóm đang rời đi</li>
+            <li>Ưu đãi nào tạo doanh thu tăng thêm, ưu đãi nào chỉ giảm biên</li>
+            <li>Cơ cấu khách hàng làm căn cứ tuyển chọn ngành hàng</li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span></div></td>
+        </tr>
+
+        <tr class="ext">
+          <td class="rowh">5. Thị trường &amp; xu hướng<span class="rowh-sub">Marketing · Leasing</span></td>
+          <td class="void"><span class="vt">Nguồn dữ liệu thị trường — lịch bay, báo cáo ngành bán lẻ, dữ liệu thương hiệu tại các trung tâm khác, công cụ lắng nghe mạng xã hội — do GOLDCOAST hoặc nhà cung cấp dữ liệu chuyên ngành sở hữu và cấp quyền truy cập.<br><br>Việc cung cấp các nguồn này nằm ngoài phạm vi dịch vụ của chúng tôi.</span>
+            <div class="cell-own"><span class="pill other">GOLDCOAST / nhà cung cấp dữ liệu</span></div></td>
+          <td><ul>
+            <li>Lấy dữ liệu về theo lịch từ nguồn đã được cấp quyền</li>
+            <li>Tổng hợp thành bản tin tóm tắt đầu ngày gửi tự động</li>
+            <li>Cảnh báo khi có thay đổi vượt ngưỡng đã đặt</li>
+          </ul><div class="cell-own"><span class="pill cond">Có điều kiện</span></div></td>
+          <td><ul>
+            <li>Xu hướng ngành hàng, tính mùa vụ của dòng khách</li>
+            <li>So sánh cơ cấu ngành hàng với các trung tâm cùng phân khúc</li>
+            <li>Mức độ chi tiết của phân tích tương ứng với chất lượng nguồn dữ liệu được cung cấp</li>
+          </ul><div class="cell-own"><span class="pill cond">Có điều kiện</span></div></td>
+          <td><ul>
+            <li>Ngành hàng nên ưu tiên trong kỳ tuyển chọn khách thuê</li>
+            <li>Khoảng trống ngành hàng so với thị trường</li>
+            <li>Mỗi gợi ý nêu rõ nguồn và mức độ tin cậy</li>
+          </ul><div class="cell-own"><span class="pill cond">Có điều kiện</span></div></td>
+        </tr>
+
+        <tr>
+          <td class="rowh">6. Vận hành gian hàng<span class="rowh-sub">Leasing</span></td>
+          <td class="void"><span class="vt">Ghi nhận vi phạm tại hiện trường do đội quản lý tầng thực hiện, trên công cụ và theo quy trình hiện có của trung tâm.</span>
+            <div class="cell-own"><span class="pill other">GOLDCOAST</span></div></td>
+          <td><ul>
+            <li>Soạn và gửi thông báo tới shop theo mẫu, kèm mức độ ưu tiên</li>
+            <li>Tự lập biên bản khi vi phạm vượt ngưỡng quy định</li>
+            <li>Luồng trình duyệt, phân quyền, lưu vết đầy đủ</li>
+            <li><strong>Phạm vi tham gia của chúng tôi trong nhóm này tập trung ở khâu quy trình</strong></li>
+          </ul><div class="cell-own"><span class="pill us">Omnikey &amp; Idealab</span> <span class="pill other">Quy định xử phạt</span></div></td>
+          <td class="void"><span class="vt">Thống kê phát sinh từ chính quy trình — tần suất theo loại lỗi, theo tầng — được kết xuất như một phần của hệ thống. Phạm vi giới hạn ở góc độ vận hành, không mở rộng sang đánh giá cá nhân.</span>
+            <div class="cell-own"><span class="pill cond">Giới hạn ở thống kê vận hành</span></div></td>
+          <td class="void"><span class="vt">Quyết định nhắc nhở, xử lý hay đưa vào danh sách theo dõi thuộc thẩm quyền của Ban quản lý vận hành và gắn với quan hệ lao động. Hệ thống ghi nhận và trình bày đầy đủ thông tin phục vụ quyết định đó.</span>
+            <div class="cell-own"><span class="pill other">GOLDCOAST</span></div></td>
+        </tr>
+
+        <tr class="ext">
+          <td class="rowh">7. Luồng khách &amp; an ninh<span class="rowh-sub">Vận hành</span></td>
+          <td class="void"><span class="vt">Camera, cảm biến và hạ tầng đo đếm thuộc lĩnh vực an ninh, do đơn vị chuyên trách đảm nhiệm trọn vẹn — bao gồm cả khâu xây dựng yêu cầu kỹ thuật và đánh giá lựa chọn nhà cung cấp.</span>
+            <div class="cell-own"><span class="pill out">Ngoài phạm vi</span></div></td>
+          <td class="void"><span class="vt">Cảnh báo an ninh và an toàn, kết nối điều khiển điều hòa, bãi xe, hệ thống báo cháy.<br><br>Toàn bộ hạng mục, kể từ khâu xây dựng yêu cầu, thuộc đơn vị chuyên trách.</span>
+            <div class="cell-own"><span class="pill out">Ngoài phạm vi</span></div></td>
+          <td><ul>
+            <li>Trường hợp đơn vị chuyên trách cung cấp số liệu tổng hợp lượng khách, chúng tôi tích hợp vào hệ báo cáo chung cùng dữ liệu doanh thu</li>
+            <li>Lượng khách theo giờ, theo tầng, đặt cạnh doanh thu cùng kỳ</li>
+          </ul><div class="cell-own"><span class="pill cond">Có điều kiện</span></div></td>
+          <td><ul>
+            <li><strong>Định giá mặt bằng theo lưu lượng khách thật</strong> thay vì theo cảm nhận vị trí</li>
+            <li>Đo hiệu quả sự kiện bằng chênh lệch lượng khách và doanh thu</li>
+          </ul><div class="cell-own"><span class="pill cond">Có điều kiện</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p class="q">Đọc theo cột dọc, ma trận cho thấy một quy luật nhất quán về phạm vi.</p>
+    <p style="margin-top:12px">Chúng tôi đảm nhiệm cấu phần thu thập thông tin ở những nơi dữ liệu được sinh ra từ chính hệ thống phần mềm — hợp đồng, giao dịch bán hàng, biểu mẫu đăng ký. Với dữ liệu sinh ra từ thiết bị phần cứng hoặc từ thị trường bên ngoài, khâu tạo nguồn do đơn vị chuyên trách đảm nhiệm.</p>
+    <p style="margin-top:11px">Ba cột còn lại — tự động hóa quy trình, phân tích dữ liệu, gợi ý ra quyết định — là vùng năng lực chính, phủ trọn vẹn bốn nhóm đầu và tham gia có điều kiện ở ba nhóm còn lại.</p>
+  </div>
+</section>
+
+<!-- ===== 3 ===== -->
+<section id="s3">
+  <div class="eyebrow">Phần 3</div>
+  <h2>Phạm vi Omnikey &amp; Idealab thực hiện</h2>
+  <p class="lead">Tổng hợp theo bốn cấu phần của ma trận, kèm các nguyên tắc ranh giới được xác định rõ ngay từ giai đoạn đề xuất.</p>
+
+  <div class="grid g4" style="margin-top:26px">
+    <div class="cap">
+      <div class="cap-h"><div class="num">Cấu phần 1</div><h4>Thu thập thông tin</h4></div>
+      <div class="cap-b"><ul>
+        <li>Kết nối và chuẩn hóa dữ liệu doanh thu từ nhiều nguồn khác nhau</li>
+        <li>Số hóa và trích xuất dữ liệu từ hợp đồng, chứng từ, giấy tờ pháp lý</li>
+        <li>Xây kênh thu thập dữ liệu khách hàng qua mã QR, website, ki-ốt</li>
+        <li>Cơ chế đối soát và phát hiện số liệu bất thường</li>
+        <li>Tiếp nhận và chuẩn hóa dữ liệu do bên khác cung cấp</li>
+      </ul>
+      <div class="foot"><strong>Nằm ngoài phạm vi:</strong> dữ liệu sinh ra từ thiết bị phần cứng, dữ liệu thị trường bên ngoài và dữ liệu từ hệ thống an ninh. Với các nguồn này, chúng tôi tiếp nhận và chuẩn hóa đầu ra do đơn vị chuyên trách cung cấp.</div></div>
+    </div>
+
+    <div class="cap">
+      <div class="cap-h"><div class="num">Cấu phần 2</div><h4>Tự động hóa quy trình</h4></div>
+      <div class="cap-b"><ul>
+        <li>Sinh hợp đồng, phụ lục, biên bản, báo giá từ mẫu chuẩn</li>
+        <li>Báo cáo định kỳ tự chạy và tự phân phối tới đúng người nhận</li>
+        <li>Cảnh báo theo mốc thời gian: gia hạn, công nợ, hết hạn hợp đồng</li>
+        <li>Luồng trình duyệt, lưu vết phiên bản, phân quyền theo vai trò</li>
+        <li>Thông báo tự động tới khách thuê theo mẫu và mức độ ưu tiên</li>
+        <li>Quy tắc xử lý tự động theo ngưỡng do khách hàng quy định</li>
+      </ul>
+      <div class="foot"><strong>Đây là nhóm năng lực trọng tâm.</strong> Kết quả tất định, kiểm chứng được, đo hiệu quả trực tiếp bằng thời gian xử lý tiết kiệm được. Các nội dung tự động hóa gắn với cảnh báo an ninh và điều khiển thiết bị được đề xuất giao đơn vị chuyên trách.</div></div>
+    </div>
+
+    <div class="cap">
+      <div class="cap-h"><div class="num">Cấu phần 3</div><h4>Phân tích dữ liệu</h4></div>
+      <div class="cap-b"><ul>
+        <li>Hệ báo cáo quản trị đầy đủ: ngày, tuần, tháng, năm, kỷ lục</li>
+        <li>Chỉ số hiệu suất khai thác diện tích, tỷ lệ lấp đầy, sức mua</li>
+        <li>Phân tích theo nhiều chiều: tầng, ngành hàng, loại hợp đồng, thời gian</li>
+        <li>Phân nhóm khách hàng theo hành vi mua sắm</li>
+        <li>So sánh thực hiện với kế hoạch, phát hiện chênh lệch sớm</li>
+      </ul>
+      <div class="foot">Mọi con số đều truy ngược được về nguồn gốc. Với dữ liệu do đơn vị khác cung cấp, chúng tôi phân tích trên phạm vi dữ liệu nhận được và nêu rõ giới hạn tương ứng của nguồn.</div></div>
+    </div>
+
+    <div class="cap">
+      <div class="cap-h"><div class="num">Cấu phần 4</div><h4>Gợi ý ra quyết định</h4></div>
+      <div class="cap-b"><ul>
+        <li>Hồ sơ gia hạn kèm đề xuất và căn cứ số liệu</li>
+        <li>Danh sách ưu tiên can thiệp: shop dưới ngưỡng, vị trí trống lâu</li>
+        <li>Cảnh báo sớm khách thuê và khách hàng có nguy cơ rời đi</li>
+        <li>Căn cứ định giá mặt bằng theo hiệu suất khai thác</li>
+        <li>Đề xuất cơ cấu ngành hàng dựa trên hiệu suất thực tế</li>
+      </ul>
+      <div class="foot"><strong>Nguyên tắc:</strong> mỗi gợi ý gắn với một người ra quyết định cụ thể và một hành động cụ thể. Các vấn đề thuộc quan hệ lao động và an ninh được để lại cho thẩm quyền quyết định của Ban quản lý.</div></div>
+    </div>
+  </div>
+
+  <h3>Nguyên tắc ranh giới</h3>
+  <div class="note plain" style="padding:8px 24px">
+    <div class="rule"><div class="rn">01</div><p><strong>Phạm vi cam kết giới hạn trong vùng năng lực chuyên môn.</strong> Phần cứng, an ninh và dữ liệu thị trường bên ngoài được đề xuất giao đơn vị chuyên trách. Chúng tôi xác định rõ ngay từ giai đoạn đề xuất để hai bên cùng chủ động trong việc lựa chọn đối tác phù hợp cho các hạng mục này.</p></div>
+    <div class="rule"><div class="rn">02</div><p><strong>Đơn vị chịu trách nhiệm về kết quả là đơn vị xây dựng yêu cầu.</strong> Chúng tôi không tham gia soạn thảo yêu cầu kỹ thuật hay tiêu chí lựa chọn nhà cung cấp cho các hạng mục không trực tiếp thực hiện, nhằm bảo đảm trách nhiệm được tập trung về một đầu mối duy nhất trong suốt quá trình vận hành.</p></div>
+    <div class="rule"><div class="rn">03</div><p><strong>Hạng mục phụ thuộc nguồn dữ liệu bên ngoài được khởi động khi nguồn sẵn sàng.</strong> Các nội dung đánh dấu “có điều kiện” không nằm trong cam kết tiến độ chung, và được kích hoạt bằng phụ lục riêng sau khi GOLDCOAST xác nhận nguồn dữ liệu cùng quyền truy cập.</p></div>
+  </div>
+
+  <h3>Đề xuất phạm vi giai đoạn đầu</h3>
+  <div class="note plain">
+    <p>Trên cơ sở phân tích tại Phần 1, chúng tôi đề xuất giai đoạn đầu tập trung vào <strong>Nhóm 1, Nhóm 2</strong> và <strong>phần quy trình của Nhóm 6</strong> — hợp đồng và khách thuê, doanh thu và báo cáo trung tâm, số hóa quy trình thông báo và lập biên bản.</p>
+    <p style="margin-top:11px">Ba phần này có chung ba đặc điểm: nằm trọn trong vùng năng lực chuyên môn, không phụ thuộc vào tiến độ của đơn vị khác, và tạo ra nền dữ liệu chuẩn hóa mà các nhóm còn lại đều cần đến. Nhóm 3 và Nhóm 4 được triển khai ở giai đoạn kế tiếp. Nhóm 5 và Nhóm 7 được đưa vào khi nguồn dữ liệu sẵn sàng.</p>
+    <p style="margin-top:11px">Phạm vi chi tiết, thời lượng, mốc nghiệm thu và điều kiện thương mại: <span class="fill">[[CẦN ĐIỀN — sau buổi làm việc thống nhất phạm vi]]</span></p>
+  </div>
+</section>
+
+<footer>
+  <p>Tài liệu do <strong>Omnikey &amp; Idealab</strong> lập trên cơ sở rà soát bản <em>GOLDCOAST Digital Transformation Proposal v6</em>. Các nội dung đánh dấu <span class="fill">[[CẦN ĐIỀN]]</span> sẽ được hoàn thiện sau buổi làm việc thống nhất phạm vi.</p>
+  <p class="stamp" id="stamp"></p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var VERSION='v3.0', BUILT='20260825';
+  var s=document.getElementById('stamp');
+  if(s) s.textContent='proposal_GOLDCOAST-OmnikeyIdealab_'+BUILT+'_'+VERSION+'  ·  Bản nháp nội bộ — chưa phát hành';
+  var p=document.getElementById('prog');
+  function upd(){
+    var h=document.documentElement, max=h.scrollHeight-h.clientHeight;
+    p.style.width=(max>0?(h.scrollTop||document.body.scrollTop)/max*100:0)+'%';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd); upd();
+})();
+</script>
+</body>
+</html>
