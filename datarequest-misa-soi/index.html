@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MISA GP Bán lẻ — Danh mục dữ liệu · đối chiếu lần nhận 1 · v3.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+  --ink:#231F20; --muted:#766F71; --line:#E9E2E4; --card:#ffffff; --bg:#F3EFEF;
+  --own:#982A3F; --neg:#982A3F; --soft:#F7EFF1; --warn:#5F5759; --warnbg:#FBF9F7;
+  --alloc:#4A4143; --deep:#231F20;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13.5px;line-height:1.62}
+.mono{font-family:'DM Mono',monospace}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);
+  padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{font-family:'Noto Serif Display',serif;font-size:17px;font-weight:600;margin:0}
+.ver-badge{background:var(--own);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px}
+.rel-stamp{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted)}
+.spacer{flex:1}
+.logo{height:30px;width:auto;display:block;flex:none}
+
+.hintbar{background:var(--soft);border-bottom:1px solid var(--line);padding:7px 20px;
+  font-size:12px;color:#2c3d36}
+.hintbar b{color:var(--own)}
+
+/* tabs */
+.tabs{display:flex;gap:5px;padding:10px 20px 0;flex-wrap:wrap;position:sticky;top:47px;z-index:29;background:var(--bg)}
+.tab{font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-bottom:none;
+  border-radius:10px 10px 0 0;background:#EDE8E9;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tab.on{background:var(--card);color:var(--own)}
+.tab .cnt{font-family:'DM Mono',monospace;font-size:10px;opacity:.7;margin-left:5px}
+.shell{background:var(--card);border:1px solid var(--line);border-radius:0 12px 12px 12px;
+  margin:0 20px 40px;padding:22px 24px}
+
+h2{font-family:'Noto Serif Display',serif;font-size:20px;margin:0 0 4px;color:var(--ink)}
+h3{font-family:'Noto Serif Display',serif;font-size:15px;margin:26px 0 8px;color:var(--own)}
+.lead{color:var(--muted);font-size:13px;margin:0 0 16px;max-width:960px}
+
+/* status */
+.st{display:inline-block;font-size:9.5px;font-weight:800;border-radius:6px;padding:2px 7px;
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.st.ok{background:#eaf6ec;color:#14532d}
+.st.warn{background:var(--warnbg);color:var(--warn)}
+.st.err{background:#fdeceb;color:var(--neg)}
+.st.core{background:var(--own);color:#fff}
+.st.high{background:#E9E2E4;color:#4A4143}
+.st.low{background:#FBF9F7;color:#8C8487;border:1px solid var(--line)}
+.dv{display:inline-block;font-size:9.5px;font-weight:800;border-radius:6px;padding:2px 7px;
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.dv.ok{background:var(--own);color:#fff}
+.dv.part{background:#E9E2E4;color:#4A4143}
+.dv.bad{background:#FBF9F7;color:var(--neg);border:1px solid #E4CFD4}
+.fl{font-family:'DM Mono',monospace;font-size:10.5px;border-radius:5px;padding:1px 6px;margin:0 4px 4px 0;display:inline-block}
+.fl.ok{background:#F7EFF1;color:#982A3F}
+.fl.partial{background:#E9E2E4;color:#4A4143}
+.fl.empty{background:#FBF9F7;color:var(--neg);border:1px solid #E4CFD4}
+.fl.missing{background:var(--neg);color:#fff}
+.dfn{font-size:11.5px;color:#4A4143;background:#FBF9F7;border-left:2px solid var(--own);
+  padding:4px 8px;border-radius:0 5px 5px 0;margin-top:3px}
+.dg{display:inline-block;font-family:'DM Mono',monospace;font-size:9.5px;padding:1px 6px;border-radius:5px}
+.dg.lat{background:var(--neg);color:#fff} .dg.moi{background:#E9E2E4;color:#4A4143}
+.dg.ro{background:#F7EFF1;color:var(--own)}
+.wv{display:inline-block;font-family:'DM Mono',monospace;font-size:9.5px;padding:2px 7px;
+  border-radius:6px;background:#eef2f9;color:#1e3a8a;font-weight:500}
+
+/* map */
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 6px}
+.mapcol{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fbfdfb}
+.maphd{background:var(--deep);color:#fff;padding:8px 10px}
+.maphd .g{font-size:12.5px;font-weight:800}
+.maphd .q{font-size:10.5px;opacity:.75;line-height:1.4;margin-top:3px}
+.mapb{padding:8px}
+.mapi{border:1px solid var(--line);border-radius:7px;background:#fff;padding:6px 8px;margin-bottom:6px;cursor:pointer}
+.mapi:hover{border-color:var(--own);background:var(--soft)}
+.mapi .id{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+.mapi .nm{font-size:11.5px;font-weight:600;line-height:1.3;margin:1px 0 4px}
+.mapi .bar{height:3px;border-radius:2px}
+.bar.core{background:var(--own)} .bar.high{background:#A9A2A4} .bar.low{background:#DDD4D6}
+@media(max-width:1100px){.map{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.map{grid-template-columns:1fr}}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:10px 0 0}
+.legend span{display:flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;flex:none}
+
+/* table */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:640px}
+th{background:var(--ink);color:#fff;text-align:left;padding:7px 10px;font-size:10.5px;
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;position:sticky;top:0;z-index:2}
+td{padding:6px 10px;border-bottom:1px solid #F0EBEC;vertical-align:top}
+tr:hover td{background:#FBF9F7}
+tr.grp td{background:#F3EFEF;font-weight:800;color:var(--own)}
+td.c{font-family:'DM Mono',monospace;font-size:11.5px;white-space:nowrap}
+
+/* story card */
+.story{border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden;background:#fff}
+.sh{background:#F7EFF1;padding:11px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  border-bottom:1px solid var(--line)}
+.sh .sid{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--own)}
+.sh .snm{font-size:14.5px;font-weight:700}
+.sh .car{margin-left:auto;color:var(--muted);font-size:12px}
+.sb{padding:16px 18px}
+.story.cl .sb{display:none}
+
+.us{background:var(--soft);border-left:3px solid var(--own);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.7}
+.us i{font-style:normal;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--own);display:inline-block;width:62px}
+.blk{margin-bottom:14px}
+.blk>.lb{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+pre{font-family:'DM Mono',monospace;font-size:11.5px;background:#231F20;color:#E9E2E4;
+  padding:11px 14px;border-radius:8px;overflow-x:auto;margin:0;line-height:1.65;white-space:pre-wrap}
+ul.ac{margin:0;padding-left:18px}
+ul.ac li{margin-bottom:4px;font-size:12.5px}
+.why{border-left:3px solid var(--warn);background:var(--warnbg);padding:10px 14px;
+  border-radius:0 8px 8px 0;font-size:12.5px;color:#4a3d1e}
+.why b{color:var(--warn);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;display:block;margin-bottom:3px;font-weight:500}
+.bchip{display:inline-block;background:#F7EFF1;color:var(--neg);border:1px solid #E4CFD4;
+  border-radius:6px;padding:2px 8px;font-size:11px;margin:0 5px 5px 0}
+.pil{display:inline-block;font-family:'DM Mono',monospace;font-size:9.5px;padding:1px 6px;
+  border-radius:5px;background:#f1f4f1;color:var(--muted)}
+.pil.A{background:#F7EFF1;color:#982A3F} .pil.E{background:#E9E2E4;color:#4A4143}
+.pil.P{background:#FBF9F7;color:#8C8487}
+.tools{display:flex;gap:6px;margin:0 0 12px}
+.btn{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:6px 11px;
+  border:1px solid var(--line);border-radius:9px;background:#fff;cursor:pointer;color:var(--ink)}
+.btn:hover{border-color:var(--own)}
+.btn:focus-visible{border-color:var(--own);box-shadow:0 0 0 3px rgba(152,42,63,.18)}
+@media(max-width:900px){.shell{margin:0 10px 30px;padding:16px 14px}.tabs{padding:8px 10px 0}
+  .top{padding:9px 12px}.hintbar{padding:7px 12px}}
+@media print{.tabs,.top{position:static}.story.cl .sb{display:block}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <img class="logo" src="data:image/png;base64,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" alt="SOI.Pro — The Silence of Improvement">
+  <h1>MISA GP Bán lẻ — Danh mục dữ liệu · đối chiếu lần nhận 1</h1>
+  <span class="ver-badge" data-ver></span>
+  <span class="rel-stamp" data-stamp></span>
+  <span class="spacer"></span>
+  <span class="rel-stamp">Quick Win Khối Bán lẻ</span>
+</div>
+<div class="mockbar" style="background:#F7EFF1;border-bottom:1px solid #E4CFD4;padding:8px 20px;font-size:12px;color:var(--neg);font-weight:600">
+  BA LỚP ĐỐI CHIẾU — yêu cầu ban đầu của SOI · định nghĩa MISA chốt trong buổi 24/08 · dữ liệu thực nhận 29/08. Mười điểm chênh lệch cần chốt được liệt kê ở Tab 1.
+</div>
+<div class="hintbar">
+  <b>Cách đọc:</b> Tab 1 là danh mục 13 bảng cần trích xuất, quy ước gửi dữ liệu và các nội dung cần làm rõ.
+  Tab 2–5 là chi tiết trường của từng bảng. Nhãn
+  <span class="st core">cốt lõi</span> <span class="st high">bổ trợ</span> <span class="st low">mở rộng</span>
+  cho biết mức độ cần thiết của bảng đối với 19 chỉ số chẩn đoán.
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="shell" id="shell"></div>
+
+<script>
+const APP_VERSION='v3.1', BUILD_STAMP='Released 04/09/2026 · 3 lớp đối chiếu · yêu cầu SOI · chốt 24/08 · dữ liệu 29/08';
+document.querySelectorAll('[data-ver]').forEach(e=>e.textContent=APP_VERSION);
+document.querySelectorAll('[data-stamp]').forEach(e=>e.textContent=BUILD_STAMP);
+
+const D={
+"groups":[
+{"id":"R1","tab":2,"name":"Danh mục","full":"R1 · Master data — danh mục nền",
+ "question":"Các đối tượng trong hệ thống là ai, là gì, thuộc nhóm nào?",
+ "state":"Năm bảng danh mục, mỗi đối tượng đúng một dòng, không có yếu tố thời gian. Chi phí trích xuất thấp, nhưng đây là phần quyết định khả năng cắt lát của toàn bộ báo cáo. Riêng danh mục lý do rời bỏ cần ở dạng bộ mã đóng mới dùng được — xem câu D.",
+ "tables":[
+ {"id":"R1.1","name":"DM_KHACHHANG — danh mục khách hàng","status":"core","wave":1,
+  "role":"Đội phân tích + Giám đốc Khối Bán lẻ",
+  "want":"danh sách toàn bộ khách hàng GP Bán lẻ kèm thuộc tính phân loại",
+  "so":"cắt được các chỉ số theo ngành hàng, quy mô và vùng, thay vì chỉ có số tổng",
+  "shape":"1 dòng = 1 khách hàng (pháp nhân hoặc hộ kinh doanh). Ước lượng số dòng: [[CẦN ĐIỀN]].",
+  "cols":[
+   ["ma_kh","chuỗi, duy nhất","BB","Khoá chính, xuất hiện ở mọi bảng khác. Có thể ẩn danh, miễn nhất quán giữa các bảng"],
+   ["ten_kh","chuỗi","KN","Bỏ được nếu vướng bảo mật, miễn giữ nguyên ma_kh"],
+   ["loai_hinh","DN / HKD / cá nhân","BB","Ảnh hưởng cách đọc quy mô và khả năng chi trả"],
+   ["nganh_hang","Bán lẻ / F&B / dịch vụ…","BB","Chiều cắt lát chính của bộ chỉ số"],
+   ["quy_mo","số cửa hàng · số user","KN","Phân biệt chuỗi nhiều điểm bán với điểm bán đơn lẻ"],
+   ["tinh_thanh","mã hoặc tên","KN","Gửi mã nếu có, tên tỉnh viết tay dễ lệch chính tả"],
+   ["ngay_tao_kh","YYYY-MM-DD","BB",""],
+   ["ngay_mua_dau_tien","YYYY-MM-DD","BB","Căn cứ phân biệt khách mới với khách cũ. Không có trường này thì phải suy từ đơn hàng, cần lịch sử ít nhất 24 tháng"],
+   ["kenh_thu_hut_dau_tien","mã kênh","BB","Gán tại thời điểm thu hút, giữ nguyên suốt đời khách, không cập nhật đè"],
+   ["ma_nvkd_phu_trach","mã nhân viên","KN","Cần cho bước giao việc ở chỉ số 17"],
+   ["trang_thai","đang hoạt động / ngừng","BB",""]],
+  "src":["Hệ thống CRM / quản lý khách hàng GP Bán lẻ — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  2 · 3 · 9\nVà là chiều cắt lát cho toàn bộ 19 chỉ số",
+  "ac":["ma_kh duy nhất, không trùng, không rỗng",
+        "Mọi ma_kh xuất hiện trong GD_BAN_HANG đều có mặt ở đây, không có mã không tra được",
+        "Trường phân loại gửi cả mã lẫn tên hiển thị, không chỉ tên",
+        "Gửi kèm số dòng để đối soát khi nhận file"],
+  "block":["H — đơn vị đếm khách","J — giới hạn bảo mật với mã khách"],
+  "why":"Không có bảng này thì các chỉ số chỉ dừng ở mức tổng. Thuộc tính phân loại là điều kiện để xác định biến động tập trung ở phân khúc nào, tức mức chi tiết cần thiết để đề xuất hành động."},
+
+ {"id":"R1.2","name":"DM_SANPHAM — danh mục gói dịch vụ","status":"core","wave":1,
+  "role":"Đội phân tích + Product owner GP Bán lẻ",
+  "want":"danh mục gói và sản phẩm kèm kỳ hạn, nhóm và bậc gói",
+  "so":"phân biệt được up-sell với cross-sell, và tính được ngày tới hạn",
+  "shape":"1 dòng = 1 mã sản phẩm hoặc gói dịch vụ. Ước lượng 30–80 dòng.",
+  "cols":[
+   ["ma_sp","chuỗi, duy nhất","BB","Khoá chính"],
+   ["ten_sp","chuỗi","BB",""],
+   ["dong_sp","eSHOP / CukCuk / khác","BB","Cross-sell được định nghĩa là mua sang dòng khác"],
+   ["nhom_sp","phần mềm / phần cứng / dịch vụ / add-on","BB","Quyết định khoản nào là doanh thu định kỳ, khoản nào là một lần"],
+   ["ky_han_thang","12 / 24 / 36 / vĩnh viễn","BB","Đầu vào để tính ngày tới hạn nếu không có bảng thuê bao"],
+   ["bac_goi","Starter / Pro / …","KN","Thiếu trường này thì không tách được up-sell khỏi cross-sell"],
+   ["gia_niem_yet","số","KN","Dùng để soi mức chiết khấu thực tế"],
+   ["co_gia_han","Y / N","BB","Lọc ra tập sản phẩm được tính vào tỷ lệ gia hạn"]],
+  "src":["Danh mục sản phẩm GP Bán lẻ — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  1 · 4 · 5 · 12",
+  "ac":["Mọi ma_sp xuất hiện trong GD_BAN_HANG đều có trong danh mục này",
+        "ky_han_thang khác rỗng với mọi sản phẩm có co_gia_han = Y",
+        "Sản phẩm đã ngừng bán vẫn giữ trong danh mục, vì dữ liệu lịch sử còn tham chiếu tới"],
+  "block":[],
+  "why":"Bậc gói là căn cứ để phân biệt up-sell (lên bậc cao hơn trong cùng dòng) với cross-sell (mua sang dòng sản phẩm khác). Hai nhóm này tương ứng với hai hành động bán hàng khác nhau; nếu gộp chung, chỉ số 4 không đủ chi tiết để phân bổ nguồn lực."},
+
+ {"id":"R1.3","name":"DM_KENH — danh mục kênh thu hút","status":"core","wave":1,
+  "role":"Trưởng bộ phận Marketing",
+  "want":"một bộ mã kênh duy nhất dùng chung cho CRM và cho bảng chi phí quảng cáo",
+  "so":"ghép được tiền bỏ ra với khách thu về",
+  "shape":"1 dòng = 1 kênh, hoặc 1 chiến dịch nếu quản lý ở mức chiến dịch. Ước 10–40 dòng.",
+  "cols":[
+   ["ma_kenh","chuỗi, duy nhất","BB","Khoá chính"],
+   ["ten_kenh","chuỗi","BB",""],
+   ["nhom_kenh","Paid / Giới thiệu / Inbound / Telesales / Đại lý / Sự kiện","BB","Nhóm Giới thiệu là căn cứ của WOM index; không có phân nhóm thì chỉ số 10 không tính được"],
+   ["nen_tang","FB / Google / Zalo / TikTok…","KN",""],
+   ["ma_chien_dich","chuỗi","KN","Chỉ cần nếu chi phí được quản lý ở mức chiến dịch"]],
+  "src":["CRM và hệ thống quản lý chi phí marketing — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  6 · 10 · 11",
+  "ac":["Tập giá trị ma_kenh dùng trong GD_LEAD và GD_CHI_PHI_MKT nằm trọn trong danh mục này; đối chiếu hai tập giá trị trước khi phân tích và báo lại nếu có chênh lệch",
+        "Kênh không còn dùng vẫn giữ trong danh mục",
+        "Mỗi kênh thuộc đúng một nhom_kenh"],
+  "block":["E — hai hệ thống có dùng chung bộ mã kênh không"],
+  "why":"Chỉ số 6, 10 và 11 cộng lại phải bằng tổng khách mới. Nếu CRM và bảng chi phí dùng hai bộ mã khác nhau thì ba chỉ số này sẽ không cộng đúng và phần chênh lệch không truy được nguyên nhân."},
+
+ {"id":"R1.4","name":"DM_NHANSU — nhân sự kinh doanh / đại lý","status":"high","wave":2,
+  "role":"Giám đốc Khối Bán lẻ",
+  "want":"danh sách nhân sự kinh doanh và đại lý kèm team, vùng",
+  "so":"phân công được danh sách khách sắp tới hạn về đúng người phụ trách",
+  "shape":"1 dòng = 1 nhân viên hoặc 1 đại lý.",
+  "cols":[
+   ["ma_nv","chuỗi, duy nhất","BB",""],
+   ["ten_nv","chuỗi","KN","Bỏ được nếu vướng nhân sự, miễn giữ mã"],
+   ["vai_tro","KD / CSKH / tư vấn","BB",""],
+   ["team","chuỗi","KN",""],
+   ["chi_nhanh / vung_mien","chuỗi","KN","Chiều cắt lát hiệu suất"],
+   ["trang_thai","đang làm / đã nghỉ","BB","Nhân viên đã nghỉ vẫn giữ trong danh mục vì đơn cũ còn tham chiếu tới"]],
+  "src":["Hệ thống nhân sự / phân công CRM — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho:  cắt lát chỉ số 6–14 theo đội\nVà bước giao việc của chỉ số 17",
+  "ac":["Mọi ma_nv xuất hiện trong GD_BAN_HANG và GD_LEAD có mặt ở đây"],
+  "block":[],
+  "why":"Chỉ số 17 là chỉ số duy nhất trong bộ 19 chỉ số hướng về kỳ tới. Không có thông tin phụ trách thì kết quả dừng ở mức thông tin, chưa chuyển thành đầu việc phân công được."},
+
+ {"id":"R1.5","name":"DM_LY_DO_ROI_BO — bộ mã lý do rời bỏ","status":"core","wave":1,
+  "role":"Trưởng bộ phận CSKH",
+  "want":"một bộ mã lý do rời bỏ đóng, mỗi mã có phân loại C1 hay C2",
+  "so":"xếp hạng được top lý do và tách được rời bỏ tự nhiên với rời bỏ kỹ thuật",
+  "shape":"1 dòng = 1 mã lý do. Ước 10–20 dòng. Nếu bộ mã chưa tồn tại, cần xây dựng trước khi trích xuất R4.1.",
+  "cols":[
+   ["ma_ly_do","chuỗi, duy nhất","BB",""],
+   ["ten_ly_do","chuỗi","BB",""],
+   ["nhom_ly_do","Giá / Đối thủ / Không dùng đến / Ngừng kinh doanh / Chất lượng SP / Hỗ trợ","BB",""],
+   ["phan_loai_churn","C1 tự nhiên / C2 kỹ thuật / chưa xác định","BB","Căn cứ tính chỉ số 15 và 19; không để trống ở bất kỳ mã nào"],
+   ["dang_su_dung","Y / N","KN","Mã cũ giữ lại để dữ liệu lịch sử còn đọc được"]],
+  "src":["Quy trình CSKH — người duyệt bộ mã: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  15 · 16 · 19",
+  "ac":["Mỗi mã có đúng một phan_loai_churn, không mã nào để trống",
+        "Có một mã hợp lệ tên là chưa xác định, dùng cho khách không tiếp cận được, thay vì để trống ô",
+        "Bộ mã được một người có thẩm quyền duyệt, ghi tên và ngày duyệt"],
+  "block":["D — lý do đang ghi tự do hay theo bộ mã"],
+  "why":"Nếu lý do đang ghi dạng văn bản tự do thì không xếp hạng được top 3, và ranh giới C1 với C2 phụ thuộc cách hiểu của từng người nhập. Đề nghị chốt bộ mã trước khi trích xuất R4.1; chuẩn hoá sau khi đã có dữ liệu tốn công hơn đáng kể."}]},
+
+{"id":"R2","tab":3,"name":"Bán hàng","full":"R2 · Giao dịch bán hàng & vòng đời hợp đồng",
+ "question":"Tiền vào từ ai, sản phẩm nào, khi nào, và hợp đồng đó sống được bao lâu?",
+ "state":"Hai bảng, phủ 13 trên 19 chỉ số — nhóm có mức cần thiết cao nhất trong toàn bộ yêu cầu. Riêng R2.2 phủ 7 chỉ số thuộc nhóm gia hạn và rời bỏ; nếu dữ liệu vòng đời thuê bao không sẵn có và đơn hàng không mang kỳ hạn ở mức dòng thì phạm vi chẩn đoán cần được điều chỉnh.",
+ "tables":[
+ {"id":"R2.1","name":"GD_BAN_HANG — chi tiết dòng đơn hàng","status":"core","wave":1,
+  "role":"Giám đốc Khối Bán lẻ",
+  "want":"toàn bộ dòng đơn hàng từ 01/2024 đến 31/07/2026, mỗi dòng một sản phẩm",
+  "so":"dựng được doanh thu theo nhiều cách cắt lát, thay vì phụ thuộc một bảng tổng hợp cố định",
+  "shape":"1 dòng = 1 đơn hàng × 1 sản phẩm. Ước lượng số dòng: [[CẦN ĐIỀN]].",
+  "cols":[
+   ["ma_don","chuỗi","BB",""],
+   ["dong_don","số thứ tự dòng trong đơn","KN","Cần nếu một đơn có nhiều sản phẩm trùng mã"],
+   ["ngay_ghi_nhan","YYYY-MM-DD","BB","Cần thống nhất trước là ngày ký, ngày xuất hoá đơn hay ngày thu tiền. Xem câu F"],
+   ["ma_kh","chuỗi","BB","Nối về R1.1"],
+   ["ma_sp","chuỗi","BB","Nối về R1.2"],
+   ["so_luong","số","BB",""],
+   ["don_gia","số","BB","Giá trước chiết khấu"],
+   ["chiet_khau","số","BB","Gửi ở cột riêng, không trừ sẵn vào đơn giá"],
+   ["doanh_thu_thuan","số","BB","Sau chiết khấu, trước hoặc sau VAT — ghi rõ quy ước"],
+   ["ma_hop_dong","chuỗi","KN","Cầu nối sang R2.2"],
+   ["ky_han_tu_ngay","YYYY-MM-DD","BB","Nếu không có bảng R2.2 thì hai trường này là nguồn duy nhất để tính gia hạn"],
+   ["ky_han_den_ngay","YYYY-MM-DD","BB","Xem câu B"],
+   ["ma_nv_kd","chuỗi","KN",""],
+   ["ma_kenh","chuỗi","KN","Kênh của đơn, khác với kênh thu hút ban đầu ở R1.1"],
+   ["trang_thai_don","hoàn thành / huỷ / hoàn trả","BB","Gửi cả đơn huỷ và hoàn, không lọc sẵn"],
+   ["loai_gd_he_thong","mới / gia hạn / nâng cấp","TC","Nếu hệ thống đã phân loại sẵn thì gửi để đối chiếu; cách phân loại vẫn cần dựng lại được từ lịch sử giao dịch"]],
+  "src":["Hệ thống bán hàng / quản lý hợp đồng GP Bán lẻ — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  1 · 2 · 3 · 4 · 5 · 7 · 8 · 9 · 12",
+  "ac":["Gửi kèm bảng tổng doanh thu theo tháng để đối soát khi nhận; tổng từ file chi tiết khớp báo cáo nội bộ MISA, chênh 0đ",
+        "Mọi ma_kh và ma_sp có trong danh mục tương ứng, không có mã mồ côi",
+        "Đơn huỷ và hoàn không lọc sẵn; gửi kèm cột trạng thái để bên phân tích tự loại và giải thích chênh lệch",
+        "Chiết khấu ở cột riêng, không trừ sẵn vào đơn giá",
+        "Khoảng ngày của dữ liệu ghi rõ trên tên file"],
+  "block":["F — cơ sở ghi nhận doanh thu","I — lịch sử trích xuất được từ năm nào"],
+  "why":"Bảng này phủ 9 trên 19 chỉ số. Nếu nhận ở dạng tổng hợp theo tháng, dữ liệu không cắt lát và không đối soát được, nhiều khả năng phải yêu cầu trích xuất lại ở vòng sau."},
+
+ {"id":"R2.2","name":"GD_THUE_BAO — vòng đời hợp đồng","status":"core","wave":1,
+  "role":"Giám đốc Khối Bán lẻ",
+  "want":"vòng đời từng thuê bao — bắt đầu khi nào, hết hạn khi nào, đã gia hạn hay chưa",
+  "so":"xác định được khách sắp tới hạn để tiếp cận trước, thay vì thống kê sau khi đã mất",
+  "shape":"1 dòng = 1 khách × 1 sản phẩm × 1 chu kỳ hợp đồng. Khách gia hạn 3 lần thì có 3 dòng nối nhau.",
+  "cols":[
+   ["ma_thue_bao","chuỗi, duy nhất","BB",""],
+   ["ma_kh","chuỗi","BB",""],
+   ["ma_sp","chuỗi","BB",""],
+   ["ngay_bat_dau","YYYY-MM-DD","BB",""],
+   ["ngay_het_han","YYYY-MM-DD","BB","Căn cứ tính chỉ số 17"],
+   ["trang_thai","đang hiệu lực / tới hạn chưa xử lý / đã gia hạn / đã huỷ","BB","Bốn trạng thái loại trừ nhau, không chồng lấn"],
+   ["ma_thue_bao_chu_ky_truoc","chuỗi","BB","Trường nối các chu kỳ gia hạn. Thiếu trường này thì không phân biệt được gia hạn với mua mới"],
+   ["ngay_gia_han_thuc_te","YYYY-MM-DD","KN","Để đo gia hạn trễ và độ dài cửa sổ ân hạn"],
+   ["ma_don_gia_han","chuỗi","KN","Nối sang R2.1 để ghép doanh thu gia hạn"]],
+  "src":["Hệ thống quản lý thuê bao / license GP Bán lẻ — người giữ: [[CẦN ĐIỀN]]",
+         "Nếu không tồn tại: suy từ ky_han_tu_ngay và ky_han_den_ngay ở R2.1"],
+  "formula":"Cấp cho chỉ số:  5 · 8 · 13 · 14 · 15 · 17 · 19\n\nSố tới hạn trong kỳ = Đã gia hạn + Đã mất + Còn treo   ← nghiệm đúng TUYỆT ĐỐI",
+  "ac":["Phương trình đóng nghiệm đúng 0, không làm tròn. Chênh lệch khác 0 cho thấy có luồng chưa được mô tả và cần được xác định, không gộp vào mục khác",
+        "Chuỗi chu kỳ nối được: mỗi thuê bao gia hạn trỏ đúng về một chu kỳ trước đó",
+        "Với kỳ chưa kết thúc, số còn treo lớn hơn 0. Bằng 0 là dấu hiệu dữ liệu đã bị đóng sớm",
+        "Ghi rõ cửa sổ ân hạn: khách gia hạn muộn bao nhiêu ngày thì vẫn tính là gia hạn"],
+  "block":["A — có bảng thuê bao riêng không","B — nếu không, đơn hàng có kỳ hạn ở mức dòng không"],
+  "why":"7 trên 19 chỉ số phụ thuộc bảng này, gồm toàn bộ nhóm gia hạn và rời bỏ. Đề nghị làm rõ câu A và B trước khi phát hành phiếu yêu cầu. Nếu không có cả bảng thuê bao lẫn kỳ hạn ở mức dòng đơn thì chỉ số 13, 14, 15, 17, 19 nằm ngoài phạm vi và chỉ số 5, 8 chỉ đạt mức ước lượng; phạm vi chẩn đoán cần được thống nhất lại với Ban lãnh đạo trước khi bắt đầu."}]},
+
+{"id":"R3","tab":4,"name":"Thu hút","full":"R3 · Kênh thu hút & chi phí",
+ "question":"Khách mới đến từ kênh nào, và mỗi khách tốn bao nhiêu tiền?",
+ "state":"Hai bảng cần đi cùng nhau; tách riêng thì cả hai đều giảm giá trị phân tích. Điều kiện sử dụng được là hai bảng dùng chung một bộ mã kênh với R1.3.",
+ "tables":[
+ {"id":"R3.1","name":"GD_LEAD — lead / cơ hội kinh doanh","status":"core","wave":1,
+  "role":"Trưởng Marketing + Giám đốc Khối",
+  "want":"toàn bộ lead 12 tháng gần nhất kèm kênh và kết quả",
+  "so":"đánh giá kênh theo số khách thu được, không chỉ theo số lượt quan tâm",
+  "shape":"1 dòng = 1 lead. Ước lượng số dòng: [[CẦN ĐIỀN]].",
+  "cols":[
+   ["ma_lead","chuỗi, duy nhất","BB",""],
+   ["ngay_tao","YYYY-MM-DD","BB",""],
+   ["ma_kenh","chuỗi","BB","Nối về R1.3"],
+   ["ma_chien_dich","chuỗi","KN",""],
+   ["ma_kh","chuỗi","BB","Bắt buộc với lead đã thắng. Thiếu trường này thì không nối được lead sang doanh thu, chỉ số 6 chỉ còn là tỷ lệ đóng đơn"],
+   ["trang_thai","mới / tiếp cận / demo / báo giá / thắng / thua","BB",""],
+   ["ngay_chuyen_doi","YYYY-MM-DD","BB","Với lead đã thắng"],
+   ["ly_do_thua","mã hoặc chuỗi","KN","Tương ứng với lý do rời bỏ, nhưng ở đầu phễu"],
+   ["ma_nv","chuỗi","KN",""]],
+  "src":["CRM GP Bán lẻ — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  6 · 9 · 10 · 11",
+  "ac":["Tập giá trị ma_kenh nằm trọn trong R1.3",
+        "Báo rõ tỷ lệ lead để trống nguồn kênh; đây là phần không xác định được của chỉ số 10",
+        "Lead thắng có ma_kh nối được sang R2.1, kiểm bằng cách đối chiếu hai tập mã",
+        "Không lọc bỏ lead thua, vì đây là một phần của mẫu số tỷ lệ chuyển đổi"],
+  "block":["E — taxonomy kênh"],
+  "why":"Độ tin cậy của chỉ số 10 phụ thuộc chất lượng ghi nhận nguồn lead. Cần biết tỷ lệ lead để trống nguồn trước khi đọc con số WOM, để tránh kết luận dựa trên mẫu số chưa đầy đủ."},
+
+ {"id":"R3.2","name":"GD_CHI_PHI_MKT — chi phí marketing theo kênh","status":"high","wave":2,
+  "role":"Giám đốc Khối Bán lẻ",
+  "want":"chi phí marketing theo kênh theo từng tháng",
+  "so":"đánh giá được hiệu quả trên chi phí của từng kênh, không dừng ở tỷ lệ chuyển đổi",
+  "shape":"1 dòng = 1 kênh × 1 chiến dịch × 1 tháng.",
+  "cols":[
+   ["ky_thang","YYYY-MM","BB",""],
+   ["ma_kenh","chuỗi","BB","Cùng bộ mã với R1.3 và R3.1"],
+   ["ma_chien_dich","chuỗi","KN",""],
+   ["chi_phi","số","BB","Ghi rõ đã gồm VAT hay chưa"],
+   ["so_hien_thi","số","TC",""],
+   ["so_click","số","TC",""],
+   ["so_lead_khai_bao","số","KN","Để đối chiếu với số lead đếm được từ R3.1; chênh lệch lớn cho thấy có lead chưa được ghi nhận"]],
+  "src":["Nền tảng quảng cáo + sổ chi phí marketing — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  6 · 11  (phần chi phí trên mỗi khách)",
+  "ac":["Cùng bộ ma_kenh với R3.1 — đối chiếu tập giá trị trước khi phân tích",
+        "Tổng chi phí theo tháng khớp với sổ chi phí marketing, chênh 0đ",
+        "Kênh không phát sinh chi phí trong tháng vẫn gửi dòng giá trị 0, không bỏ dòng"],
+  "block":["E — taxonomy kênh"],
+  "why":"Không có bảng này thì chỉ số 6 dừng ở tỷ lệ chuyển đổi. Tỷ lệ chuyển đổi cao ở một kênh có chi phí cao chưa hẳn là hiệu quả; thiếu dữ liệu chi phí thì không đánh giá được phương án phân bổ ngân sách."}]},
+
+{"id":"R4","tab":5,"name":"Giữ chân","full":"R4 · Giữ chân & trải nghiệm khách hàng",
+ "question":"Vì sao khách ở lại hay rời đi, và có nhìn thấy trước được không?",
+ "state":"Bốn bảng. R4.1 và R4.2 là nền của bộ chỉ số rời bỏ. R4.3 nằm ngoài danh sách 19 chỉ số ban đầu, cho phép nhận diện dấu hiệu rời bỏ trước thời điểm đến hạn. R4.4 chưa cần cho vòng chẩn đoán đầu tiên.",
+ "tables":[
+ {"id":"R4.1","name":"GD_ROI_BO — ghi nhận rời bỏ và lý do","status":"core","wave":1,
+  "role":"Trưởng bộ phận CSKH",
+  "want":"danh sách khách đã rời bỏ kèm lý do đã mã hoá",
+  "so":"xác định hướng xử lý phù hợp: tiếp cận lại, điều chỉnh onboarding, hay xem lại chính sách giá",
+  "shape":"1 dòng = 1 lượt rời bỏ (khách × thuê bao). Khoảng thời gian: 12 tháng gần nhất.",
+  "cols":[
+   ["ma_kh","chuỗi","BB",""],
+   ["ma_thue_bao","chuỗi","KN","Nối về R2.2 để biết rời bỏ tại thời điểm tới hạn hay giữa kỳ"],
+   ["ngay_ghi_nhan","YYYY-MM-DD","BB",""],
+   ["ma_ly_do_chinh","mã","BB","Nối về R1.5"],
+   ["ma_ly_do_phu","mã","KN",""],
+   ["kenh_ghi_nhan","telesales / khảo sát / CSKH","BB","Quyết định mức tin cậy của lý do"],
+   ["ghi_chu_tu_do","chuỗi","KN","Giữ nguyên văn, không thay cho mã"],
+   ["nguoi_ghi_nhan","mã nhân viên","KN",""]],
+  "src":["Hệ thống CSKH / bảng theo dõi khách rời bỏ — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  15 · 16 · 19",
+  "ac":["Báo rõ tỷ lệ phủ: bao nhiêu phần trăm khách rời bỏ trong kỳ có ghi nhận lý do. Dưới 30% thì bảng xếp hạng chỉ mang tính tham khảo và cần ghi rõ trên báo cáo",
+        "Khách không tiếp cận được xếp vào mã chưa xác định, không mặc định gán C1 hay C2",
+        "Tổng số lượt rời bỏ không lớn hơn số khách tới hạn không gia hạn ở R2.2; nếu lớn hơn thì hai bên đang dùng hai định nghĩa rời bỏ khác nhau"],
+  "block":["D — lý do đang ghi tự do hay theo mã","K — mẫu số thật của ba tỷ lệ hiện có"],
+  "why":"Bản chẩn đoán hiện ghi gia hạn 25%, C2 55%, C1 75%, cộng lại 155% trong khi mô tả nêu ba tỷ lệ dùng chung một mẫu số. Chênh lệch này chỉ truy được nguyên nhân từ dữ liệu ở mức từng khách; bổ sung thêm một tỷ lệ đã tổng hợp không xử lý được."},
+
+ {"id":"R4.2","name":"GD_KHAO_SAT_NPS — phản hồi khảo sát","status":"core","wave":1,
+  "role":"Giám đốc Khối Bán lẻ",
+  "want":"từng phản hồi khảo sát, có mã khách, có điểm theo bốn khía cạnh",
+  "so":"nối được điểm hài lòng với hành vi gia hạn thật",
+  "shape":"1 dòng = 1 phản hồi của 1 khách trong 1 đợt khảo sát.",
+  "cols":[
+   ["ma_phan_hoi","chuỗi","BB",""],
+   ["ma_kh","chuỗi","BB","Khảo sát ẩn danh chỉ cho phép tính điểm trung bình, không nối được sang các bảng khác. Xem câu C"],
+   ["ngay_khao_sat","YYYY-MM-DD","BB",""],
+   ["dot_khao_sat","chuỗi","BB",""],
+   ["diem_nps_0_10","số","BB","Ghi rõ thang điểm gốc để tránh sai sót khi quy đổi"],
+   ["diem_gia_tri_sp","số","KN","Bốn khía cạnh đã nêu trong bản chẩn đoán"],
+   ["diem_trai_nghiem_su_dung","số","KN",""],
+   ["diem_huong_dan_ban_dau","số","KN",""],
+   ["diem_dich_vu_support","số","KN",""],
+   ["nhan_xet","chuỗi","KN","Giữ nguyên văn"],
+   ["kenh_khao_sat","email / in-app / điện thoại","KN","Kênh khác nhau cho tỷ lệ trả lời khác nhau"]],
+  "src":["Công cụ khảo sát khách hàng — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  18\nBắc cầu sang:    16  (lọc nhóm Detractor)",
+  "ac":["Gửi kèm số khách được mời khảo sát, không chỉ số người đã trả lời, để tính được tỷ lệ trả lời",
+        "Tỷ lệ trả lời dưới 10% thì kết quả có thể thiên lệch và cần ghi rõ trên báo cáo",
+        "Thang điểm ghi rõ trong tên cột hoặc file mô tả"],
+  "block":["C — khảo sát có gắn mã khách hàng không"],
+  "why":"Không có mã khách hàng, NPS chỉ đọc được ở mức điểm trung bình. Có mã khách hàng thì nối được sang hành vi gia hạn thực tế và định lượng được chênh lệch tỷ lệ gia hạn giữa các nhóm điểm, tức chuyển từ một chỉ số mô tả thành căn cứ can thiệp."},
+
+ {"id":"R4.3","name":"GD_SU_DUNG — nhật ký sử dụng sản phẩm","status":"low","wave":3,
+  "role":"Giám đốc Khối Bán lẻ + Product",
+  "want":"mức độ sử dụng thực tế của từng khách theo tháng",
+  "so":"nhận diện khách có nguy cơ rời bỏ trước thời điểm đến hạn 3–6 tháng",
+  "shape":"1 dòng = 1 khách × 1 sản phẩm × 1 tháng. Có thể tổng hợp sẵn ở mức tháng, không cần event log thô.",
+  "cols":[
+   ["ma_kh","chuỗi","BB",""],
+   ["ma_sp","chuỗi","BB",""],
+   ["ky_thang","YYYY-MM","BB",""],
+   ["ngay_kich_hoat","YYYY-MM-DD","BB","Khoảng cách từ ngày mua tới ngày kích hoạt là một chỉ báo về mức độ tiếp nhận sản phẩm"],
+   ["so_ngay_co_phat_sinh","số","BB","Số ngày trong tháng có phát sinh nghiệp vụ; dùng để đo mức sử dụng thực tế"],
+   ["so_lan_dang_nhap","số","KN",""],
+   ["so_don_hoa_don_phat_sinh","số","KN",""],
+   ["ngay_hoat_dong_gan_nhat","YYYY-MM-DD","BB",""]],
+  "src":["Log sản phẩm eSHOP / CukCuk — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Cấp cho chỉ số:  15 (C2)\nVà tạo ra chỉ báo cảnh báo sớm không có trong danh sách 19 chỉ số ban đầu",
+  "ac":["Khách có thuê bao đang hiệu lực nhưng không có dòng nào trong bảng này cần hiển thị riêng, không mặc định coi là 0; không có dữ liệu khác với không sử dụng",
+        "Định nghĩa có phát sinh ghi rõ và cố định trong suốt kỳ dữ liệu",
+        "Nếu số liệu suy từ bảng đơn hàng chứ không từ log thật thì phải ghi rõ, chỉ số dẫn xuất sẽ mang nhãn ước lượng"],
+  "block":["G — có log sử dụng không, ở mức nào"],
+  "why":"Mua nhưng chưa có người sử dụng hiện nằm trong top 3 lý do rời bỏ. Dấu hiệu này xuất hiện trong dữ liệu sử dụng nhiều tháng trước thời điểm khách đến hạn, cho phép can thiệp trước khi phát sinh rời bỏ."},
+
+ {"id":"R4.4","name":"GD_TICKET_HO_TRO — phiếu hỗ trợ khách hàng","status":"low","wave":3,
+  "role":"Trưởng bộ phận CSKH",
+  "want":"lịch sử phiếu hỗ trợ theo từng khách",
+  "so":"kiểm chứng giả thuyết trải nghiệm hỗ trợ kém dẫn tới không gia hạn",
+  "shape":"1 dòng = 1 ticket.",
+  "cols":[
+   ["ma_ticket","chuỗi","BB",""],
+   ["ma_kh","chuỗi","BB",""],
+   ["ngay_mo","YYYY-MM-DD","BB",""],
+   ["ngay_dong","YYYY-MM-DD","KN",""],
+   ["nhom_van_de","mã","BB","Theo bộ mã đóng, không phải tiêu đề tự do"],
+   ["muc_do_uu_tien","chuỗi","KN",""],
+   ["thoi_gian_xu_ly","số giờ","KN",""],
+   ["trang_thai","đang mở / đã đóng","BB",""]],
+  "src":["Hệ thống ticket CSKH — người giữ: [[CẦN ĐIỀN]]"],
+  "formula":"Không cấp trực tiếp chỉ số nào trong 19 chỉ số\nLà bối cảnh để đọc:  15 · 18 · 19",
+  "ac":["Nhóm vấn đề theo bộ mã đóng"],
+  "block":[],
+  "why":"Chưa cần cho vòng chẩn đoán đầu tiên. Có thể trích xuất cùng đợt nếu không phát sinh thêm công; đề nghị không để yêu cầu này ảnh hưởng tiến độ 12 bảng còn lại."}]}
+],
+
+"coverage":[
+ [1,"Doanh thu GP Bán Lẻ 2026","R2.1 + R1.2","F"],
+ [2,"Doanh thu từ khách mới","R2.1 + R1.1","F · H · I"],
+ [3,"Doanh thu từ khách cũ","R2.1 + R1.1","F · H · I"],
+ [4,"Doanh thu cross-sell / up-sell","R2.1 + R1.2","I"],
+ [5,"Doanh thu gia hạn","R2.1 + R2.2","A · B"],
+ [6,"Hiệu suất chuyển đổi theo kênh","R3.1 + R1.3 + R3.2","E"],
+ [7,"AOV bán mới","R2.1","F"],
+ [8,"AOV gia hạn","R2.1 + R2.2","A · B"],
+ [9,"Số lượng khách mới","R2.1 + R1.1","H · I"],
+ [10,"WOM index","R3.1 + R1.3","E"],
+ [11,"Khách mới từ kênh quảng cáo","R3.1 + R1.3 + R3.2","E"],
+ [12,"Số lượng khách bán chéo","R2.1 + R1.2","H"],
+ [13,"Số lượng khách gia hạn","R2.2","A · B"],
+ [14,"Tỷ lệ gia hạn","R2.2","A · B · K"],
+ [15,"Tỷ lệ rời bỏ kỹ thuật (C2)","R2.2 + R4.1 + R1.5","A · B · D · K"],
+ [16,"Bảng lý do rời bỏ","R4.1 + R1.5 + R4.2","C · D"],
+ [17,"Số lượng khách tới hạn","R2.2 + R1.4","A · B"],
+ [18,"Khảo sát hài lòng (NPS)","R4.2","C"],
+ [19,"Tỷ lệ rời bỏ tự nhiên (C1)","R2.2 + R4.1 + R1.5","A · B · D · K"]
+],
+
+"blockers":[
+ ["A","MISA có bảng vòng đời thuê bao / hợp đồng theo chu kỳ không, hay chỉ có đơn hàng?","Đội hệ thống","R2.2","7 chỉ số: 5·8·13·14·15·17·19"],
+ ["B","Nếu không có: đơn hàng có ky_han_tu_ngay và ky_han_den_ngay ở mức dòng không?","Đội hệ thống","R2.1, R2.2","7 chỉ số doanh thu gia hạn và vòng đời"],
+ ["C","Khảo sát NPS có gắn mã khách hàng không, hay thu ẩn danh?","Bộ phận CX / CSKH","R4.2","2 chỉ số: 16 · 18"],
+ ["D","Lý do rời bỏ đang ghi tự do hay theo bộ mã đóng? Ai có thẩm quyền duyệt bộ mã?","CSKH","R1.5, R4.1","3 chỉ số: 15 · 16 · 19"],
+ ["E","CRM và bảng chi phí marketing có dùng chung một bộ mã kênh không?","Marketing","R1.3, R3.1, R3.2","3 chỉ số: 6 · 10 · 11"],
+ ["F","Doanh thu ghi nhận theo ngày ký, ngày xuất hoá đơn, hay phân bổ đều theo kỳ hạn hợp đồng?","Kế toán","R2.1","7 chỉ số doanh thu và AOV"],
+ ["G","Có log sử dụng sản phẩm eSHOP / CukCuk không? Ở mức nào — sự kiện gì, tần suất nào?","Product / Data","R4.3","ngoài 19 chỉ số · cảnh báo sớm"],
+ ["H","Đơn vị đếm khách là pháp nhân hay từng cửa hàng? Chuỗi nhiều điểm bán đang ghi thế nào?","Giám đốc Khối","R1.1 và các chỉ số đếm khách","5 chỉ số: 9·10·11·12·13"],
+ ["I","Lịch sử đơn hàng trích xuất được từ năm nào? Cần tối thiểu 24 tháng để phân biệt khách mới với khách cũ.","Đội hệ thống","R2.1","4 chỉ số phân loại khách mới/cũ"],
+ ["J","Có gửi được mã khách hàng ra ngoài không? Nếu vướng bảo mật, ẩn danh nhất quán giữa các bảng được không?","Pháp chế / IT","toàn bộ 13 bảng","điều kiện ghép dữ liệu giữa các bảng"],
+ ["K","Ba tỷ lệ 25% / 55% / 75% trong bản chẩn đoán cộng lại 155%. Mẫu số thật của từng tỷ lệ là gì?","Giám đốc Khối","R2.2, R4.1","3 chỉ số: 14 · 15 · 19"]
+],
+
+"sources":[
+ ["Hệ thống bán hàng / hợp đồng","đơn hàng · dòng đơn · hợp đồng","R2.1, R2.2","[[CẦN ĐIỀN]]"],
+ ["Hệ thống quản lý thuê bao / license","chu kỳ hiệu lực · gia hạn","R2.2","[[CẦN ĐIỀN]]"],
+ ["CRM GP Bán lẻ","khách hàng · lead · nguồn · trạng thái","R1.1, R3.1","[[CẦN ĐIỀN]]"],
+ ["Danh mục sản phẩm","gói · kỳ hạn · bậc gói","R1.2","[[CẦN ĐIỀN]]"],
+ ["Công cụ khảo sát khách hàng","phản hồi NPS · điểm thành phần","R4.2","[[CẦN ĐIỀN]]"],
+ ["Nền tảng quảng cáo + sổ chi phí","chi phí theo kênh / tháng","R3.2","[[CẦN ĐIỀN]]"],
+ ["Hệ thống CSKH","ghi nhận rời bỏ · ticket","R4.1, R4.4","[[CẦN ĐIỀN]]"],
+ ["Log sản phẩm eSHOP / CukCuk","hoạt động sử dụng theo khách","R4.3","[[CẦN ĐIỀN]]"]
+]};
+
+const NOTES={"R1.2": ["ky_han_thang khác rỗng với mọi sản phẩm có co_gia_han = Y."], "R1.3": ["Tập giá trị ma_kenh dùng trong GD_LEAD và GD_CHI_PHI_MKT nằm trọn trong danh mục này."], "R1.5": ["Mỗi mã có đúng một phan_loai_churn, không mã nào để trống.", "Có một mã hợp lệ tên là chưa xác định, dùng cho khách không tiếp cận được."], "R2.1": ["Gửi kèm bảng tổng doanh thu theo tháng để đối soát khi nhận.", "Đơn huỷ và hoàn không lọc sẵn; gửi kèm cột trạng thái."], "R2.2": ["Nghiệm đúng tuyệt đối: Số tới hạn trong kỳ = Đã gia hạn + Đã mất + Còn treo.", "Ghi rõ cửa sổ ân hạn: khách gia hạn muộn bao nhiêu ngày thì vẫn tính là gia hạn."], "R3.1": ["Báo rõ tỷ lệ lead để trống nguồn kênh — đây là phần không xác định được của chỉ số 10.", "Không lọc bỏ lead thua, vì đây là một phần của mẫu số tỷ lệ chuyển đổi."], "R3.2": ["Dùng cùng bộ ma_kenh với R3.1; kênh không phát sinh chi phí vẫn gửi dòng giá trị 0."], "R4.1": ["Báo rõ tỷ lệ phủ: bao nhiêu phần trăm khách rời bỏ trong kỳ có ghi nhận lý do.", "Khách không tiếp cận được xếp vào mã chưa xác định, không mặc định gán C1 hay C2."], "R4.2": ["Gửi kèm số khách được mời khảo sát, không chỉ số người đã trả lời.", "Ghi rõ thang điểm gốc (0–10 hay 1–5)."], "R4.3": ["Khách có thuê bao đang hiệu lực nhưng không có dòng nào trong bảng này cần hiển thị riêng, không mặc định coi là 0."]};
+const WHY_KEEP=["R2.2", "R4.2", "R4.3"];
+
+const FLD={"R1.1": {"tbl": "dm_khach_hang", "rows": 5000, "cut": 1, "extra": [], "f": [{"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ten_kh", "s": "missing", "n": null, "alias": null}, {"f": "loai_hinh", "s": "ok", "n": 0.0, "alias": null}, {"f": "nganh_hang", "s": "empty", "n": 99.6, "alias": null}, {"f": "quy_mo", "s": "ok", "n": 0.0, "alias": null}, {"f": "tinh_thanh", "s": "ok", "n": 0.9, "alias": null}, {"f": "ngay_tao_kh", "s": "ok", "n": 5.9, "alias": null}, {"f": "ngay_mua_dau_tien", "s": "ok", "n": 0.0, "alias": null}, {"f": "kenh_thu_hut_dau_tien", "s": "partial", "n": 86.6, "alias": null}, {"f": "ma_nvkd_phu_trach", "s": "ok", "n": 0.0, "alias": null}, {"f": "trang_thai", "s": "ok", "n": 5.9, "alias": null}]}, "R1.2": {"tbl": "dm_san_pham", "rows": 2103, "cut": 0, "extra": [], "f": [{"f": "ma_sp", "s": "ok", "n": 0.0, "alias": null}, {"f": "ten_sp", "s": "ok", "n": 0.0, "alias": null}, {"f": "dong_sp", "s": "ok", "n": 0.0, "alias": null}, {"f": "nhom_sp", "s": "ok", "n": 0.0, "alias": null}, {"f": "ky_han_thang", "s": "missing", "n": null, "alias": null}, {"f": "bac_goi", "s": "ok", "n": 0.0, "alias": null}, {"f": "gia_niem_yet", "s": "ok", "n": 0.1, "alias": null}, {"f": "co_gia_han", "s": "ok", "n": 0.0, "alias": null}]}, "R1.3": {"tbl": "dm_kenh", "rows": 2659, "cut": 0, "extra": ["id_kenh"], "f": [{"f": "ma_kenh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ten_kenh", "s": "ok", "n": 0.4, "alias": null}, {"f": "nhom_kenh", "s": "ok", "n": 6.5, "alias": null}, {"f": "nen_tang", "s": "partial", "n": 69.9, "alias": null}, {"f": "ma_chien_dich", "s": "ok", "n": 7.6, "alias": "campaign"}]}, "R1.4": {"tbl": "dm_nhan_su", "rows": 1234, "cut": 0, "extra": [], "f": [{"f": "ma_nv", "s": "ok", "n": 0.0, "alias": null}, {"f": "ten_nv", "s": "missing", "n": null, "alias": null}, {"f": "vai_tro", "s": "ok", "n": 0.3, "alias": null}, {"f": "team", "s": "ok", "n": 0.0, "alias": null}, {"f": "chi_nhanh", "s": "ok", "n": 0.0, "alias": null}, {"f": "trang_thai", "s": "ok", "n": 0.0, "alias": null}]}, "R1.5": {"tbl": "dm_ly_do_roi_bo", "rows": 39, "cut": 0, "extra": [], "f": [{"f": "ma_ly_do", "s": "ok", "n": 5.1, "alias": null}, {"f": "ten_ly_do", "s": "partial", "n": 30.8, "alias": null}, {"f": "nhom_ly_do", "s": "partial", "n": 30.8, "alias": null}, {"f": "phan_loai_churn", "s": "ok", "n": 0.0, "alias": null}, {"f": "dang_su_dung", "s": "missing", "n": null, "alias": null}]}, "R2.1": {"tbl": "gd_ban_hang", "rows": 5000, "cut": 1, "extra": ["hop_dong"], "f": [{"f": "ma_don", "s": "ok", "n": 0.0, "alias": null}, {"f": "dong_don", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_ghi_nhan", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_sp", "s": "ok", "n": 0.0, "alias": null}, {"f": "so_luong", "s": "ok", "n": 0.0, "alias": null}, {"f": "don_gia", "s": "ok", "n": 0.0, "alias": null}, {"f": "chiet_khau", "s": "ok", "n": 0.0, "alias": null}, {"f": "doanh_thu_thuan", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_hop_dong", "s": "missing", "n": null, "alias": null}, {"f": "ky_han_tu_ngay", "s": "ok", "n": 0.0, "alias": null}, {"f": "ky_han_den_ngay", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_nv_kd", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_kenh", "s": "ok", "n": 0.0, "alias": null}, {"f": "trang_thai_don", "s": "ok", "n": 0.0, "alias": null}, {"f": "loai_gd_he_thong", "s": "ok", "n": 0.0, "alias": null}]}, "R2.2": {"tbl": "gd_thue_bao", "rows": 5000, "cut": 1, "extra": [], "f": [{"f": "ma_thue_bao", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_sp", "s": "partial", "n": 61.6, "alias": null}, {"f": "ngay_bat_dau", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_het_han", "s": "ok", "n": 5.0, "alias": null}, {"f": "trang_thai", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_thue_bao_chu_ky_truoc", "s": "missing", "n": null, "alias": null}, {"f": "ngay_gia_han_thuc_te", "s": "empty", "n": 97.6, "alias": null}, {"f": "ma_don_gia_han", "s": "empty", "n": 97.6, "alias": null}]}, "R3.1": {"tbl": "gd_lead", "rows": 690, "cut": 0, "extra": ["ngay_bao_gia", "ngay_chuyen_giao", "ngay_demo", "ngay_tiep_can_va_tim_hieu"], "f": [{"f": "ma_lead", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_tao", "s": "ok", "n": 0.0, "alias": "ngay_co_hoi_xuat_hien"}, {"f": "ma_kenh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_chien_dich", "s": "missing", "n": null, "alias": null}, {"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "trang_thai", "s": "missing", "n": null, "alias": null}, {"f": "ngay_chuyen_doi", "s": "ok", "n": 10.4, "alias": null}, {"f": "ly_do_thua", "s": "empty", "n": 93.5, "alias": null}, {"f": "ma_nv", "s": "ok", "n": 0.0, "alias": null}]}, "R3.2": {"tbl": "gd_chi_phi_mkt", "rows": 164, "cut": 0, "extra": [], "f": [{"f": "ky_thang", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_kenh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_chien_dich", "s": "missing", "n": null, "alias": null}, {"f": "chi_phi", "s": "ok", "n": 0.0, "alias": null}, {"f": "so_hien_thi", "s": "ok", "n": 0.0, "alias": null}, {"f": "so_click", "s": "ok", "n": 0.0, "alias": null}, {"f": "so_lead_khai_bao", "s": "ok", "n": 0.0, "alias": null}]}, "R4.1": {"tbl": "gd_roi_bo", "rows": 5000, "cut": 1, "extra": ["level_account"], "f": [{"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_thue_bao", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_ghi_nhan", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_ly_do_chinh", "s": "empty", "n": 96.5, "alias": null}, {"f": "ma_ly_do_phu", "s": "missing", "n": null, "alias": null}, {"f": "kenh_ghi_nhan", "s": "ok", "n": 0.0, "alias": null}, {"f": "ghi_chu_tu_do", "s": "empty", "n": 97.9, "alias": null}, {"f": "nguoi_ghi_nhan", "s": "ok", "n": 7.3, "alias": null}]}, "R4.2": {"tbl": "gd_khao_sat_nps", "rows": 5000, "cut": 1, "extra": ["accountobjectname", "applicationurl", "budgetcode", "fullname", "kenh_khao_sat_id", "taxcode", "ten_san_pham", "userid"], "f": [{"f": "ma_phan_hoi", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_kh", "s": "missing", "n": null, "alias": null}, {"f": "ngay_khao_sat", "s": "ok", "n": 0.0, "alias": null}, {"f": "dot_khao_sat", "s": "ok", "n": 0.0, "alias": null}, {"f": "diem_nps_0_10", "s": "empty", "n": 96.3, "alias": null}, {"f": "diem_gia_tri_sp", "s": "missing", "n": null, "alias": null}, {"f": "diem_trai_nghiem_su_dung", "s": "missing", "n": null, "alias": null}, {"f": "diem_huong_dan_ban_dau", "s": "missing", "n": null, "alias": null}, {"f": "diem_dich_vu_support", "s": "missing", "n": null, "alias": null}, {"f": "nhan_xet", "s": "empty", "n": 99.0, "alias": null}, {"f": "kenh_khao_sat", "s": "partial", "n": 68.3, "alias": null}]}, "R4.3": {"tbl": "gd_su_dung", "rows": 2254, "cut": 0, "extra": [], "f": [{"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_sp", "s": "ok", "n": 0.0, "alias": null}, {"f": "ky_thang", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_kich_hoat", "s": "ok", "n": 0.0, "alias": null}, {"f": "so_ngay_co_phat_sinh", "s": "ok", "n": 0.0, "alias": "so_ngay_phat_sinh"}, {"f": "so_lan_dang_nhap", "s": "ok", "n": 0.0, "alias": null}, {"f": "so_don_hoa_don_phat_sinh", "s": "ok", "n": 0.0, "alias": "so_log_su_dung_phat_sinh"}, {"f": "ngay_hoat_dong_gan_nhat", "s": "ok", "n": 0.0, "alias": null}]}, "R4.4": {"tbl": "gd_ticket_ho_tro", "rows": 1648, "cut": 0, "extra": ["muc_do_uu_tien_id", "nhom_van_de_id", "ticket_id", "trang_thai_id"], "f": [{"f": "ma_ticket", "s": "ok", "n": 0.0, "alias": null}, {"f": "ma_kh", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_mo", "s": "ok", "n": 0.0, "alias": null}, {"f": "ngay_dong", "s": "ok", "n": 6.6, "alias": null}, {"f": "nhom_van_de", "s": "ok", "n": 0.0, "alias": null}, {"f": "muc_do_uu_tien", "s": "ok", "n": 0.0, "alias": null}, {"f": "thoi_gian_xu_ly", "s": "ok", "n": 6.6, "alias": null}, {"f": "trang_thai", "s": "ok", "n": 0.0, "alias": null}]}};
+const VER={"R1.1": ["part", "Nhận đủ 5.000 dòng (bị cắt mẫu). nganh_hang trống 99,6% và kenh_thu_hut_dau_tien trống 86,6% — mất hai chiều cắt lát chính. Cột ten_kh không có, chấp nhận được vì ma_kh vẫn nhất quán."], "R1.2": ["ok", "Đạt. 100% ma_sp trong đơn hàng tra được về danh mục. Thiếu ky_han_thang nên không suy được ngày tới hạn khi bảng thuê bao không có."], "R1.3": ["bad", "Không dùng trực tiếp được: 2.659 dòng cho 367 mã, trùng 2.292 dòng, vi phạm quy ước một dòng một kênh. nhom_kenh có 126 giá trị chưa chuẩn hoá. Ba bảng đang dùng ba hệ mã khác nhau."], "R1.4": ["ok", "Đạt yêu cầu cho mục đích phân công."], "R1.5": ["ok", "Đạt. phan_loai_churn C1/C2 điền đầy đủ cho 39 mã. Đây là bảng chuẩn nhất trong lần gửi này."], "R2.1": ["part", "Nhận 5.000 dòng, trong đó 4.720 đơn Đã ghi. Chất lượng trường tốt, nhưng chỉ có 03/07–29/08/2026 nên không đủ để phân biệt khách mới với khách cũ."], "R2.2": ["bad", "Thiếu ma_thue_bao_chu_ky_truoc nên không nối được chuỗi gia hạn. ngay_gia_han_thuc_te trống 97,6%. Chỉ 5 dòng ở trạng thái Tới hạn chưa xử lý nên không có cohort tới hạn."], "R3.1": ["bad", "Thiếu trang_thai và các mốc thời gian giữa phễu (ngay_demo, ngay_bao_gia trống 100%). 89,6% bản ghi đã chuyển đổi — đây là tập cơ hội cuối phễu, không phải toàn bộ lead."], "R3.2": ["part", "Số liệu đầy đủ nhưng là chi phí toàn MISA, không lọc theo GP Bán lẻ. T7+T8 là 12,16 tỷ so với doanh thu mẫu 3,82 tỷ nên không tính CAC được."], "R4.1": ["bad", "ma_ly_do_chinh trống 96,5% — chỉ 173 trên 5.000 lượt có mã. ma_thue_bao không khớp bảng thuê bao, độ trùng 0%."], "R4.2": ["bad", "Không có ma_kh nên không nối được sang hành vi. diem_nps trống 96,3%. Thiếu toàn bộ 4 điểm khía cạnh thành phần."], "R4.3": ["part", "Trường đầy đủ và sạch, nhưng chỉ 148 khách trên 5.000 — độ phủ 3,0%, và tập này gồm khách đang dùng tốt nên không đại diện."], "R4.4": ["ok", "Đạt yêu cầu. Trường đầy đủ, không có giá trị bất thường."]};
+const VL={"ok": "Đạt", "part": "Dùng được một phần", "bad": "Cần trích lại"};
+const ANS={"A": ["yes", "Có bảng thuê bao và đã nhận. Nhưng chỉ 5.000 dòng của hợp đồng ký T7–T8, thiếu ma_thue_bao_chu_ky_truoc và không có nhóm tới hạn."], "B": ["yes", "Đơn hàng CÓ ky_han_tu_ngay và ky_han_den_ngay ở mức dòng, điền đầy đủ. Đây là điểm sáng — vẫn suy ngược được vòng đời nếu có đủ lịch sử."], "C": ["no", "Khảo sát KHÔNG có mã khách hàng. Chỉ có userid nội bộ và taxcode (trống 97,6%). Không nối được sang gia hạn."], "D": ["mix", "Danh mục lý do đã chuẩn hoá tốt với phân loại C1/C2. Nhưng bảng giao dịch để trống mã ở 96,5% dòng."], "E": ["no", "Ba hệ mã khác nhau: đơn hàng dùng chữ (Trực tiếp/Online), lead dùng id_kenh dạng số, chi phí dùng mã băm. Danh mục kênh lại trùng lặp nên không làm cầu nối được."], "F": ["open", "Chưa xác nhận. Dữ liệu có ngay_ghi_nhan nhưng chưa biết là ngày ký, ngày xuất hoá đơn hay ngày thu tiền."], "G": ["mix", "Có log sử dụng và trường đầy đủ, nhưng chỉ phủ 148 trên 5.000 khách."], "H": ["open", "Chưa xác nhận. Danh mục có quy_mo nhưng chưa rõ một dòng là pháp nhân hay điểm bán."], "I": ["no", "Chỉ nhận được 2 tháng (03/07–29/08/2026). Yêu cầu tối thiểu là 24 tháng."], "J": ["yes", "Có gửi được ma_kh và nhất quán giữa các bảng — 100% ma_kh trong đơn hàng tra được về danh mục. Đây là điều kiện quan trọng nhất và MISA đã đáp ứng."], "K": ["open", "Chưa trao đổi. Dữ liệu hiện có không đủ để tự truy ra mẫu số."]};
+const AL={"yes": "Đã rõ", "no": "Chưa đáp ứng", "mix": "Một phần", "open": "Chưa trao đổi"};
+const REQ2=[{"k": "Bỏ giới hạn 5.000 dòng", "t": "R2.1 · R1.1 · R2.2 · R4.1 · R4.2", "i": "9 chỉ số", "d": "Năm bảng bị cắt đúng 5.000 dòng. Khi tử số và mẫu số đến từ hai bảng cắt khác nhau thì tỷ số không còn ý nghĩa — bằng chứng: ma_thue_bao của bảng rời bỏ khớp bảng thuê bao đúng 0%."}, {"k": "Lịch sử đơn hàng từ 01/2024", "t": "R2.1", "i": "2 · 3 · 4 · 9", "d": "Hiện có 2 tháng. Cần 24 tháng để phân biệt khách mới với khách cũ."}, {"k": "Toàn bộ thuê bao đang hiệu lực, kèm ma_thue_bao_chu_ky_truoc", "t": "R2.2", "i": "13 · 14 · 15 · 17 · 19", "d": "Không chỉ hợp đồng ký trong kỳ. Thiếu trường nối chu kỳ thì không phân biệt được gia hạn với mua mới."}, {"k": "Gắn mã lý do cho lượt rời bỏ", "t": "R4.1", "i": "15 · 16 · 19", "d": "Danh mục đã chuẩn. Việc còn lại nằm ở quy trình ghi nhận của CSKH."}, {"k": "Mã khách hàng và 4 điểm khía cạnh trong khảo sát", "t": "R4.2", "i": "16 · 18", "d": "Không có ma_kh thì NPS chỉ là một con số đứng một mình."}, {"k": "Chuẩn hoá danh mục kênh về một dòng một kênh", "t": "R1.3 · R3.1 · R3.2", "i": "6 · 10 · 11", "d": "Kèm một bộ mã dùng chung cho đơn hàng, lead và chi phí. Và chi phí cần lọc theo GP Bán lẻ."}, {"k": "Điền nganh_hang trong danh mục khách hàng", "t": "R1.1", "i": "chiều phân tích của cả 19 chỉ số", "d": "Trống 99,6%, làm mất chiều cắt lát chính của toàn bộ báo cáo."}];
+const DEFS={"R1.1": [{"f": "ma_kh", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã khách hàng, lấy theo phân hệ Account. Có thể ẩn danh nhưng phải nhất quán giữa tất cả các bảng."}, {"f": "ten_kh", "kieu": "chuỗi", "muc": "KN", "def": "Tên khách hàng, lấy theo phân hệ Account. Có thể bỏ nếu vướng bảo mật, miễn giữ nguyên ma_kh."}, {"f": "loai_hinh", "kieu": "DN / HKD", "muc": "BB", "def": "Gồm 2 loại hình, phân biệt theo tên khách hàng: DN nếu tên chứa các từ khóa như 'công ty', 'doanh nghiệp'...; HKD là phần còn lại (gộp chung hộ kinh doanh và cá nhân kinh doanh)."}, {"f": "nganh_hang", "kieu": "Bán lẻ / F&B / dịch vụ…", "muc": "BB", "def": "Lĩnh vực/ngành hàng của khách, giữ nguyên text gốc trên hệ thống, không chuẩn hóa lại."}, {"f": "quy_mo", "kieu": "số cửa hàng · số user", "muc": "KN", "def": "Quy mô khách hàng (số cửa hàng, số user) — dùng để phân biệt chuỗi nhiều điểm bán với điểm bán đơn lẻ."}, {"f": "tinh_thanh", "kieu": "mã hoặc tên", "muc": "KN", "def": "Mã tỉnh thành (provinceID) lấy theo bảng Account. Ưu tiên gửi mã thay vì tên để tránh lệch chính tả."}, {"f": "ngay_tao_kh", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày khách hàng phát sinh giao dịch đầu tiên trên hệ thống, tính cả sản phẩm mua và sản phẩm được tặng (thời điểm khách được gắn sản phẩm đầu tiên)."}, {"f": "ngay_mua_dau_tien", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày phát sinh giao dịch CÓ TIỀN đầu tiên. Khác ngay_tao_kh ở chỗ không tính sản phẩm tặng. Là căn cứ phân biệt khách mới với khách cũ."}, {"f": "kenh_thu_hut_dau_tien", "kieu": "mã kênh", "muc": "BB", "def": "Kênh thu hút khách hàng lần đầu, lấy theo ao cơ hội. Gán tại thời điểm thu hút và giữ nguyên suốt vòng đời khách, không cập nhật đè."}, {"f": "ma_nvkd_phu_trach", "kieu": "mã nhân viên", "muc": "KN", "def": "Mã nhân viên kinh doanh đang phụ trách khách hàng (nếu có). Nối về R1.4."}, {"f": "trang_thai", "kieu": "đang hoạt động / ngừng", "muc": "BB", "def": "Trạng thái khách hàng: 'Đang hoạt động' nếu còn ít nhất một sản phẩm đang sử dụng và thuê bao còn hạn; ngược lại là 'Ngừng sử dụng'."}], "R1.2": [{"f": "ma_sp", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã sản phẩm chi tiết đến cấp gói (VD: Eshop-Starter)."}, {"f": "ten_sp", "kieu": "chuỗi", "muc": "BB", "def": "Tên đầy đủ của sản phẩm/gói dịch vụ."}, {"f": "dong_sp", "kieu": "eSHOP / CukCuk / khác", "muc": "BB", "def": "Dòng sản phẩm: eSHOP / CukCuk / khác. Là căn cứ xác định cross-sell (mua sang dòng khác)."}, {"f": "nhom_sp", "kieu": "phần mềm / phần cứng / dịch vụ / add-on", "muc": "BB", "def": "Nhóm sản phẩm: phần mềm / thiết bị (phần cứng) / dịch vụ / add-on. Do đội dữ liệu tự xác định và gán. Quyết định khoản nào là doanh thu định kỳ, khoản nào là một lần."}, {"f": "bac_goi", "kieu": "Starter / Pro / …", "muc": "KN", "def": "Bậc gói (Starter / Pro / ...). Cần có để tách được up-sell (nâng bậc trong cùng dòng) khỏi cross-sell (mua dòng khác)."}, {"f": "gia_niem_yet", "kieu": "số", "muc": "KN", "def": "Giá niêm yết ban đầu của sản phẩm. Dùng để đối chiếu mức chiết khấu thực tế trên đơn hàng."}], "R1.3": [{"f": "ma_kenh", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã kênh thu hút người dùng, dùng chung cho GD_LEAD (R3.1) và GD_CHI_PHI_MKT (R3.2)."}, {"f": "ten_kenh", "kieu": "chuỗi", "muc": "BB", "def": "Tên đầy đủ của kênh thu hút."}, {"f": "nhom_kenh", "kieu": "Paid / Giới thiệu / Inbound / Telesales / Đại lý / Sự kiện", "muc": "BB", "def": "Nhóm kênh: Paid / Giới thiệu / Inbound / Telesales / Đại lý / Sự kiện. Nhóm 'Giới thiệu' là căn cứ tính WOM index — thiếu phân nhóm thì chỉ số 10 không tính được."}, {"f": "nen_tang", "kieu": "FB / Google / Zalo / TikTok…", "muc": "KN", "def": "Nền tảng triển khai kênh: Facebook / Google / Zalo / TikTok..."}], "R1.4": [{"f": "ma_nv", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã nhân viên, lấy theo bảng Employee."}, {"f": "ten_nv", "kieu": "chuỗi", "muc": "KN", "def": "Tên nhân viên. Có thể bỏ nếu vướng quy định nhân sự, miễn giữ nguyên ma_nv."}, {"f": "vai_tro", "kieu": "KD / CSKH / tư vấn", "muc": "BB", "def": "Vai trò của nhân sự (KD / CSKH / tư vấn), lấy theo bảng vai trò (Employee Roles) trên CRM."}, {"f": "team", "kieu": "chuỗi", "muc": "KN", "def": "Nhóm/team làm việc của nhân viên."}, {"f": "chi_nhanh / vung_mien", "kieu": "chuỗi", "muc": "KN", "def": "Văn phòng / trung tâm / vùng miền nhân viên trực thuộc. Là chiều cắt lát khi phân tích hiệu suất."}, {"f": "trang_thai", "kieu": "đang làm / đã nghỉ", "muc": "BB", "def": "Trạng thái: đang làm / đã nghỉ. Nhân viên đã nghỉ vẫn giữ trong danh mục vì các đơn hàng cũ còn tham chiếu tới."}], "R1.5": [{"f": "ma_ly_do", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã lý do rời bỏ, tự tạo (mỗi lý do một mã riêng, bộ mã đóng)."}, {"f": "ten_ly_do", "kieu": "chuỗi", "muc": "BB", "def": "Tên đầy đủ của lý do rời bỏ."}, {"f": "nhom_ly_do", "kieu": "Giá / Đối thủ / Không dùng đến / Ngừng kinh doanh / Chất lượng SP / Hỗ trợ", "muc": "BB", "def": "Nhóm lý do: Giá / Đối thủ / Không dùng đến / Ngừng kinh doanh / Chất lượng SP / Hỗ trợ."}, {"f": "phan_loai_churn", "kieu": "C1 tự nhiên / C2 kỹ thuật / chưa xác định", "muc": "BB", "def": "Quy tắc phân loại: C1 (churn tự nhiên) = khách ngừng kinh doanh; C2 (churn kỹ thuật) = các lý do còn lại; không có lý do = 'chưa xác định'. Mỗi mã có đúng một phân loại, không để trống. [CẦN XÁC NHẬN quy tắc này với bên thứ 3 — VD khách rời vì Giá/Đối thủ có đúng là C2 không]"}], "R2.1": [{"f": "ma_don", "kieu": "chuỗi", "muc": "BB", "def": "Primary key. Mã đơn hàng, lấy theo Sale_order_no trên hệ thống bán hàng."}, {"f": "dong_don", "kieu": "số, thứ tự dòng trong đơn", "muc": "KN", "def": "Số thứ tự dòng sản phẩm trong đơn. Đơn có 5 sản phẩm thì đánh số 1–5 theo từng dòng. Cần thiết khi một đơn có nhiều sản phẩm trùng mã."}, {"f": "ngay_ghi_nhan", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày tạo đơn hàng trên hệ thống (đã chốt: cơ sở ghi nhận là ngày tạo đơn — trả lời câu F)."}, {"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng (AccountID). Nối về R1.1."}, {"f": "ma_sp", "kieu": "chuỗi", "muc": "BB", "def": "Mã sản phẩm đã định nghĩa ở bảng R1.2. Nối về R1.2."}, {"f": "so_luong", "kieu": "số", "muc": "BB", "def": "Số lượng sản phẩm trên từng dòng đơn."}, {"f": "don_gia", "kieu": "số", "muc": "BB", "def": "Đơn giá TRƯỚC chiết khấu."}, {"f": "chiet_khau", "kieu": "số", "muc": "BB", "def": "Số tiền chiết khấu của cả bill (chiết khấu theo tổng bill, chỉ cần biết bill được trừ bao nhiêu tiền). Gửi ở cột riêng, không trừ sẵn vào đơn giá."}, {"f": "doanh_thu_thuan", "kieu": "số", "muc": "BB", "def": "Doanh thu sau khi trừ chiết khấu. Cần ghi rõ quy ước trước hay sau VAT khi trích xuất."}, {"f": "ma_hop_dong", "kieu": "chuỗi", "muc": "KN", "def": "Mã hợp đồng — cầu nối sang bảng thuê bao R2.2."}, {"f": "ky_han_tu_ngay", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày kết thúc kỳ hạn, ăn theo từng sản phẩm trên dòng đơn (VD: eShop 3 năm). Dùng cùng ky_han_tu_ngay để suy vòng đời hợp đồng khi thiếu R2.2."}, {"f": "ky_han_den_ngay", "kieu": "YYYY-MM-DD", "muc": "BB", "def": ""}, {"f": "ma_nv_kd", "kieu": "chuỗi", "muc": "KN", "def": "Mã nhân viên kinh doanh phụ trách đơn hàng đó."}, {"f": "ma_kenh", "kieu": "chuỗi", "muc": "KN", "def": "Kênh chốt đơn: Trực tiếp / Online / Đối tác (phòng hợp tác đối tác). Lưu ý: KHÁC với kênh nguồn thu hút ở R1.3 và kenh_thu_hut_dau_tien ở R1.1."}, {"f": "trang_thai_don", "kieu": "hoàn thành / huỷ / hoàn trả", "muc": "BB", "def": "Trạng thái đơn: hoàn thành / hủy / hoàn trả. Gửi cả đơn hủy và hoàn trả, không lọc sẵn."}, {"f": "loai_gd_he_thong", "kieu": "mới / gia hạn / nâng cấp", "muc": "TC", "def": "Phân loại giao dịch theo hệ thống: mới / gia hạn / nâng cấp. Nếu hệ thống đã phân loại sẵn thì gửi để đối chiếu; cách phân loại vẫn phải dựng lại được từ lịch sử giao dịch."}], "R2.2": [{"f": "ma_thue_bao", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã thuê bao/license, lấy từ hệ thống quản lý thuê bao. [CẦN BỔ SUNG: ghi rõ hệ thống nguồn — liên quan câu A]"}, {"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng sở hữu thuê bao. Nối về R1.1."}, {"f": "ma_sp", "kieu": "chuỗi", "muc": "BB", "def": "Mã sản phẩm đã định nghĩa ở bảng R1.2. Nối về R1.2."}, {"f": "ngay_bat_dau", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày hết hạn của thuê bao: lấy theo ngày hết hạn của sản phẩm cuối cùng trong chu kỳ. Là căn cứ tính chỉ số 17 (khách sắp tới hạn)."}, {"f": "ngay_het_han", "kieu": "YYYY-MM-DD", "muc": "BB", "def": ""}, {"f": "trang_thai", "kieu": "đang hiệu lực / tới hạn chưa xử lý / đã gia hạn / đã huỷ", "muc": "BB", "def": "Trạng thái thuê bao: đang hiệu lực / tới hạn chưa xử lý / đã gia hạn / đã hủy. Bốn trạng thái loại trừ nhau, không chồng lấn."}, {"f": "ngay_gia_han_thuc_te", "kieu": "YYYY-MM-DD", "muc": "KN", "def": "Ngày khách thực tế thanh toán gia hạn. Dùng để đo gia hạn trễ và độ dài cửa sổ ân hạn."}, {"f": "ma_don_gia_han", "kieu": "chuỗi", "muc": "KN", "def": "Mã đơn hàng gia hạn — nối sang R2.1 để ghép doanh thu gia hạn."}], "R3.1": [{"f": "ma_lead", "kieu": "chuỗi, duy nhất", "muc": "BB", "def": "Primary key. Mã lead — sau khi lead đổ về từ chiến dịch, được định danh theo ao cơ hội."}, {"f": "ma_kenh", "kieu": "chuỗi", "muc": "BB", "def": "Mã kênh thu hút lead. Nối về R1.3, dùng chung bộ mã với R3.2."}, {"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng, bắt buộc với lead đã thắng. Thiếu trường này thì không nối được lead sang doanh thu — chỉ số 6 chỉ còn là tỷ lệ đóng đơn."}, {"f": "ngay_co_hoi_xuat_hien", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Nullable. Ngày cơ hội xuất hiện — mốc chuyển giao giai đoạn đầu tiên trên phân hệ cơ hội."}, {"f": "ngay_tiep_can_va_tim_hieu", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Nullable. Ngày chuyển sang giai đoạn tiếp cận và tìm hiểu trên phân hệ cơ hội."}, {"f": "ngay_demo", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Nullable. Ngày chuyển sang giai đoạn demo trên phân hệ cơ hội."}, {"f": "ngay_bao_gia", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Nullable. Ngày chuyển sang giai đoạn báo giá trên phân hệ cơ hội."}, {"f": "ngay_chuyen_giao", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Nullable. Ngày chuyển giao khách cho bộ phận triển khai trên phân hệ cơ hội."}, {"f": "ngay_chuyen_doi", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày lead chuyển đổi thành khách hàng. Chỉ áp dụng với lead đã thắng."}, {"f": "ly_do_thua", "kieu": "mã hoặc chuỗi", "muc": "KN", "def": "Nullable. Lý do thua của lead, theo dõi trong phân hệ cơ hội. Tương ứng lý do rời bỏ nhưng ở đầu phễu."}, {"f": "ma_nv", "kieu": "chuỗi", "muc": "KN", "def": "Mã nhân viên đầu tiên win/acquire được lead này."}], "R3.2": [{"f": "ky_thang", "kieu": "YYYY-MM", "muc": "BB", "def": "Kỳ ghi nhận chi phí, theo tháng (YYYY-MM)."}, {"f": "ma_kenh", "kieu": "chuỗi", "muc": "BB", "def": "Mã kênh — dùng cùng bộ mã với R1.3 và R3.1. Kênh không phát sinh chi phí vẫn gửi dòng giá trị 0."}, {"f": "chi_phi", "kieu": "số", "muc": "BB", "def": "Chi phí marketing, tracking chủ yếu theo kênh và theo tháng. Ghi rõ đã gồm VAT hay chưa."}, {"f": "so_hien_thi", "kieu": "số", "muc": "TC", "def": "Số lượt hiển thị quảng cáo trong tháng (tùy chọn — chỉ gửi nếu nền tảng có sẵn)."}, {"f": "so_click", "kieu": "số", "muc": "TC", "def": "Số lượt click quảng cáo trong tháng (tùy chọn — chỉ gửi nếu nền tảng có sẵn)."}, {"f": "so_lead_khai_bao", "kieu": "số", "muc": "KN", "def": "Số lead do kênh khai báo — số lead lấy ra và đổ được vào ao cơ hội. Dùng đối chiếu với số lead đếm từ R3.1; chênh lệch lớn cho thấy có lead chưa được ghi nhận."}], "R4.1": [{"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng rời bỏ. Nối về R1.1."}, {"f": "ma_thue_bao", "kieu": "chuỗi", "muc": "KN", "def": "Mã thuê bao liên quan — nối về R2.2 để biết rời bỏ tại thời điểm tới hạn hay giữa kỳ."}, {"f": "ngay_ghi_nhan", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày ghi nhận request rời bỏ của khách hàng."}, {"f": "ma_ly_do_chinh", "kieu": "mã", "muc": "BB", "def": "Mã lý do rời bỏ chính, theo bộ mã đóng. Nối về R1.5."}, {"f": "ma_ly_do_phu", "kieu": "mã", "muc": "KN", "def": "Mã lý do phụ, ghi nhận khi khách có nhiều hơn một lý do. Nối về R1.5."}, {"f": "kenh_ghi_nhan", "kieu": "telesales / khảo sát / CSKH", "muc": "BB", "def": "Kênh ghi nhận lý do, gồm 2 kênh: (1) Online — khách basic, rời bỏ không có sale phụ trách; (2) Trực tiếp — khách VIP có sale phụ trách. Kênh ghi nhận quyết định mức tin cậy của lý do."}, {"f": "ghi_chu_tu_do", "kieu": "chuỗi", "muc": "KN", "def": "Ghi chú nguyên văn của khách/nhân viên. Giữ nguyên văn, không dùng thay cho mã lý do."}, {"f": "nguoi_ghi_nhan", "kieu": "mã nhân viên", "muc": "KN", "def": "Mã nhân viên tiếp nhận và ghi nhận lý do rời bỏ."}], "R4.2": [{"f": "ma_phan_hoi", "kieu": "chuỗi", "muc": "BB", "def": "Primary key. Mã phản hồi khảo sát."}, {"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng trả lời khảo sát. [CẦN CHỐT câu C: khảo sát hiện tại CÓ hay KHÔNG gắn mã khách — nếu ẩn danh thì chỉ tính được điểm trung bình, không nối được sang hành vi gia hạn]"}, {"f": "ngay_khao_sat", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày khách tham gia trả lời khảo sát."}, {"f": "dot_khao_sat", "kieu": "chuỗi", "muc": "BB", "def": "Mã đợt khảo sát."}, {"f": "diem_nps_0_10", "kieu": "số", "muc": "BB", "def": "Điểm NPS thang 0–10. Khảo sát chỉ có 1 câu duy nhất: 'Có mong muốn giới thiệu sản phẩm cho người khác không'. Nếu điểm dưới 6, hệ thống mở thêm cửa sổ nhận xét."}, {"f": "nhan_xet", "kieu": "chuỗi", "muc": "KN", "def": "Nhận xét của khách hàng. Giữ nguyên văn."}, {"f": "kenh_khao_sat", "kieu": "email / in-app / điện thoại", "muc": "KN", "def": "Kênh gửi khảo sát: email / in-app / điện thoại. Kênh khác nhau cho tỷ lệ trả lời khác nhau."}], "R4.3": [{"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng. Nối về R1.1."}, {"f": "ma_sp", "kieu": "chuỗi", "muc": "BB", "def": "Mã sản phẩm. Nối về R1.2."}, {"f": "ky_thang", "kieu": "YYYY-MM", "muc": "BB", "def": "Kỳ tổng hợp dữ liệu sử dụng, theo tháng (YYYY-MM)."}, {"f": "ngay_kich_hoat", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày khách kích hoạt sản phẩm. Khoảng cách từ ngày mua tới ngày kích hoạt là chỉ báo về mức độ tiếp nhận sản phẩm."}, {"f": "so_ngay_co_phat_sinh", "kieu": "số", "muc": "BB", "def": "Số ngày trong tháng có phát sinh ít nhất 1 nghiệp vụ thêm/sửa/xóa. Dùng đo mức sử dụng thực tế."}, {"f": "so_lan_dang_nhap", "kieu": "số", "muc": "KN", "def": "Số lần đăng nhập sản phẩm trong tháng."}, {"f": "so_log_su_dung_phat_sinh", "kieu": "số", "muc": "KN", "def": "Tổng số log hành động thêm/sửa/xóa phát sinh trong sản phẩm trong tháng."}, {"f": "ngay_hoat_dong_gan_nhat", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày phát sinh hoạt động gần nhất của khách trên sản phẩm."}], "R4.4": [{"f": "ma_ticket", "kieu": "chuỗi", "muc": "BB", "def": "Primary key. Mã ticket hỗ trợ, lấy từ hệ thống Jira."}, {"f": "ma_kh", "kieu": "chuỗi", "muc": "BB", "def": "Mã khách hàng tạo ticket. Nối về R1.1."}, {"f": "ngay_mo", "kieu": "YYYY-MM-DD", "muc": "BB", "def": "Ngày mở ticket."}, {"f": "ngay_dong", "kieu": "YYYY-MM-DD", "muc": "KN", "def": "Ngày đóng ticket (để trống nếu ticket đang mở)."}, {"f": "nhom_van_de", "kieu": "mã", "muc": "BB", "def": "Nhóm vấn đề theo bộ mã đóng, không dùng tiêu đề tự do."}, {"f": "muc_do_uu_tien", "kieu": "chuỗi", "muc": "KN", "def": "Mức độ ưu tiên của ticket, theo phân loại trên Jira."}, {"f": "thoi_gian_xu_ly", "kieu": "số giờ", "muc": "KN", "def": "Thời gian xử lý (số giờ), tính từ ngày mở đến ngày đóng ticket."}, {"f": "trang_thai", "kieu": "đang mở / đã đóng", "muc": "BB", "def": "Trạng thái ticket: đang mở / đã đóng."}]};
+const PIC={"R1.1": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R1.2": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R1.3": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R1.4": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R1.5": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R2.1": {"uu": "3. Trung bình", "ban": "28.08"}, "R2.2": {"uu": "3. Trung bình", "ban": "28.08"}, "R3.1": {"uu": "2. Cao", "ban": "28.08"}, "R3.2": {"uu": "2. Cao", "ban": "28.08"}, "R4.1": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R4.2": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R4.3": {"uu": "1. Khẩn cấp", "ban": "28.08"}, "R4.4": {"uu": "1. Khẩn cấp", "ban": "28.08"}};
+const DIFF=[{"t": "R2.2", "k": "Trường ma_thue_bao_chu_ky_truoc không có trong bản chốt 24/08", "d": "Yêu cầu ban đầu đưa trường này ở mức bắt buộc để nối chuỗi gia hạn. Bản chốt bỏ trường, nên dữ liệu không có là đúng thoả thuận, không phải lỗi trích xuất.", "x": "Đề nghị đưa lại vào phạm vi, hoặc chốt cách nối chu kỳ khác (qua ma_don_gia_han hoặc cặp khách × sản phẩm).", "i": "13 · 14 · 15 · 19", "s": "lat"}, {"t": "R2.1", "k": "ma_kenh là kênh CHỐT ĐƠN, không phải kênh thu hút", "d": "Định nghĩa MISA: Trực tiếp / Online / Đối tác, và ghi rõ khác với kenh_thu_hut_dau_tien ở R1.1. Hai giá trị trong dữ liệu là đúng thiết kế.", "x": "Rút lại nhận định trước đó của SOI. Hiệu suất kênh phải tính từ R3.1 và R1.1, không từ đơn hàng.", "i": "6 · 11", "s": "lat"}, {"t": "R4.2", "k": "Khảo sát chỉ có MỘT câu hỏi duy nhất", "d": "Định nghĩa MISA: khảo sát hỏi mong muốn giới thiệu sản phẩm; nếu điểm dưới 6 mới mở thêm ô nhận xét. Bốn điểm khía cạnh thành phần không tồn tại trong hệ thống.", "x": "Bỏ 4 trường điểm khía cạnh khỏi yêu cầu dữ liệu. Nếu cần đo theo khía cạnh thì đây là đề xuất thay đổi bảng hỏi, không phải yêu cầu trích xuất.", "i": "18", "s": "lat"}, {"t": "R3.1", "k": "Các mốc giai đoạn phễu ghi mức bắt buộc nhưng đánh dấu Nullable", "d": "Thực tế: tiếp cận 0,3% · demo 0% · báo giá 0% · chuyển giao 30,7% · chuyển đổi 89,6%. Trường có tồn tại nhưng gần như không được ghi nhận khi vận hành.", "x": "Đây là khoảng trống quy trình chứ không phải lỗi trích xuất. Cần trao đổi với đội kinh doanh về việc cập nhật giai đoạn trên phân hệ cơ hội.", "i": "6", "s": "moi"}, {"t": "R2.1 · R2.2", "k": "Định nghĩa bị lệch dòng ở hai bảng", "d": "Ô ky_han_tu_ngay mang mô tả \"Ngày kết thúc kỳ hạn\"; ô ngay_bat_dau mang mô tả \"Ngày hết hạn của thuê bao\". Ô kế bên của cả hai đều để trống.", "x": "Cần chốt lại đúng cột nào mang nghĩa gì trước khi dùng. Dữ liệu hiện tại đọc theo tên cột thì hợp lý (chỉ 1 dòng có ngày bắt đầu lớn hơn ngày hết hạn).", "i": "5 · 8 · 17", "s": "moi"}, {"t": "R1.1", "k": "nganh_hang giữ nguyên text gốc, không chuẩn hoá", "d": "Định nghĩa rõ ràng và hợp lý. Nhưng dữ liệu trả về trống 99,6% — trường có trong thiết kế, không có trong nguồn.", "x": "Cần xác nhận: ngành hàng có được ghi nhận ở đâu khác không, hay thực sự không thu thập.", "i": "chiều cắt lát của cả 19 chỉ số", "s": "moi"}, {"t": "R1.1", "k": "ngay_tao_kh và ngay_mua_dau_tien là hai mốc khác nhau", "d": "Định nghĩa: ngay_tao_kh tính cả sản phẩm được tặng; ngay_mua_dau_tien chỉ tính giao dịch có tiền. Dữ liệu khớp: hai trường lệch nhau ở 92,1% số khách.", "x": "Đã rõ, không cần trao đổi thêm. Dùng ngay_mua_dau_tien làm ranh giới khách mới.", "i": "2 · 3 · 9", "s": "ro"}, {"t": "R4.1", "k": "Giả thuyết độ phủ lý do khác nhau theo kênh ghi nhận — KHÔNG đúng", "d": "Định nghĩa phân biệt Online (khách Basic, không có sale) và Trực tiếp (khách VIP có sale). Kiểm tra dữ liệu: độ phủ lý do là 3,5% ở kênh Online và 2,4% ở kênh Trực tiếp — gần như nhau.", "x": "Việc thiếu lý do không đến từ phân khúc khách mà là khoảng trống chung của quy trình ghi nhận. Ngoài ra 4.959/5.000 lượt rời bỏ thuộc nhóm Basic.", "i": "15 · 16 · 19", "s": "moi"}, {"t": "R3.2", "k": "Chi phí marketing tracking theo kênh và theo tháng", "d": "Định nghĩa không có chiều sản phẩm hay khối kinh doanh. Xác nhận lại điều đã quan sát: 12,16 tỷ chi phí T7+T8 là của toàn MISA.", "x": "Không tính được CAC riêng cho GP Bán lẻ. Cần chốt cách phân bổ, hoặc chấp nhận chỉ số 11 nằm ngoài phạm vi.", "i": "11", "s": "ro"}, {"t": "R1.5", "k": "Quy tắc phân loại churn đã chốt", "d": "C1 là khách ngừng kinh doanh; C2 là toàn bộ lý do còn lại; không có lý do thì ghi chưa xác định. Dữ liệu danh mục khớp hoàn toàn với quy tắc này.", "x": "Đã rõ. Bảng danh mục này là bảng chuẩn nhất trong lần gửi.", "i": "15 · 19", "s": "ro"}];
+const VER2={"R2.1": ["part", "Nhận 5.000 dòng, 4.720 đơn Đã ghi. Chất lượng trường tốt và định nghĩa đã rõ (ngày ghi nhận là ngày tạo đơn — chốt câu F). Giới hạn duy nhất là phạm vi 03/07–29/08/2026."], "R2.2": ["bad", "Bản chốt 24/08 không có ma_thue_bao_chu_ky_truoc nên không nối được chuỗi gia hạn — cần đưa lại vào phạm vi. ngay_gia_han_thuc_te trống 97,6%, chỉ 5 dòng ở trạng thái Tới hạn chưa xử lý."], "R3.1": ["bad", "Trường đầy đủ theo bản chốt, nhưng các mốc giai đoạn gần như không được ghi nhận khi vận hành: demo và báo giá đều 0%. Đây là khoảng trống quy trình, không phải lỗi trích xuất."], "R4.2": ["part", "Đúng với thiết kế đã chốt: khảo sát chỉ có một câu hỏi nên không có 4 điểm khía cạnh. Hai vấn đề còn lại: không có ma_kh (câu C vẫn treo) và diem_nps trống 96,3%."]};
+const ANS2={"E": ["mix", "Đã rõ một phần: ma_kenh trong đơn hàng là kênh CHỐT đơn, khác kênh thu hút — nhận định trước đó của SOI được rút lại. Vấn đề còn lại là danh mục R1.3 trùng lặp và lead với chi phí chưa thực sự dùng chung bộ mã."], "F": ["yes", "Đã chốt trong buổi 24/08: cơ sở ghi nhận doanh thu là NGÀY TẠO ĐƠN trên hệ thống bán hàng."], "C": ["no", "Bản chốt vẫn để ngỏ và dữ liệu trả về không có ma_kh. Bổ sung: khảo sát chỉ có một câu hỏi duy nhất nên cũng không có điểm khía cạnh."], "A": ["mix", "Có bảng thuê bao và đã nhận. Nhưng bản chốt 24/08 bỏ trường nối chu kỳ, nên chuỗi gia hạn vẫn không dựng được."]};
+Object.assign(VER,VER2); Object.assign(ANS,ANS2);
+const dmap={}; Object.entries(DEFS).forEach(([k,v])=>{dmap[k]={}; v.forEach(r=>dmap[k][r.f]=r.def);});
+const G=D.groups, BL=D.blockers, SRC=D.sources, COV=D.coverage;
+const ALL=[]; G.forEach(g=>g.tables.forEach(t=>ALL.push(Object.assign({grp:g.id,tab:g.tab},t))));
+const stLabel={core:'Cốt lõi',high:'Bổ trợ',low:'Mở rộng'};
+const srcOwner={}; SRC.forEach(x=>{x[2].split(',').forEach(id=>srcOwner[id.trim()]=x[3]);});
+let TAB=1;
+
+function pil(v){const m={'BB':'A','KN':'E','TC':'P'};
+  return v&&m[v]?`<span class="pil ${m[v]}">${v}</span>`:'<span class="pil">—</span>';}
+
+/* ── TAB 1 ── */
+function renderIndex(){
+  const cnt=s=>ALL.filter(t=>t.status===s).length;
+  let h=`<h2>Danh mục dữ liệu · đối chiếu lần nhận 1</h2>
+  <p class="lead">Yêu cầu gồm <b>${ALL.length} bảng dữ liệu thô</b>, đủ để dựng 19 chỉ số chẩn đoán khối Bán lẻ.
+  MISA đã gửi <b>đủ 13/13 bảng</b> ngày 29/08/2026, tên bảng và tên trường khớp danh mục.
+  Sau khi kiểm tra chất lượng và tính thử: <b>${Object.values(VER).filter(v=>v[0]==='ok').length} bảng đạt</b>,
+  <b>${Object.values(VER).filter(v=>v[0]==='part').length} bảng dùng được một phần</b>,
+  <b>${Object.values(VER).filter(v=>v[0]==='bad').length} bảng cần trích lại</b>.
+  Kết quả tính thử: 2/19 chỉ số dựng được đầy đủ, 7 một phần, 10 chưa dựng được.</p>
+  <p class="lead">Bản này ghép thêm <b>định nghĩa và cách lấy do MISA chốt trong buổi 24/08</b> thành lớp đối chiếu thứ ba,
+  đặt cạnh yêu cầu ban đầu ở từng trường. Ba trong mười điểm chênh lệch làm <b>thay đổi kết luận trước đó của SOI</b> —
+  đáng chú ý nhất là ma_kenh trong đơn hàng vốn là kênh chốt đơn chứ không phải kênh thu hút, nên nhận định
+  &ldquo;chỉ có hai giá trị&rdquo; ở bản v3.0 được rút lại.</p>
+
+  <div class="tw"><table style="min-width:560px"><thead><tr><th>Kết quả</th><th style="width:80px">Số bảng</th>
+   <th>Nghĩa là gì</th></tr></thead><tbody>
+   <tr><td><span class="dv ok">Đạt</span></td><td class="r">${Object.values(VER).filter(v=>v[0]==='ok').length}</td>
+     <td>Trường đầy đủ, dữ liệu sạch, dùng được ngay.</td></tr>
+   <tr><td><span class="dv part">Dùng được một phần</span></td><td class="r">${Object.values(VER).filter(v=>v[0]==='part').length}</td>
+     <td>Cấu trúc đúng nhưng phạm vi hoặc độ phủ chưa đủ. Dựng được chỉ số nhưng phải ghi rõ giới hạn.</td></tr>
+   <tr><td><span class="dv bad">Cần trích lại</span></td><td class="r">${Object.values(VER).filter(v=>v[0]==='bad').length}</td>
+     <td>Thiếu trường khoá hoặc trống ở mức làm chỉ số không tính được.</td></tr>
+  </tbody></table></div>
+  <p class="lead" style="margin-top:-4px"><span style="color:var(--neg)">✳</span> đánh dấu bảng bị cắt đúng 5.000 dòng.
+  Năm bảng rơi vào trường hợp này. Đây là nguyên nhân đơn lẻ lớn nhất: khi tử số và mẫu số đến từ hai bảng
+  bị cắt khác nhau thì tỷ số không còn ý nghĩa — bằng chứng là ma_thue_bao của bảng rời bỏ khớp bảng thuê bao đúng 0%.</p>
+
+  <div class="tw"><table><thead><tr><th style="width:64px">Mã</th><th style="width:230px">Bảng</th>
+   <th style="width:200px">1 dòng là gì</th><th style="width:96px">Mức cần thiết</th>
+   <th style="width:88px">Số dòng nhận</th><th style="width:132px">Kết quả lần 1</th>
+   <th style="width:130px">Đầu mối · ưu tiên</th></tr></thead><tbody>`;
+  G.forEach(g=>{
+    h+=`<tr class="grp"><td colspan="6">${g.full}</td></tr>`;
+    g.tables.forEach(t=>{
+      const grain=t.shape.split('.')[0];
+      const fv=FLD[t.id], v=VER[t.id];
+      h+=`<tr><td class="c" style="font-weight:700;color:var(--own)">${t.id}</td>
+        <td style="font-weight:600">${t.name}</td>
+        <td style="color:var(--muted)">${grain}</td>
+        <td><span class="st ${t.status}">${stLabel[t.status]}</span></td>
+        <td class="r">${fv.rows.toLocaleString('vi-VN')}${fv.cut?' <span style="color:var(--neg)">✳</span>':''}</td>
+        <td><span class="dv ${v[0]}">${VL[v[0]]}</span></td>
+        <td class="c" style="font-size:10.5px;color:var(--muted)">BQLKD · a.tqvinh<br>${(PIC[t.id]||{}).uu||''}</td></tr>`;
+    });
+  });
+  h+=`</tbody></table></div>
+  <div class="legend">
+    <span><span class="st core">Cốt lõi</span> ${cnt('core')} bảng — thiếu thì chỉ số liên quan không dựng được</span>
+    <span><span class="st high">Bổ trợ</span> ${cnt('high')} bảng — mất một chiều phân tích</span>
+    <span><span class="st low">Mở rộng</span> ${cnt('low')} bảng — ngoài 19 chỉ số</span>
+  </div>`;
+
+  h+=`<h3>Chênh lệch định nghĩa cần chốt — ${DIFF.length} điểm</h3>
+  <p class="lead">So sánh ba lớp: yêu cầu ban đầu của SOI, định nghĩa MISA chốt trong buổi 24/08, và dữ liệu thực nhận 29/08.
+  Nhãn <span class="dg lat">lật</span> là điểm làm thay đổi kết luận trước đó của SOI —
+  <span class="dg moi">mới</span> là phát hiện chỉ thấy khi có cả định nghĩa lẫn dữ liệu —
+  <span class="dg ro">đã rõ</span> là điểm khớp nhau, không cần trao đổi thêm.</p>
+  <div class="tw"><table><thead><tr><th style="width:34px">#</th><th style="width:86px">Bảng</th>
+   <th style="width:56px">Loại</th><th style="width:250px">Nội dung</th><th>Đối chiếu với dữ liệu thực nhận</th>
+   <th style="width:250px">Việc cần làm</th><th style="width:120px">Chỉ số ảnh hưởng</th></tr></thead><tbody>`;
+  DIFF.forEach((r,i)=>h+=`<tr><td class="c" style="font-weight:700;color:var(--own)">${i+1}</td>
+    <td class="c" style="font-size:11px">${r.t}</td><td><span class="dg ${r.s}">${r.s==='lat'?'lật':(r.s==='moi'?'mới':'đã rõ')}</span></td>
+    <td style="font-weight:600">${r.k}</td><td style="color:var(--muted)">${r.d}</td>
+    <td style="color:var(--muted)">${r.x}</td><td class="c" style="font-size:11px">${r.i}</td></tr>`);
+  h+=`</tbody></table></div>
+
+  <h3>Đề nghị cho lần trích xuất thứ hai</h3>
+  <p class="lead">Xếp theo số chỉ số được gỡ. Mục đầu tiên một mình gỡ được nhiều chỉ số hơn sáu mục còn lại cộng lại —
+  nếu chỉ xử lý được một việc thì đề nghị ưu tiên mục đó.</p>
+  <div class="tw"><table><thead><tr><th style="width:34px">#</th><th style="width:250px">Nội dung</th>
+   <th style="width:150px">Bảng liên quan</th><th style="width:170px">Gỡ được chỉ số</th><th>Lý do</th></tr></thead><tbody>`;
+  REQ2.concat([
+    {k:'Đưa lại trường nối chu kỳ gia hạn vào phạm vi',t:'R2.2',i:'13 · 14 · 15 · 19',
+     d:'Bản chốt 24/08 đã bỏ ma_thue_bao_chu_ky_truoc. Cần đưa lại, hoặc chốt cách nối chu kỳ thay thế.'},
+    {k:'Trao đổi về việc ghi nhận giai đoạn trên phân hệ cơ hội',t:'R3.1',i:'6',
+     d:'Mốc demo và báo giá đều trống 100%. Đây là việc của đội kinh doanh, không phải của đội dữ liệu.'}
+  ]).forEach((r,i)=>h+=`<tr><td class="c" style="font-weight:700;color:var(--own)">${i+1}</td>
+    <td style="font-weight:600">${r.k}</td><td class="c" style="font-size:11px">${r.t}</td>
+    <td class="c" style="font-size:11.5px">${r.i}</td><td style="color:var(--muted)">${r.d}</td></tr>`);
+  h+=`</tbody></table></div>
+  <div class="why" style="margin-top:12px"><b>Về cách gửi file</b>Danh sách mật khẩu nằm chung trong cùng file nén
+  với các file đã mã hoá, nên lớp mã hoá không tạo thêm lớp bảo vệ nào. Lần sau đề nghị tách hai kênh gửi.</div>
+
+  <h3>Quy ước gửi dữ liệu — áp cho mọi bảng</h3>
+  <div class="tw"><table><thead><tr><th style="width:250px">Quy ước</th><th>Ghi chú</th></tr></thead><tbody>
+  <tr><td><b>Gửi ở mức từng dòng, không tổng hợp trước</b></td>
+    <td>Bảng đã tổng hợp không drill được và không đối soát được.</td></tr>
+  <tr><td><b>Mã khách hàng nhất quán xuyên mọi bảng</b></td>
+    <td>Điều kiện để master data và transaction data ghép được với nhau. Có thể ẩn danh, miễn dùng cùng một mã ở cả 13 bảng.</td></tr>
+  <tr><td><b>Mã tham chiếu phải có trong danh mục</b></td>
+    <td>Mọi ma_kh, ma_sp, ma_kenh, ma_nv xuất hiện trong bảng giao dịch đều tra được ở danh mục tương ứng.</td></tr>
+  <tr><td><b>Không lọc sẵn</b></td>
+    <td>Gửi cả đơn huỷ, đơn hoàn, lead thua, kèm cột trạng thái để bên phân tích tự loại và giải thích chênh lệch.</td></tr>
+  <tr><td><b>Không điền giá trị mặc định</b></td>
+    <td>Trường không có thì để trống. Không có dữ liệu khác với giá trị 0.</td></tr>
+  <tr><td><b>Trường phân loại gửi cả mã lẫn tên</b></td>
+    <td>Tên hiển thị thay đổi theo thời gian, mã thì không.</td></tr>
+  <tr><td><b>Ngày ở dạng YYYY-MM-DD</b></td>
+    <td>Định dạng địa phương gây nhầm ngày với tháng ở 12 ngày đầu mỗi tháng.</td></tr>
+  <tr><td><b>Gửi kèm số kiểm tra</b></td>
+    <td>Mỗi file kèm số dòng, khoảng ngày và tổng của cột giá trị chính, để đối soát ngay khi nhận.</td></tr>
+  <tr><td><b>Mỗi bảng một file, UTF-8, header ở dòng đầu</b></td>
+    <td>Không gộp nhiều bảng vào một sheet, không đặt tiêu đề trang trí phía trên dòng header.</td></tr>
+  </tbody></table></div>
+  <p class="lead">Bảng lịch (ngày · tháng · quý · năm) không cần trích xuất. Chỉ cần xác nhận kỳ tài chính
+  có trùng năm dương lịch hay không.</p>`;
+
+  h+=`<h3>Nội dung cần làm rõ — ${BL.length} câu · trạng thái sau lần nhận 1</h3>
+  <p class="lead">Bốn câu đã có câu trả lời rõ ràng từ chính dữ liệu, ba câu đáp ứng một phần,
+  bốn câu còn lại vẫn cần trao đổi trực tiếp.</p>
+  <div class="tw"><table><thead><tr><th style="width:34px">#</th><th>Nội dung cần làm rõ</th>
+   <th style="width:120px">Liên quan bảng</th><th style="width:110px">Sau lần 1</th>
+   <th style="width:300px">Kết quả đối chiếu</th></tr></thead><tbody>`;
+  BL.forEach(b=>{const a=ANS[b[0]]||['open','—'];
+    h+=`<tr><td class="c" style="font-weight:700;color:var(--own)">${b[0]}</td><td>${b[1]}</td>
+      <td class="c" style="font-size:11px">${b[3]}</td>
+      <td><span class="dv ${a[0]==='yes'?'ok':(a[0]==='mix'?'part':'bad')}">${AL[a[0]]}</span></td>
+      <td style="color:var(--muted);font-size:12px">${a[1]}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+
+  h+=`<h3>Phụ lục — 19 chỉ số dựng từ bảng nào</h3>
+  <p class="lead">Dùng để kiểm tra tính đủ của danh mục. Cột cuối là câu cần làm rõ để chỉ số đó tính được đúng.</p>
+  <div class="tw"><table><thead><tr><th style="width:34px">#</th><th>Chỉ số</th>
+   <th style="width:220px">Bảng thô cần có</th><th style="width:170px">Câu cần làm rõ</th></tr></thead><tbody>`;
+  COV.forEach(c=>h+=`<tr><td class="c" style="font-weight:700;color:var(--own)">${c[0]}</td><td>${c[1]}</td>
+      <td class="c" style="font-size:11.5px">${c[2]}</td>
+      <td class="c" style="font-size:11.5px;color:var(--muted)">${c[3]}</td></tr>`);
+  h+=`</tbody></table></div>`;
+  return h;
+}
+
+/* ── TAB 2..5 ── */
+function renderGroup(g){
+  let h=`<h2>${g.full}</h2>
+   <p class="lead">${g.question}</p>`;
+  g.tables.forEach(t=>{
+    h+=`<div class="story" id="s-${t.id}">
+      <div class="sh">
+        <span class="sid">${t.id}</span><span class="snm">${t.name}</span>
+        <span class="st ${t.status}">${stLabel[t.status]}</span>
+        <span class="dv ${VER[t.id][0]}">${VL[VER[t.id][0]]}</span>
+      </div>
+      <div class="sb">
+        <div class="us">
+          <i>Là</i>${t.role}<br>
+          <i>Tôi cần</i>${t.want}<br>
+          <i>Để</i>${t.so}
+        </div>
+
+        <div class="blk"><div class="lb">Grain — 1 dòng là gì</div>${t.shape}</div>
+
+        <div class="blk"><div class="lb">Trường dữ liệu</div>
+        <div class="tw"><table><thead><tr><th style="width:180px">Trường</th>
+          <th style="width:52px">Mức</th><th style="width:300px">Yêu cầu ban đầu — SOI</th>
+          <th>Định nghĩa và cách lấy — MISA chốt 24/08</th>
+          </tr></thead><tbody>
+          ${t.cols.map(c=>{const dd=(dmap[t.id]||{})[c[0]];
+            return `<tr><td class="c" style="font-weight:600;font-size:11.5px">${c[0]}
+              <div style="font-weight:400;color:var(--muted);margin-top:2px">${c[1]||''}</div></td>
+            <td>${pil(c[2])}</td>
+            <td style="color:var(--muted)">${c[3]||'—'}</td>
+            <td>${dd?`<div class="dfn">${dd}</div>`:'<span class="fl missing">chưa có định nghĩa trong bản chốt</span>'}</td></tr>`;}).join('')}
+        </tbody></table></div>
+        <div class="legend" style="margin-top:6px">
+          <span><b class="pil A">BB</b> bắt buộc</span>
+          <span><b class="pil E">KN</b> khuyến nghị</span>
+          <span><b class="pil P">TC</b> tuỳ chọn</span>
+        </div></div>
+
+        <div class="blk"><div class="lb">Hệ thống nguồn</div>
+          ${t.src.map(s=>`<div class="c" style="font-size:11.5px;padding:2px 0">▸ ${s}</div>`).join('')}
+        </div>
+
+        <div class="blk"><div class="lb">Kết quả nhận lần 1 — đối chiếu từng trường</div>
+          <div style="margin-bottom:8px">${FLD[t.id].f.map(x=>{
+            const lab=x.s==='missing'?'không có cột':(x.s==='ok'?'đủ':'trống '+String(x.n).replace('.',',')+'%');
+            return `<span class="fl ${x.s}">${x.f} · ${lab}${x.alias?' → '+x.alias:''}</span>`;}).join('')}</div>
+          <div class="read"><b style="color:var(--own)">${VL[VER[t.id][0]]}</b> · ${FLD[t.id].rows.toLocaleString('vi-VN')} dòng${FLD[t.id].cut?' (bị cắt đúng 5.000)':''}. ${VER[t.id][1]}</div>
+        </div>
+
+        ${NOTES[t.id]?`<div class="blk"><div class="lb">Lưu ý riêng của bảng này</div>
+          <ul class="ac">${NOTES[t.id].map(a=>`<li>${a}</li>`).join('')}</ul></div>`:''}
+
+        ${t.block.length?`<div class="blk"><div class="lb">Cần làm rõ trước khi trích xuất</div>
+          ${t.block.map(b=>`<span class="bchip">${b}</span>`).join('')}</div>`:''}
+
+        ${WHY_KEEP.indexOf(t.id)>=0&&t.why?`<div class="why"><b>Bối cảnh</b>${t.why}</div>`:''}
+      </div></div>`;
+  });
+  return h;
+}
+
+function render(){
+  document.getElementById('tabs').innerHTML=
+    [`<div class="tab ${TAB===1?'on':''}" onclick="setTab(1)">1 · Danh mục<span class="cnt">${ALL.length}</span></div>`]
+    .concat(G.map(g=>`<div class="tab ${TAB===g.tab?'on':''}" onclick="setTab(${g.tab})">${g.tab} · ${g.id} ${g.name}<span class="cnt">${g.tables.length}</span></div>`))
+    .join('');
+  const g=G.find(x=>x.tab===TAB);
+  document.getElementById('shell').innerHTML = TAB===1 ? renderIndex() : renderGroup(g);
+}
+function setTab(t){TAB=t;render();window.scrollTo(0,0);}
+render();
+</script>
+</body>
+</html>
