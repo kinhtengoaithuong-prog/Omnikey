@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MISA GP Bán lẻ — Hình của dữ liệu đã cung cấp v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+ --ink:#1B2028; --muted:#6B7280; --line:#E3E6EA; --bg:#F5F6F8; --card:#fff;
+ --crit:#C2362B; --critbg:#FDEDEB; --critbd:#F3C9C4;
+ --warn:#B26A00; --warnbg:#FFF6E5; --warnbd:#F0DCB4;
+ --ok:#12795E;  --okbg:#E9F6F1;  --okbd:#C2E4D8;
+ --time:#2F6FB5; --cat:#6D4AA8; --id:#0E7C7B; --num:#C2621C;
+ --soi:#982A3F;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13.5px;line-height:1.6}
+.top{position:sticky;top:0;z-index:30;background:#fff;border-bottom:2px solid var(--soi);padding:10px 20px;
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{font-family:'Noto Serif Display',serif;font-size:17px;font-weight:600;margin:0}
+.logo{height:30px;width:auto;flex:none}
+.vb{background:var(--soi);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px}
+.st{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted)}
+.sp{flex:1}
+.hint{background:#fff;border-bottom:1px solid var(--line);padding:9px 20px;font-size:12px;color:#39414d}
+.key{display:flex;gap:14px;flex-wrap:wrap;margin-top:5px;font-size:11.5px;color:var(--muted)}
+.key span{display:flex;align-items:center;gap:5px}
+.kd{width:10px;height:10px;border-radius:3px;flex:none}
+.tabs{display:flex;gap:4px;padding:10px 20px 0;flex-wrap:wrap;background:var(--bg);position:sticky;top:47px;z-index:29}
+.tab{font-size:11.5px;font-weight:700;padding:7px 11px;border:1px solid var(--line);border-bottom:none;
+ border-radius:9px 9px 0 0;background:#EBEDF0;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tab.on{background:#fff;color:var(--ink)}
+.tab .cb{background:var(--crit);color:#fff;font-family:'DM Mono',monospace;font-size:9.5px;
+ padding:1px 5px;border-radius:9px;margin-left:6px}
+.shell{background:#fff;border:1px solid var(--line);border-radius:0 12px 12px 12px;margin:0 20px 40px;padding:22px 24px}
+h2{font-family:'Noto Serif Display',serif;font-size:20px;margin:0 0 4px}
+.lead{color:var(--muted);font-size:13px;margin:0 0 14px;max-width:900px}
+.tally{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tl{font-size:12px;padding:4px 11px;border-radius:8px;border:1px solid}
+.tl b{font-family:'DM Mono',monospace;margin-right:3px}
+.tl.scrit{background:var(--critbg);border-color:var(--critbd);color:var(--crit)}
+.tl.swarn{background:var(--warnbg);border-color:var(--warnbd);color:var(--warn)}
+.tl.sok{background:var(--okbg);border-color:var(--okbd);color:var(--ok)}
+.alert{background:var(--critbg);border:1px solid var(--critbd);border-left:4px solid var(--crit);
+ border-radius:0 10px 10px 0;padding:11px 15px;margin-bottom:16px}
+.at{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--crit);margin-bottom:6px}
+.alert ul{margin:0;padding-left:17px} .alert li{font-size:12.5px;margin-bottom:3px;color:#5b2a24}
+.alert code{font-family:'DM Mono',monospace;font-size:11.5px;background:#fff;padding:1px 5px;border-radius:4px}
+.note{background:#F7F8FA;border-left:3px solid var(--muted);padding:9px 13px;border-radius:0 8px 8px 0;
+ font-size:12.5px;color:#4b5563;margin-bottom:16px}
+.panel{display:none} .panel.on{display:block}
+.dim{border:1px solid var(--line);border-radius:11px;padding:13px 16px;margin-bottom:11px;background:#fff}
+.dim.s-crit{border-color:var(--critbd);border-left:4px solid var(--crit);background:#FFFCFB}
+.dim.s-warn{border-left:4px solid var(--warn)}
+.dh{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.dn{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+.tp{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+ padding:2px 7px;border-radius:5px;color:#fff}
+.t-time{background:var(--time)} .t-cat{background:var(--cat)} .t-id{background:var(--id)} .t-num{background:var(--num)}
+.sv{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:5px}
+.sv.scrit{background:var(--critbg);color:var(--crit);border:1px solid var(--critbd)}
+.sv.swarn{background:var(--warnbg);color:var(--warn);border:1px solid var(--warnbd)}
+.dm{font-size:11.5px;color:var(--muted);margin-left:auto;font-family:'DM Mono',monospace}
+.iss{margin-bottom:9px}
+.ir{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:#39414d;margin-bottom:2px}
+.ic{width:7px;height:7px;border-radius:50%;flex:none;margin-top:7px}
+.ic.scrit{background:var(--crit)} .ic.swarn{background:var(--warn)}
+.cmp{background:#F7F8FA;border-radius:8px;padding:9px 12px;margin-bottom:10px}
+.cr{display:flex;gap:10px;font-size:12.5px;margin-bottom:3px}
+.cl{font-family:'DM Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;
+ color:var(--muted);width:78px;flex:none;padding-top:3px}
+.cv{color:#39414d}
+.v-crit{color:var(--crit);font-weight:600} .v-warn{color:var(--warn);font-weight:600} .v-ok{color:var(--ok)}
+.pb{height:7px;background:#EBEDF0;border-radius:4px;overflow:hidden;margin:7px 0 3px}
+.pb i{display:block;height:100%;border-radius:4px}
+.f-crit{background:var(--crit)} .f-warn{background:var(--warn)} .f-ok{background:var(--ok)}
+.pb i.t-cat{background:var(--cat);opacity:.78}
+.cp{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted)}
+.vals{margin-top:4px}
+.vr{display:flex;align-items:center;gap:10px;font-size:12.5px;margin-bottom:4px}
+.vn{width:215px;flex:none;color:#39414d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vr .pb{flex:1;margin:0}
+.vc{width:135px;flex:none;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.hist{display:flex;align-items:flex-end;gap:3px;height:66px;margin:6px 0 4px}
+.hb{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.hb i{display:block;width:100%;background:var(--time);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+.hb span{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px}
+.box{position:relative;height:16px;background:#EBEDF0;border-radius:4px;margin:6px 0 5px}
+.bx{position:absolute;top:0;height:100%;background:var(--num);opacity:.35;border-radius:4px}
+.md{position:absolute;top:-2px;width:2px;height:20px;background:var(--num)}
+.meta{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.55}
+.vd{margin-top:9px;padding:8px 12px;border-radius:0 7px 7px 0;font-size:12.5px;border-left:3px solid}
+.vd.v-crit{background:var(--critbg);border-color:var(--crit);color:#5b2a24}
+.vd.v-warn{background:var(--warnbg);border-color:var(--warn);color:#59410f}
+.vd.v-ok{background:var(--okbg);border-color:var(--ok);color:#17493c}
+@media(max-width:900px){.shell{margin:0 10px 30px;padding:16px 13px}.tabs{padding:8px 10px 0}
+ .vn{width:120px}.vc{width:96px}.dm{margin-left:0}}
+</style></head><body>
+
+<div class="top">
+  <img class="logo" src="data:image/png;base64,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" alt="SOI.Pro">
+  <h1>MISA GP Bán lẻ — Hình của dữ liệu đã cung cấp</h1>
+  <span class="vb">v2.0</span>
+  <span class="st">Released 04/09/2026 · 13 bảng · bản mẫu biên soạn đầy đủ: R2.1</span>
+  <span class="sp"></span><span class="st">Nguồn: Data_Request_GPBL · 29/08/2026</span>
+</div>
+<div class="hint">
+  <b>Cách đọc:</b> mỗi tab một bảng, mỗi khối một chiều. Màu nhãn cho biết <b>loại chiều</b>;
+  viền trái và ô cảnh báo cho biết <b>mức nghiêm trọng</b>. Số đỏ trên tab là số chiều đang ở mức nghiêm trọng.
+  <div class="key">
+    <span><i class="kd" style="background:#2F6FB5"></i>Thời gian</span>
+    <span><i class="kd" style="background:#6D4AA8"></i>Phân loại</span>
+    <span><i class="kd" style="background:#0E7C7B"></i>Định danh</span>
+    <span><i class="kd" style="background:#C2621C"></i>Số đo</span>
+    <span style="margin-left:10px"><i class="kd" style="background:#C2362B"></i>Nghiêm trọng — đe doạ trực tiếp tới phân tích</span>
+    <span><i class="kd" style="background:#B26A00"></i>Cảnh báo — dùng được nhưng phải ghi rõ giới hạn</span>
+    <span><i class="kd" style="background:#12795E"></i>Đạt</span>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"><div class="tab" data-t="R1.1">R1.1 · DM_KHACHHANG<b class="cb">2</b></div><div class="tab" data-t="R1.2">R1.2 · DM_SANPHAM</div><div class="tab" data-t="R1.3">R1.3 · DM_KENH</div><div class="tab" data-t="R1.4">R1.4 · DM_NHANSU</div><div class="tab" data-t="R1.5">R1.5 · DM_LY_DO_ROI_BO</div><div class="tab on" data-t="R2.1">● R2.1 · GD_BAN_HANG<b class="cb">7</b></div><div class="tab" data-t="R2.2">R2.2 · GD_THUE_BAO<b class="cb">2</b></div><div class="tab" data-t="R3.1">R3.1 · GD_LEAD<b class="cb">4</b></div><div class="tab" data-t="R3.2">R3.2 · GD_CHI_PHI_MKT</div><div class="tab" data-t="R4.1">R4.1 · GD_ROI_BO<b class="cb">4</b></div><div class="tab" data-t="R4.2">R4.2 · GD_KHAO_SAT_NPS<b class="cb">6</b></div><div class="tab" data-t="R4.3">R4.3 · GD_SU_DUNG</div><div class="tab" data-t="R4.4">R4.4 · GD_TICKET_HO_TRO</div></div>
+<div class="shell" id="shell"><div class="panel" data-t="R1.1"><h2>R1.1 · dm_khach_hang</h2>
+      <p class="lead">5.000 dòng × 10 cột — bị cắt đúng 5.000 dòng.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>2</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>3</b> cảnh báo</span>
+        <span class="tl sok"><b>5</b> đạt</span>
+      </div><div class="alert"><div class="at">Vấn đề đe doạ trực tiếp tới phân tích</div><ul><li><code>loai_hinh</code> — Suy biến — giá trị HKD chiếm 96,5%</li><li><code>nganh_hang</code> — Trống 99,6% — trường gần như không có dữ liệu</li></ul></div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        
+        <span class="dm">5.000 giá trị · trống 0,0%</span></div><div class="meta">5.000 giá trị khác nhau trên 5.000 dòng · lặp 0 lần · nhiều nhất: 12879596 (1), 12878644 (1), 12878641 (1)</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">loai_hinh</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">2 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị HKD chiếm 96,5%</div></div><div class="vals"><div class="vr"><span class="vn">HKD</span>
+              <div class="pb"><i class="f-crit" style="width:96.5%"></i></div>
+              <span class="vc">4.825 · 96,5%</span></div><div class="vr"><span class="vn">DN</span>
+              <div class="pb"><i class="t-cat" style="width:3.5%"></i></div>
+              <span class="vc">175 · 3,5%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">nganh_hang</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">8 giá trị · trống 99,6%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 99,6% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị (trống) chiếm 99,6%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="f-crit" style="width:99.6%"></i></div>
+              <span class="vc">4.982 · 99,6%</span></div><div class="vr"><span class="vn">Kinh doanh khác</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div><div class="vr"><span class="vn">Kinh doanh mặt hàng giày da, may mặc</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div><div class="vr"><span class="vn">Dịch vụ nhà hàng, ăn uống</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">Dịch vụ</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">Dịch vụ sửa chữa, bảo dưỡng và lắp đặt m</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">Sản xuất mặt hàng dệt, giày da, hàng may</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">Xây lắp</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">Kinh doanh tổng hợp, bán lẻ, siêu thị</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">quy_mo</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">6 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Tập trung cao — 1 chiếm 90,5%</div></div><div class="vals"><div class="vr"><span class="vn">1</span>
+              <div class="pb"><i class="t-cat" style="width:90.5%"></i></div>
+              <span class="vc">4.523 · 90,5%</span></div><div class="vr"><span class="vn">0</span>
+              <div class="pb"><i class="t-cat" style="width:5.9%"></i></div>
+              <span class="vc">296 · 5,9%</span></div><div class="vr"><span class="vn">2</span>
+              <div class="pb"><i class="t-cat" style="width:3.4%"></i></div>
+              <span class="vc">171 · 3,4%</span></div><div class="vr"><span class="vn">3</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div><div class="vr"><span class="vn">5</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">4</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">tinh_thanh</span>
+        
+        <span class="dm">40 giá trị · trống 0,9%</span></div><div class="vals"><div class="vr"><span class="vn">Thành phố Hà Nội</span>
+              <div class="pb"><i class="t-cat" style="width:24.0%"></i></div>
+              <span class="vc">1.200 · 24,0%</span></div><div class="vr"><span class="vn">Thành phố Hồ Chí Minh</span>
+              <div class="pb"><i class="t-cat" style="width:22.6%"></i></div>
+              <span class="vc">1.131 · 22,6%</span></div><div class="vr"><span class="vn">Tỉnh Bắc Ninh</span>
+              <div class="pb"><i class="t-cat" style="width:4.2%"></i></div>
+              <span class="vc">208 · 4,2%</span></div><div class="vr"><span class="vn">Tỉnh Ninh Bình</span>
+              <div class="pb"><i class="t-cat" style="width:4.0%"></i></div>
+              <span class="vc">200 · 4,0%</span></div><div class="vr"><span class="vn">Thành phố Đồng Nai</span>
+              <div class="pb"><i class="t-cat" style="width:3.8%"></i></div>
+              <span class="vc">188 · 3,8%</span></div><div class="vr"><span class="vn">Tỉnh Phú Thọ</span>
+              <div class="pb"><i class="t-cat" style="width:3.2%"></i></div>
+              <span class="vc">158 · 3,2%</span></div><div class="vr"><span class="vn">Thành phố Hải Phòng</span>
+              <div class="pb"><i class="t-cat" style="width:3.0%"></i></div>
+              <span class="vc">152 · 3,0%</span></div><div class="vr"><span class="vn">Thành phố Đà Nẵng</span>
+              <div class="pb"><i class="t-cat" style="width:2.8%"></i></div>
+              <span class="vc">141 · 2,8%</span></div><div class="vr"><span class="vn">Tỉnh Đắk Lắk</span>
+              <div class="pb"><i class="t-cat" style="width:2.7%"></i></div>
+              <span class="vc">136 · 2,7%</span></div><div class="vr"><span class="vn">Tỉnh Lâm Đồng</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">128 · 2,6%</span></div><div class="vr"><span class="vn">Tỉnh An Giang</span>
+              <div class="pb"><i class="t-cat" style="width:2.5%"></i></div>
+              <span class="vc">125 · 2,5%</span></div><div class="vr"><span class="vn">Tỉnh Sơn La</span>
+              <div class="pb"><i class="t-cat" style="width:2.2%"></i></div>
+              <span class="vc">111 · 2,2%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_tao_kh</span>
+        
+        <span class="dm">4.569 giá trị · trống 5,9%</span></div><div class="hist"><div class="hb"><i style="height:0%"></i><span>24-06</span></div><div class="hb"><i style="height:0%"></i><span>24-12</span></div><div class="hb"><i style="height:0%"></i><span>25-05</span></div><div class="hb"><i style="height:0%"></i><span>25-06</span></div><div class="hb"><i style="height:0%"></i><span>25-07</span></div><div class="hb"><i style="height:0%"></i><span>25-08</span></div><div class="hb"><i style="height:0%"></i><span>25-11</span></div><div class="hb"><i style="height:0%"></i><span>26-01</span></div><div class="hb"><i style="height:0%"></i><span>26-03</span></div><div class="hb"><i style="height:0%"></i><span>26-04</span></div><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:87%"></i><span>26-08</span></div></div><div class="meta">2024-06-21 → 2026-08-29 · trải 799 ngày</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_mua_dau_tien</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">59 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Phạm vi hẹp — trải 58 ngày</div></div><div class="hist"><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:86%"></i><span>26-08</span></div></div><div class="meta">2026-07-02 → 2026-08-29 · trải 58 ngày</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_nvkd_phu_trach</span>
+        
+        <span class="dm">368 giá trị · trống 0,0%</span></div><div class="meta">368 giá trị khác nhau trên 5.000 dòng · lặp 4.632 lần · nhiều nhất: C-1361 (111), C09-0158 (98), C-1900 (93)</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">kenh_thu_hut_dau_tien</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">19 giá trị · trống 86,6%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 86,6%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:86.6%"></i></div>
+              <span class="vc">4.330 · 86,6%</span></div><div class="vr"><span class="vn">Telesales</span>
+              <div class="pb"><i class="t-cat" style="width:3.6%"></i></div>
+              <span class="vc">180 · 3,6%</span></div><div class="vr"><span class="vn">Ao cơ hội</span>
+              <div class="pb"><i class="t-cat" style="width:3.5%"></i></div>
+              <span class="vc">174 · 3,5%</span></div><div class="vr"><span class="vn">Khách hàng giới thiệu</span>
+              <div class="pb"><i class="t-cat" style="width:2.8%"></i></div>
+              <span class="vc">138 · 2,8%</span></div><div class="vr"><span class="vn">Khách tìm đến / Nội bộ MISA</span>
+              <div class="pb"><i class="t-cat" style="width:0.7%"></i></div>
+              <span class="vc">37 · 0,7%</span></div><div class="vr"><span class="vn">Khách hàng tự tìm đến</span>
+              <div class="pb"><i class="t-cat" style="width:0.7%"></i></div>
+              <span class="vc">35 · 0,7%</span></div><div class="vr"><span class="vn">Đối tác giới thiệu</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">30 · 0,6%</span></div><div class="vr"><span class="vn">NV tự tìm kiếm (đi thị trường)</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">25 · 0,5%</span></div><div class="vr"><span class="vn">Khách hàng cũ giới thiệu</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">20 · 0,4%</span></div><div class="vr"><span class="vn">AgentworkSale</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">11 · 0,2%</span></div><div class="vr"><span class="vn">Mạng xã hội ( FB, Zalo... )</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">6 · 0,1%</span></div><div class="vr"><span class="vn">Khách hàng tự liên hệ</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">trang_thai</span>
+        
+        <span class="dm">2 giá trị · trống 5,9%</span></div><div class="vals"><div class="vr"><span class="vn">Đang sử dụng</span>
+              <div class="pb"><i class="t-cat" style="width:81.0%"></i></div>
+              <span class="vc">4.052 · 81,0%</span></div><div class="vr"><span class="vn">Ngừng sử dụng</span>
+              <div class="pb"><i class="t-cat" style="width:13.0%"></i></div>
+              <span class="vc">652 · 13,0%</span></div><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:5.9%"></i></div>
+              <span class="vc">296 · 5,9%</span></div></div></div></div><div class="panel" data-t="R1.2"><h2>R1.2 · dm_san_pham</h2>
+      <p class="lead">2.103 dòng × 7 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>0</b> cảnh báo</span>
+        <span class="tl sok"><b>7</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_sp</span>
+        
+        <span class="dm">2.103 giá trị · trống 0,0%</span></div><div class="meta">2.103 giá trị khác nhau trên 2.103 dòng · lặp 0 lần · nhiều nhất: P2.036.00.19.2102 (1), P2.036.00.19.2201 (1), P2.013.20.23.2102 (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ten_sp</span>
+        
+        <span class="dm">1.987 giá trị · trống 0,0%</span></div><div class="meta">1.987 giá trị khác nhau trên 2.103 dòng · lặp 116 lần · nhiều nhất: Giấy in hóa đơn K57 phi 45 (3), Phần mềm AMIS Kế toán - Mua th (3), Phần mềm hóa đơn điện tử MISA  (3)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">dong_sp</span>
+        
+        <span class="dm">55 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Thiết bị</span>
+              <div class="pb"><i class="t-cat" style="width:17.8%"></i></div>
+              <span class="vc">374 · 17,8%</span></div><div class="vr"><span class="vn">Phần mềm Mshopkeeper.VN</span>
+              <div class="pb"><i class="t-cat" style="width:8.2%"></i></div>
+              <span class="vc">173 · 8,2%</span></div><div class="vr"><span class="vn">Phần mềm CUKCUK.VN</span>
+              <div class="pb"><i class="t-cat" style="width:6.2%"></i></div>
+              <span class="vc">130 · 6,2%</span></div><div class="vr"><span class="vn">AMIS OneAI</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">103 · 4,9%</span></div><div class="vr"><span class="vn">MISA meInvoice - Dịch vụ phát hành hóa đ</span>
+              <div class="pb"><i class="t-cat" style="width:4.4%"></i></div>
+              <span class="vc">92 · 4,4%</span></div><div class="vr"><span class="vn">Bộ giải pháp phần mềm Quản lý bán hàng M</span>
+              <div class="pb"><i class="t-cat" style="width:4.3%"></i></div>
+              <span class="vc">91 · 4,3%</span></div><div class="vr"><span class="vn">AMIS Kế toán (DN)</span>
+              <div class="pb"><i class="t-cat" style="width:3.2%"></i></div>
+              <span class="vc">67 · 3,2%</span></div><div class="vr"><span class="vn">MISA meInvoice - Dịch vụ phát hành hóa đ</span>
+              <div class="pb"><i class="t-cat" style="width:3.1%"></i></div>
+              <span class="vc">66 · 3,1%</span></div><div class="vr"><span class="vn">AMIS Phòng họp</span>
+              <div class="pb"><i class="t-cat" style="width:2.0%"></i></div>
+              <span class="vc">42 · 2,0%</span></div><div class="vr"><span class="vn">AMIS WeSign</span>
+              <div class="pb"><i class="t-cat" style="width:1.9%"></i></div>
+              <span class="vc">39 · 1,9%</span></div><div class="vr"><span class="vn">AMIS Bán hàng</span>
+              <div class="pb"><i class="t-cat" style="width:1.7%"></i></div>
+              <span class="vc">36 · 1,7%</span></div><div class="vr"><span class="vn">AMIS Mạng xã hội doanh nghiệp</span>
+              <div class="pb"><i class="t-cat" style="width:1.7%"></i></div>
+              <span class="vc">35 · 1,7%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">nhom_sp</span>
+        
+        <span class="dm">3 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Phần mềm</span>
+              <div class="pb"><i class="t-cat" style="width:76.9%"></i></div>
+              <span class="vc">1.618 · 76,9%</span></div><div class="vr"><span class="vn">Phần cứng</span>
+              <div class="pb"><i class="t-cat" style="width:17.8%"></i></div>
+              <span class="vc">374 · 17,8%</span></div><div class="vr"><span class="vn">Dịch vụ</span>
+              <div class="pb"><i class="t-cat" style="width:5.3%"></i></div>
+              <span class="vc">111 · 5,3%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">bac_goi</span>
+        
+        <span class="dm">5 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Khác</span>
+              <div class="pb"><i class="t-cat" style="width:73.9%"></i></div>
+              <span class="vc">1.555 · 73,9%</span></div><div class="vr"><span class="vn">Enterprise</span>
+              <div class="pb"><i class="t-cat" style="width:7.2%"></i></div>
+              <span class="vc">152 · 7,2%</span></div><div class="vr"><span class="vn">Standard</span>
+              <div class="pb"><i class="t-cat" style="width:7.0%"></i></div>
+              <span class="vc">147 · 7,0%</span></div><div class="vr"><span class="vn">Professional</span>
+              <div class="pb"><i class="t-cat" style="width:6.8%"></i></div>
+              <span class="vc">142 · 6,8%</span></div><div class="vr"><span class="vn">Starter</span>
+              <div class="pb"><i class="t-cat" style="width:5.1%"></i></div>
+              <span class="vc">107 · 5,1%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">gia_niem_yet</span>
+        
+        <span class="dm">352 giá trị · trống 0,1%</span></div><div class="box"><div class="bx" style="left:0.0%;width:3.6%"></div>
+          <div class="md" style="left:1.0%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 60.000 – 5.400.000 ·
+          trung vị 1.500.000 · lớn nhất 150.000.000 ·
+          bằng 0 23,4% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">co_gia_han</span>
+        
+        <span class="dm">2 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">True</span>
+              <div class="pb"><i class="t-cat" style="width:76.9%"></i></div>
+              <span class="vc">1.618 · 76,9%</span></div><div class="vr"><span class="vn">False</span>
+              <div class="pb"><i class="t-cat" style="width:23.1%"></i></div>
+              <span class="vc">485 · 23,1%</span></div></div></div></div><div class="panel" data-t="R1.3"><h2>R1.3 · dm_kenh</h2>
+      <p class="lead">2.659 dòng × 6 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>1</b> cảnh báo</span>
+        <span class="tl sok"><b>5</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kenh</span>
+        
+        <span class="dm">367 giá trị · trống 0,0%</span></div><div class="meta">367 giá trị khác nhau trên 2.659 dòng · lặp 2.292 lần · nhiều nhất: 121ed0ec8a2a6e698ea570357fe406 (1561), 591b48c00d55e656f50a26bb731342 (120), 249a5f6a158bffb993f7ba9887492a (85)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">id_kenh</span>
+        
+        <span class="dm">59 giá trị · trống 0,2%</span></div><div class="meta">59 giá trị khác nhau trên 2.654 dòng · lặp 2.595 lần · nhiều nhất: 9.0 (2332), 78.0 (182), 70.0 (30)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ten_kenh</span>
+        
+        <span class="dm">52 giá trị · trống 0,4%</span></div><div class="vals"><div class="vr"><span class="vn">Ao cơ hội</span>
+              <div class="pb"><i class="t-cat" style="width:87.7%"></i></div>
+              <span class="vc">2.331 · 87,7%</span></div><div class="vr"><span class="vn">Marketing</span>
+              <div class="pb"><i class="t-cat" style="width:6.8%"></i></div>
+              <span class="vc">182 · 6,8%</span></div><div class="vr"><span class="vn">Khách hàng giới thiệu</span>
+              <div class="pb"><i class="t-cat" style="width:1.2%"></i></div>
+              <span class="vc">32 · 1,2%</span></div><div class="vr"><span class="vn">Facebook quảng cáo</span>
+              <div class="pb"><i class="t-cat" style="width:0.8%"></i></div>
+              <span class="vc">22 · 0,8%</span></div><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">10 · 0,4%</span></div><div class="vr"><span class="vn">Marketing Inapp</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,3%</span></div><div class="vr"><span class="vn">Automation cross sales</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">6 · 0,2%</span></div><div class="vr"><span class="vn">Hội thảo/tập huấn tự tổ chức</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,2%</span></div><div class="vr"><span class="vn">AgentworkSale</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,2%</span></div><div class="vr"><span class="vn">AISell</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,2%</span></div><div class="vr"><span class="vn">Nhân viên kinh doanh tự tìm kiếm</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div><div class="vr"><span class="vn">Khác</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">nhom_kenh</span>
+        
+        <span class="dm">126 giá trị · trống 6,5%</span></div><div class="meta">126 giá trị khác nhau trên 2.487 dòng · lặp 2.361 lần · nhiều nhất: Facebook (1900), Google (200), Email (45)</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">nen_tang</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">116 giá trị · trống 69,9%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 69,9%</div></div><div class="meta">116 giá trị khác nhau trên 800 dòng · lặp 684 lần · nhiều nhất: paid (194), adword (119), social (82)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">campaign</span>
+        
+        <span class="dm">2.253 giá trị · trống 7,6%</span></div><div class="meta">2.253 giá trị khác nhau trên 2.457 dòng · lặp 204 lần · nhiều nhất: CVS (5), zalo (5), 2026 (5)</div></div></div><div class="panel" data-t="R1.4"><h2>R1.4 · dm_nhan_su</h2>
+      <p class="lead">1.234 dòng × 5 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>0</b> cảnh báo</span>
+        <span class="tl sok"><b>5</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_nv</span>
+        
+        <span class="dm">1.234 giá trị · trống 0,0%</span></div><div class="meta">1.234 giá trị khác nhau trên 1.234 dòng · lặp 0 lần · nhiều nhất: A28-0007 (1), G30-0004 (1), C20-0170 (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">vai_tro</span>
+        
+        <span class="dm">19 giá trị · trống 0,3%</span></div><div class="vals"><div class="vr"><span class="vn">(AE) - NV Tư vấn bán hàng</span>
+              <div class="pb"><i class="t-cat" style="width:64.0%"></i></div>
+              <span class="vc">790 · 64,0%</span></div><div class="vr"><span class="vn">NV KDML (HKD)</span>
+              <div class="pb"><i class="t-cat" style="width:11.4%"></i></div>
+              <span class="vc">141 · 11,4%</span></div><div class="vr"><span class="vn">AE (Ao Cơ Hội)</span>
+              <div class="pb"><i class="t-cat" style="width:7.4%"></i></div>
+              <span class="vc">91 · 7,4%</span></div><div class="vr"><span class="vn">ONB</span>
+              <div class="pb"><i class="t-cat" style="width:6.2%"></i></div>
+              <span class="vc">77 · 6,2%</span></div><div class="vr"><span class="vn">SM</span>
+              <div class="pb"><i class="t-cat" style="width:3.2%"></i></div>
+              <span class="vc">39 · 3,2%</span></div><div class="vr"><span class="vn">NVKD Mạng lưới</span>
+              <div class="pb"><i class="t-cat" style="width:2.4%"></i></div>
+              <span class="vc">29 · 2,4%</span></div><div class="vr"><span class="vn">NV Marketing</span>
+              <div class="pb"><i class="t-cat" style="width:1.2%"></i></div>
+              <span class="vc">15 · 1,2%</span></div><div class="vr"><span class="vn">SM KDML (HKD)</span>
+              <div class="pb"><i class="t-cat" style="width:0.8%"></i></div>
+              <span class="vc">10 · 0,8%</span></div><div class="vr"><span class="vn">NV kiểm soát chất lượng chuyển giao</span>
+              <div class="pb"><i class="t-cat" style="width:0.8%"></i></div>
+              <span class="vc">10 · 0,8%</span></div><div class="vr"><span class="vn">SM (Ao cơ hội)</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">6 · 0,5%</span></div><div class="vr"><span class="vn">Giám/Phó Giám Đốc TTKD</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">6 · 0,5%</span></div><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,3%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">team</span>
+        
+        <span class="dm">87 giá trị · trống 0,0%</span></div><div class="meta">87 giá trị khác nhau trên 1.234 dòng · lặp 1.147 lần · nhiều nhất: Phòng chuyển giao (45), Phòng KD sản phẩm CUKCUK 02 -  (45), Phòng KD sản phẩm CUKCUK 01 -  (39)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">chi_nhanh</span>
+        
+        <span class="dm">9 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Trung tâm KD Giải pháp bán lẻ - Hà Nội</span>
+              <div class="pb"><i class="t-cat" style="width:25.9%"></i></div>
+              <span class="vc">319 · 25,9%</span></div><div class="vr"><span class="vn">Trung tâm KD Giải pháp bán lẻ - Hồ Chí M</span>
+              <div class="pb"><i class="t-cat" style="width:22.0%"></i></div>
+              <span class="vc">272 · 22,0%</span></div><div class="vr"><span class="vn">KD Mạng lưới</span>
+              <div class="pb"><i class="t-cat" style="width:15.9%"></i></div>
+              <span class="vc">196 · 15,9%</span></div><div class="vr"><span class="vn">KD Online</span>
+              <div class="pb"><i class="t-cat" style="width:9.6%"></i></div>
+              <span class="vc">118 · 9,6%</span></div><div class="vr"><span class="vn">Trung tâm KD Giải pháp bán lẻ - Đà Nẵng</span>
+              <div class="pb"><i class="t-cat" style="width:7.9%"></i></div>
+              <span class="vc">97 · 7,9%</span></div><div class="vr"><span class="vn">Trung tâm KD Giải pháp bán lẻ - Buôn Ma </span>
+              <div class="pb"><i class="t-cat" style="width:7.5%"></i></div>
+              <span class="vc">93 · 7,5%</span></div><div class="vr"><span class="vn">Trung tâm KD Giải pháp bán lẻ - Cần Thơ</span>
+              <div class="pb"><i class="t-cat" style="width:6.4%"></i></div>
+              <span class="vc">79 · 6,4%</span></div><div class="vr"><span class="vn">Khác</span>
+              <div class="pb"><i class="t-cat" style="width:4.7%"></i></div>
+              <span class="vc">58 · 4,7%</span></div><div class="vr"><span class="vn">Gia hạn</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,2%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">trang_thai</span>
+        
+        <span class="dm">2 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">False</span>
+              <div class="pb"><i class="t-cat" style="width:55.1%"></i></div>
+              <span class="vc">680 · 55,1%</span></div><div class="vr"><span class="vn">True</span>
+              <div class="pb"><i class="t-cat" style="width:44.9%"></i></div>
+              <span class="vc">554 · 44,9%</span></div></div></div></div><div class="panel" data-t="R1.5"><h2>R1.5 · dm_ly_do_roi_bo</h2>
+      <p class="lead">39 dòng × 4 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>2</b> cảnh báo</span>
+        <span class="tl sok"><b>2</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_ly_do</span>
+        
+        <span class="dm">25 giá trị · trống 5,1%</span></div><div class="meta">25 giá trị khác nhau trên 37 dòng · lặp 12 lần · nhiều nhất: 2.0 (2), 1.0 (2), 10.0 (2)</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ten_ly_do</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">26 giá trị · trống 30,8%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 30,8%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:30.8%"></i></div>
+              <span class="vc">12 · 30,8%</span></div><div class="vr"><span class="vn">Doanh nghiệp mua theo bộ nhưng chỉ có nh</span>
+              <div class="pb"><i class="t-cat" style="width:5.1%"></i></div>
+              <span class="vc">2 · 5,1%</span></div><div class="vr"><span class="vn">Doanh nghiệp tạm dừng hoạt động</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Doanh nghiệp đã giải thể</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Thuê KT dịch vụ làm</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Chuyển sang sử dụng sản phẩm khác cùng l</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Mua nhưng chưa có người sử dụng</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Chưa liên lạc được</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Khách hàng ít sử dụng</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Tìm được sản phẩm khác tốt và giá rẻ hơn</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Giá cao</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Doanh nghiệp được miễn phí nhưng không c</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div></div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">nhom_ly_do</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">6 giá trị · trống 30,8%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 30,8%</div></div><div class="vals"><div class="vr"><span class="vn">Khác</span>
+              <div class="pb"><i class="t-cat" style="width:56.4%"></i></div>
+              <span class="vc">22 · 56,4%</span></div><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:30.8%"></i></div>
+              <span class="vc">12 · 30,8%</span></div><div class="vr"><span class="vn">DN giải thể, phá sản</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Tìm được SP khác tốt và giá rẻ hơn</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Giá cao</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">SP không đáp ứng nhu cầu</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div><div class="vr"><span class="vn">Dịch vụ hỗ trợ không tốt</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">1 · 2,6%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">phan_loai_churn</span>
+        
+        <span class="dm">3 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">C2</span>
+              <div class="pb"><i class="t-cat" style="width:64.1%"></i></div>
+              <span class="vc">25 · 64,1%</span></div><div class="vr"><span class="vn">chưa xác định</span>
+              <div class="pb"><i class="t-cat" style="width:30.8%"></i></div>
+              <span class="vc">12 · 30,8%</span></div><div class="vr"><span class="vn">C1</span>
+              <div class="pb"><i class="t-cat" style="width:5.1%"></i></div>
+              <span class="vc">2 · 5,1%</span></div></div></div></div><div class="panel" data-t="R2.1"><h2>R2.1 · gd_ban_hang</h2>
+      <p class="lead">5.000 dòng × 16 cột — bị cắt đúng 5.000 dòng.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và so với phạm vi đã yêu cầu thì còn lại bao nhiêu.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>7</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>4</b> cảnh báo</span>
+        <span class="tl sok"><b>5</b> đạt</span>
+      </div><div class="alert"><div class="at">Vấn đề đe doạ trực tiếp tới phân tích</div><ul><li><code>ngay_ghi_nhan</code> — Phạm vi thời gian còn 5,9% so với yêu cầu</li><li><code>ma_kh</code> — Chỉ 27,8% khách trong danh mục xuất hiện</li><li><code>ma_sp</code> — Chỉ 7,1% danh mục sản phẩm xuất hiện</li><li><code>trang_thai_don</code> — Hệ giá trị khác hẳn định nghĩa đã chốt</li><li><code>loai_gd_he_thong</code> — Chiều suy biến — một giá trị chiếm 97,3%</li><li><code>don_gia</code> — 1.792 dòng có đơn giá bằng 0 nhưng vẫn phát sinh doanh thu</li><li><code>chiet_khau</code> — Quy ước dấu không nhất quán</li></ul></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_don</span>
+        
+        <span class="dm">1.525 giá trị · trống 0,0%</span></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">mã đơn hàng, mỗi đơn nhiều dòng</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">1.525 đơn trên 5.000 dòng · 3,28 dòng mỗi đơn</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="meta">1.525 giá trị khác nhau trên 5.000 dòng · lặp 3.475 lần · nhiều nhất: HDB_MOP_202607_0025809 (16), HDB_MOP_202607_0052527 (14), HDB_MOP_202607_0028666 (13)</div><div class="vd v-ok">Grain đúng như yêu cầu: một dòng là một đơn nhân một sản phẩm.</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">dong_don</span>
+        
+        <span class="dm">16 giá trị · trống 0,0%</span></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">số thứ tự dòng trong đơn</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">1 → 16</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="box"><div class="bx" style="left:0.0%;width:20.0%"></div>
+          <div class="md" style="left:6.7%"></div></div>
+          <div class="meta">nhỏ nhất 1 · tứ phân vị 1 – 4 ·
+          trung vị 2 · lớn nhất 16 ·
+          bằng 0 0,0% · âm 0,0%</div><div class="vd v-ok">Đúng như định nghĩa.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_ghi_nhan</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">1.517 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Phạm vi thời gian còn 5,9% so với yêu cầu</div><div class="ir"><span class="ic swarn"></span>Phạm vi hẹp — trải 57 ngày</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">01/2024 → 08/2026 · 973 ngày</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-crit">03/07 → 29/08/2026 · 57 ngày</span></div>
+          <div class="pb"><i class="f-crit" style="width:5.9%"></i></div>
+          <div class="cp">5,9% phạm vi kỳ vọng</div>
+        </div><div class="hist"><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:57%"></i><span>26-08</span></div></div><div class="meta">2026-07-03 → 2026-08-29 · trải 57 ngày</div><div class="vd v-crit">Không có mùa vụ, không có kỳ so sánh, không có điểm bắt đầu để phân biệt khách mới với khách cũ. Đây là nguyên nhân trực tiếp làm gãy chỉ số 2, 3, 4 và 9.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">1.389 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Chỉ 27,8% khách trong danh mục xuất hiện</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">toàn bộ khách có giao dịch trong 24 tháng · tham chiếu 5.000 khách ở R1.1</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-crit">1.389 khách</span></div>
+          <div class="pb"><i class="f-crit" style="width:27.8%"></i></div>
+          <div class="cp">27,8% phạm vi kỳ vọng</div>
+        </div><div class="meta">1.389 giá trị khác nhau trên 5.000 dòng · lặp 3.611 lần · nhiều nhất: 12645741 (17), 12659572 (16), 12710535 (16)</div><div class="vd v-crit">Hơn hai phần ba khách trong danh mục không có đơn hàng nào. Mọi phân tích theo phân khúc sẽ dựa trên một phần tư tệp.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_sp</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">150 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Chỉ 7,1% danh mục sản phẩm xuất hiện</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">2.103 mã trong danh mục R1.2</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-crit">150 mã</span></div>
+          <div class="pb"><i class="f-crit" style="width:7.1%"></i></div>
+          <div class="cp">7,1% phạm vi kỳ vọng</div>
+        </div><div class="meta">150 giá trị khác nhau trên 5.000 dòng · lặp 4.850 lần · nhiều nhất: P2.020.08.00.2101 (544), P2.014.03.03.2101 (440), P2.020.08.01.2102 (407)</div><div class="vd v-crit">Chiều sản phẩm hẹp nhất bảng. Cơ cấu doanh thu theo sản phẩm chưa phản ánh được cấu trúc thật.</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">so_luong</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">9 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Chiều gần như không phân biệt</div><div class="ir"><span class="ic swarn"></span>Tập trung cao — 1 chiếm 90,3%</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">phân bố tự nhiên</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">90,3% số dòng có giá trị 1</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="vals"><div class="vr"><span class="vn">1</span>
+              <div class="pb"><i class="t-cat" style="width:90.3%"></i></div>
+              <span class="vc">4.517 · 90,3%</span></div><div class="vr"><span class="vn">2</span>
+              <div class="pb"><i class="t-cat" style="width:7.2%"></i></div>
+              <span class="vc">360 · 7,2%</span></div><div class="vr"><span class="vn">12</span>
+              <div class="pb"><i class="t-cat" style="width:1.7%"></i></div>
+              <span class="vc">87 · 1,7%</span></div><div class="vr"><span class="vn">24</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">16 · 0,3%</span></div><div class="vr"><span class="vn">4</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">13 · 0,3%</span></div><div class="vr"><span class="vn">48</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div><div class="vr"><span class="vn">100</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">5</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">3</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div><div class="vd v-warn">Có thể bỏ khỏi mọi phép cắt lát.</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">hop_dong</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">1.525 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Nhiều khả năng không phải mã hợp đồng</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">ma_hop_dong — cầu nối sang R2.2</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">1.525 giá trị, trùng khớp một-một với ma_don</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="meta">1.525 giá trị khác nhau trên 5.000 dòng · lặp 3.475 lần · nhiều nhất: HDB_MOP_202607_0025809 (16), HDB_MOP_202607_0052527 (14), HDB_MOP_202607_0028666 (13)</div><div class="vd v-warn">Tên cột là hop_dong, và số giá trị bằng đúng số đơn. Nếu đây là mã đơn lặp lại thì cầu nối sang bảng thuê bao không tồn tại.</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ky_han_tu_ngay</span>
+        
+        <span class="dm">117 giá trị · trống 0,0%</span></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">ngày bắt đầu kỳ hạn theo từng sản phẩm</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-warn">05/06/2026 → 28/08/2027 · 449 ngày</span></div>
+          <div class="pb"><i class="f-warn" style="width:46.0%"></i></div>
+          <div class="cp">46% phạm vi kỳ vọng</div>
+        </div><div class="hist"><div class="hb"><i style="height:0%"></i><span>26-06</span></div><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:58%"></i><span>26-08</span></div><div class="hb"><i style="height:0%"></i><span>26-09</span></div><div class="hb"><i style="height:0%"></i><span>26-11</span></div><div class="hb"><i style="height:11%"></i><span>27-07</span></div><div class="hb"><i style="height:6%"></i><span>27-08</span></div></div><div class="meta">2026-06-05 → 2027-08-28 · trải 449 ngày · 4 dòng năm 2110</div><div class="vd v-ok">Bắt đầu sớm hơn ngày ghi nhận sớm nhất 28 ngày, hợp lý với hợp đồng ký trước ngày tạo đơn.</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ky_han_den_ngay</span>
+        
+        <span class="dm">262 giá trị · trống 0,0%</span></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">ngày kết thúc kỳ hạn theo từng sản phẩm</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">03/07/2026 → 27/08/2031 · 1.881 ngày</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="hist"><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:58%"></i><span>26-08</span></div><div class="hb"><i style="height:0%"></i><span>26-09</span></div><div class="hb"><i style="height:1%"></i><span>26-10</span></div><div class="hb"><i style="height:1%"></i><span>26-11</span></div><div class="hb"><i style="height:0%"></i><span>27-01</span></div><div class="hb"><i style="height:0%"></i><span>27-02</span></div><div class="hb"><i style="height:1%"></i><span>27-06</span></div><div class="hb"><i style="height:55%"></i><span>27-07</span></div><div class="hb"><i style="height:29%"></i><span>27-08</span></div><div class="hb"><i style="height:0%"></i><span>27-11</span></div><div class="hb"><i style="height:9%"></i><span>28-07</span></div><div class="hb"><i style="height:5%"></i><span>28-08</span></div><div class="hb"><i style="height:0%"></i><span>28-11</span></div><div class="hb"><i style="height:0%"></i><span>29-06</span></div><div class="hb"><i style="height:11%"></i><span>29-07</span></div><div class="hb"><i style="height:7%"></i><span>29-08</span></div><div class="hb"><i style="height:0%"></i><span>29-10</span></div><div class="hb"><i style="height:0%"></i><span>30-07</span></div><div class="hb"><i style="height:1%"></i><span>31-07</span></div><div class="hb"><i style="height:1%"></i><span>31-08</span></div></div><div class="meta">2026-07-03 → 2031-08-27 · trải 1.881 ngày · 4 dòng năm 2110</div><div class="vd v-ok">Chiều duy nhất trong bảng có phạm vi rộng đúng kỳ vọng. Đây là căn cứ thay thế để suy vòng đời hợp đồng khi R2.2 thiếu trường nối chu kỳ.</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_nv_kd</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">301 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Chỉ 24,4% nhân sự xuất hiện</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">1.234 nhân sự trong R1.4</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-crit">301 nhân sự</span></div>
+          <div class="pb"><i class="f-crit" style="width:24.4%"></i></div>
+          <div class="cp">24,4% phạm vi kỳ vọng</div>
+        </div><div class="meta">301 giá trị khác nhau trên 5.000 dòng · lặp 4.699 lần · nhiều nhất: 17051 (96), 9915 (96), 16012 (88)</div><div class="vd v-warn">Đủ để nhìn phân bố theo đội, chưa đủ để xếp hạng cá nhân.</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ma_kenh</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">2 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Thiếu hẳn nhánh Đối tác</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">3 giá trị theo định nghĩa 24/08: Trực tiếp · Online · Đối tác</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-warn">2 giá trị — thiếu Đối tác</span></div>
+          <div class="pb"><i class="f-warn" style="width:66.7%"></i></div>
+          <div class="cp">66,7% phạm vi kỳ vọng</div>
+        </div><div class="vals"><div class="vr"><span class="vn">Trực tiếp</span>
+              <div class="pb"><i class="t-cat" style="width:80.6%"></i></div>
+              <span class="vc">4.028 · 80,6%</span></div><div class="vr"><span class="vn">Online</span>
+              <div class="pb"><i class="t-cat" style="width:19.4%"></i></div>
+              <span class="vc">972 · 19,4%</span></div></div><div class="vd v-warn">Nếu kênh đối tác thực sự có doanh thu thì phần đó đang nằm lẫn ở hai nhánh còn lại.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">trang_thai_don</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">4 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Hệ giá trị khác hẳn định nghĩa đã chốt</div><div class="ir"><span class="ic swarn"></span>Tập trung cao — Đã ghi chiếm 94,4%</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">hoàn thành · hủy · hoàn trả</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-crit">Đã ghi · Bản nháp · Đề nghị ghi · Từ chối ghi</span></div>
+          <div class="pb"><i class="f-crit" style="width:3.0%"></i></div>
+          <div class="cp">hệ giá trị khác hẳn định nghĩa</div>
+        </div><div class="vals"><div class="vr"><span class="vn">Đã ghi</span>
+              <div class="pb"><i class="t-cat" style="width:94.4%"></i></div>
+              <span class="vc">4.720 · 94,4%</span></div><div class="vr"><span class="vn">Bản nháp</span>
+              <div class="pb"><i class="t-cat" style="width:3.0%"></i></div>
+              <span class="vc">152 · 3,0%</span></div><div class="vr"><span class="vn">Đề nghị ghi</span>
+              <div class="pb"><i class="t-cat" style="width:1.8%"></i></div>
+              <span class="vc">88 · 1,8%</span></div><div class="vr"><span class="vn">Từ chối ghi</span>
+              <div class="pb"><i class="t-cat" style="width:0.8%"></i></div>
+              <span class="vc">40 · 0,8%</span></div></div><div class="vd v-crit">Đây là trạng thái GHI SỔ kế toán, không phải trạng thái đơn hàng. Yêu cầu gửi cả đơn hủy và hoàn trả chưa được đáp ứng, nên doanh thu bị hoàn không nhìn thấy và không đối soát được.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">loai_gd_he_thong</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">6 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Chiều suy biến — một giá trị chiếm 97,3%</div><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị Bán mới chiếm 97,3%</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">mới · gia hạn · nâng cấp</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">6 giá trị, Bán mới chiếm 97,3%</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="vals"><div class="vr"><span class="vn">Bán mới</span>
+              <div class="pb"><i class="f-crit" style="width:97.3%"></i></div>
+              <span class="vc">4.864 · 97,3%</span></div><div class="vr"><span class="vn">Gia hạn/Cập nhật</span>
+              <div class="pb"><i class="t-cat" style="width:1.4%"></i></div>
+              <span class="vc">69 · 1,4%</span></div><div class="vr"><span class="vn">Bán thêm</span>
+              <div class="pb"><i class="t-cat" style="width:1.0%"></i></div>
+              <span class="vc">51 · 1,0%</span></div><div class="vr"><span class="vn">Nâng cấp</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">10 · 0,2%</span></div><div class="vr"><span class="vn">Dịch vụ đào tạo</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">5 · 0,1%</span></div><div class="vr"><span class="vn">Dịch vụ khác</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div><div class="vd v-crit">Trường đầy đủ nhưng chiều rỗng nghĩa. Gia hạn 69 dòng, Nâng cấp 10 dòng, không đủ để phân tích.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">don_gia</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">372 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>1.792 dòng có đơn giá bằng 0 nhưng vẫn phát sinh doanh thu</div><div class="ir"><span class="ic swarn"></span>Bằng 0 ở 35,8% số dòng</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">đơn giá trước chiết khấu, dương</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-warn">35,8% số dòng bằng 0</span></div>
+          <div class="pb"><i class="f-warn" style="width:64.2%"></i></div>
+          <div class="cp">64,2% phạm vi kỳ vọng</div>
+        </div><div class="box"><div class="bx" style="left:0.0%;width:1.7%"></div>
+          <div class="md" style="left:1.0%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 0 – 719.280 ·
+          trung vị 420.000 · lớn nhất 41.280.000 ·
+          bằng 0 35,8% · âm 0,0%</div><div class="vd v-crit">Doanh thu thuần của nhóm này lên tới 7,4 triệu. Cần chốt: đơn giá 0 là sản phẩm tặng, hay là gói combo tính giá ở dòng khác.</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">chiet_khau</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">1.134 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Quy ước dấu không nhất quán</div><div class="ir"><span class="ic swarn"></span>Dấu hỗn hợp — âm 56,0%</div></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">số tiền chiết khấu của cả bill, cột riêng</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-crit">56% âm · 38% dương · 6% bằng 0</span></div>
+          <div class="pb"><i class="f-crit" style="width:3.0%"></i></div>
+          <div class="cp">hệ giá trị khác hẳn định nghĩa</div>
+        </div><div class="box"><div class="bx" style="left:26.1%;width:2.5%"></div>
+          <div class="md" style="left:27.7%"></div></div>
+          <div class="meta">nhỏ nhất -7.425.000 · tứ phân vị -487.200 – 169.400 ·
+          trung vị -69.600 · lớn nhất 19.150.100 ·
+          bằng 0 6,0% · âm 56,0%</div><div class="vd v-crit">Công thức đơn giá × số lượng trừ chiết khấu khớp 92,6% số dòng; 7,4% còn lại không nghiệm theo cả hai chiều dấu. Cần MISA chốt quy ước và giải thích phần lệch.</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">doanh_thu_thuan</span>
+        
+        <span class="dm">321 giá trị · trống 0,0%</span></div><div class="cmp">
+          <div class="cr"><span class="cl">Yêu cầu</span><span class="cv">sau chiết khấu, ghi rõ trước hay sau VAT</span></div>
+          <div class="cr"><span class="cl">Thực nhận</span><span class="cv v-ok">trung vị 542.528 · tối đa 41,3 triệu</span></div>
+          <div class="pb"><i class="f-ok" style="width:100.0%"></i></div>
+          <div class="cp">100% phạm vi kỳ vọng</div>
+        </div><div class="box"><div class="bx" style="left:0.8%;width:1.3%"></div>
+          <div class="md" style="left:1.3%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 344.959 – 869.400 ·
+          trung vị 542.528 · lớn nhất 41.280.000 ·
+          bằng 0 2,6% · âm 0,0%</div><div class="vd v-ok">Phân bố hợp lý. Còn treo câu hỏi trước hay sau VAT.</div></div></div><div class="panel" data-t="R2.2"><h2>R2.2 · gd_thue_bao</h2>
+      <p class="lead">5.000 dòng × 8 cột — bị cắt đúng 5.000 dòng.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>2</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>4</b> cảnh báo</span>
+        <span class="tl sok"><b>2</b> đạt</span>
+      </div><div class="alert"><div class="at">Vấn đề đe doạ trực tiếp tới phân tích</div><ul><li><code>ngay_gia_han_thuc_te</code> — Trống 97,6% — trường gần như không có dữ liệu</li><li><code>ma_don_gia_han</code> — Trống 97,6% — trường gần như không có dữ liệu</li></ul></div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_thue_bao</span>
+        
+        <span class="dm">3.991 giá trị · trống 0,0%</span></div><div class="meta">3.991 giá trị khác nhau trên 5.000 dòng · lặp 1.009 lần · nhiều nhất: MEIV__Subscriber_1406335 (5), MEIV__Subscriber_1406526 (5), MEIV__Subscriber_1414880 (5)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        
+        <span class="dm">1.390 giá trị · trống 0,0%</span></div><div class="meta">1.390 giá trị khác nhau trên 5.000 dòng · lặp 3.610 lần · nhiều nhất: 12619195 (18), 12637300 (15), 12633128 (14)</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_sp</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">101 giá trị · trống 61,6%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 61,6%</div></div><div class="meta">101 giá trị khác nhau trên 1.921 dòng · lặp 1.820 lần · nhiều nhất: P2.020.08.00.2101 (358), P2.020.08.01.2102 (267), P2.014.03.03.2101 (148)</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_bat_dau</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">55 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Phạm vi hẹp — trải 57 ngày</div></div><div class="hist"><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:9%"></i><span>26-08</span></div></div><div class="meta">2026-07-02 → 2026-08-28 · trải 57 ngày</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_het_han</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">421 giá trị · trống 5,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>8 dòng dùng giá trị quy ước năm 2110</div></div><div class="hist"><div class="hb"><i style="height:0%"></i><span>26-06</span></div><div class="hb"><i style="height:0%"></i><span>26-08</span></div><div class="hb"><i style="height:0%"></i><span>26-09</span></div><div class="hb"><i style="height:4%"></i><span>26-10</span></div><div class="hb"><i style="height:0%"></i><span>26-11</span></div><div class="hb"><i style="height:0%"></i><span>27-01</span></div><div class="hb"><i style="height:0%"></i><span>27-06</span></div><div class="hb"><i style="height:100%"></i><span>27-07</span></div><div class="hb"><i style="height:6%"></i><span>27-08</span></div><div class="hb"><i style="height:12%"></i><span>27-10</span></div><div class="hb"><i style="height:1%"></i><span>27-11</span></div><div class="hb"><i style="height:0%"></i><span>27-12</span></div><div class="hb"><i style="height:0%"></i><span>28-01</span></div><div class="hb"><i style="height:0%"></i><span>28-06</span></div><div class="hb"><i style="height:26%"></i><span>28-07</span></div><div class="hb"><i style="height:1%"></i><span>28-08</span></div><div class="hb"><i style="height:5%"></i><span>28-10</span></div><div class="hb"><i style="height:0%"></i><span>28-11</span></div><div class="hb"><i style="height:0%"></i><span>29-01</span></div><div class="hb"><i style="height:0%"></i><span>29-04</span></div><div class="hb"><i style="height:33%"></i><span>29-07</span></div><div class="hb"><i style="height:2%"></i><span>29-08</span></div><div class="hb"><i style="height:9%"></i><span>29-10</span></div><div class="hb"><i style="height:1%"></i><span>29-11</span></div></div><div class="meta">2026-06-27 → 2046-08-06 · trải 7.345 ngày · 8 dòng năm 2110</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">trang_thai</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">4 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Tập trung cao — Đang hiệu lực chiếm 92,6%</div></div><div class="vals"><div class="vr"><span class="vn">Đang hiệu lực</span>
+              <div class="pb"><i class="t-cat" style="width:92.6%"></i></div>
+              <span class="vc">4.628 · 92,6%</span></div><div class="vr"><span class="vn">Khác</span>
+              <div class="pb"><i class="t-cat" style="width:5.0%"></i></div>
+              <span class="vc">249 · 5,0%</span></div><div class="vr"><span class="vn">Gia hạn</span>
+              <div class="pb"><i class="t-cat" style="width:2.4%"></i></div>
+              <span class="vc">118 · 2,4%</span></div><div class="vr"><span class="vn">Tới hạn chưa xử lý</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">5 · 0,1%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_gia_han_thuc_te</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">29 giá trị · trống 97,6%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 97,6% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic swarn"></span>Phạm vi hẹp — trải 55 ngày</div></div><div class="hist"><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:26%"></i><span>26-08</span></div></div><div class="meta">2026-07-03 → 2026-08-27 · trải 55 ngày</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ma_don_gia_han</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">60 giá trị · trống 97,6%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 97,6% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị (trống) chiếm 97,6%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="f-crit" style="width:97.6%"></i></div>
+              <span class="vc">4.882 · 97,6%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0022476</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">8 · 0,2%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0020585</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0020345</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0024993</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0058787</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0006156</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0011152</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0053732</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0010513</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202607_0041480</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div><div class="vr"><span class="vn">HDB_MOP_202608_0031005</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div></div></div></div><div class="panel" data-t="R3.1"><h2>R3.1 · gd_lead</h2>
+      <p class="lead">690 dòng × 11 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>4</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>1</b> cảnh báo</span>
+        <span class="tl sok"><b>6</b> đạt</span>
+      </div><div class="alert"><div class="at">Vấn đề đe doạ trực tiếp tới phân tích</div><ul><li><code>ngay_tiep_can_va_tim_hieu</code> — Trống 99,7% — trường gần như không có dữ liệu</li><li><code>ngay_demo</code> — Trống 100,0% — trường gần như không có dữ liệu</li><li><code>ngay_bao_gia</code> — Trống 100,0% — trường gần như không có dữ liệu</li><li><code>ly_do_thua</code> — Trống 93,5% — trường gần như không có dữ liệu</li></ul></div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_lead</span>
+        
+        <span class="dm">690 giá trị · trống 0,0%</span></div><div class="meta">690 giá trị khác nhau trên 690 dòng · lặp 0 lần · nhiều nhất: 3819610 (1), 3825246 (1), 3861812 (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kenh</span>
+        
+        <span class="dm">19 giá trị · trống 0,0%</span></div><div class="meta">19 giá trị khác nhau trên 690 dòng · lặp 671 lần · nhiều nhất: 9 (177), 52 (168), 70 (143)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        
+        <span class="dm">635 giá trị · trống 0,0%</span></div><div class="meta">635 giá trị khác nhau trên 690 dòng · lặp 55 lần · nhiều nhất: 12836836 (3), 12689137 (3), 12640987 (3)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_co_hoi_xuat_hien</span>
+        
+        <span class="dm">685 giá trị · trống 0,0%</span></div><div class="hist"><div class="hb"><i style="height:0%"></i><span>26-05</span></div><div class="hb"><i style="height:0%"></i><span>26-06</span></div><div class="hb"><i style="height:15%"></i><span>26-07</span></div><div class="hb"><i style="height:100%"></i><span>26-08</span></div></div><div class="meta">2026-05-06 → 2026-08-29 · trải 115 ngày</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_tiep_can_va_tim_hieu</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">2 giá trị · trống 99,7%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 99,7% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic swarn"></span>Phạm vi hẹp — trải 5 ngày</div></div><div class="hist"><div class="hb"><i style="height:100%"></i><span>26-08</span></div></div><div class="meta">2026-08-14 → 2026-08-20 · trải 5 ngày</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ngay_demo</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">0 giá trị · trống 100,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 100,0% — trường gần như không có dữ liệu</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:100.0%"></i></div>
+              <span class="vc">690 · 100,0%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ngay_bao_gia</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">0 giá trị · trống 100,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 100,0% — trường gần như không có dữ liệu</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:100.0%"></i></div>
+              <span class="vc">690 · 100,0%</span></div></div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_chuyen_giao</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">212 giá trị · trống 69,3%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 69,3%</div><div class="ir"><span class="ic swarn"></span>Phạm vi hẹp — trải 54 ngày</div></div><div class="hist"><div class="hb"><i style="height:6%"></i><span>26-07</span></div><div class="hb"><i style="height:100%"></i><span>26-08</span></div></div><div class="meta">2026-07-06 → 2026-08-29 · trải 54 ngày</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_chuyen_doi</span>
+        
+        <span class="dm">602 giá trị · trống 10,4%</span></div><div class="hist"><div class="hb"><i style="height:4%"></i><span>26-07</span></div><div class="hb"><i style="height:100%"></i><span>26-08</span></div><div class="hb"><i style="height:0%"></i><span>26-12</span></div></div><div class="meta">2026-07-06 → 2026-12-31 · trải 177 ngày</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ly_do_thua</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">7 giá trị · trống 93,5%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 93,5% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic swarn"></span>Tập trung cao — (trống) chiếm 93,5%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:93.5%"></i></div>
+              <span class="vc">645 · 93,5%</span></div><div class="vr"><span class="vn">Trùng cơ hội NVKD đã phát sinh</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">18 · 2,6%</span></div><div class="vr"><span class="vn">KH trì hoãn triển khai do chưa thấy cấp </span>
+              <div class="pb"><i class="t-cat" style="width:2.0%"></i></div>
+              <span class="vc">14 · 2,0%</span></div><div class="vr"><span class="vn">Nhân viên chưa xác định được do chưa liê</span>
+              <div class="pb"><i class="t-cat" style="width:0.7%"></i></div>
+              <span class="vc">5 · 0,7%</span></div><div class="vr"><span class="vn">KH trì hoãn triển khai do chưa có ngân s</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,6%</span></div><div class="vr"><span class="vn">Giá cả và chính sách bán hàng không cạnh</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,3%</span></div><div class="vr"><span class="vn">Cơ hôi không đúng tập KH mục tiêu (Chỉ á</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,1%</span></div><div class="vr"><span class="vn">Sản phẩm không đáp ứng yêu cầu nghiệp vụ</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,1%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_nv</span>
+        
+        <span class="dm">227 giá trị · trống 0,0%</span></div><div class="meta">227 giá trị khác nhau trên 690 dòng · lặp 463 lần · nhiều nhất: C-0831 (18), C-0909 (15), C-1152 (13)</div></div></div><div class="panel" data-t="R3.2"><h2>R3.2 · gd_chi_phi_mkt</h2>
+      <p class="lead">164 dòng × 6 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>0</b> cảnh báo</span>
+        <span class="tl sok"><b>6</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ma_kenh</span>
+        
+        <span class="dm">33 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">3c2d1d00fb6327541bf55c64a213104a</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">515d9d97604a5c93c6a6c2e532e1688f</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">82427a5c4bb6d134b1b77e2b3505cad7</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">012c5fc263b491e043ca34b18f915e87</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">797c8dd342e17f7cb7905434d202c964</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">249a5f6a158bffb993f7ba9887492af4</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">988aab16592d1ec428abb9c805e514e0</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">a280571fa6c9e27a4d8e0f922632c793</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">34544fc4351eb1412382ca5bc355af69</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">09e5835908dd3feab5e4e71c74c3ab0f</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">428ab173b65b361c8a1efb2303f4ee42</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div><div class="vr"><span class="vn">121ed0ec8a2a6e698ea570357fe406e8</span>
+              <div class="pb"><i class="t-cat" style="width:4.9%"></i></div>
+              <span class="vc">8 · 4,9%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ky_thang</span>
+        
+        <span class="dm">8 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">8</span>
+              <div class="pb"><i class="t-cat" style="width:17.1%"></i></div>
+              <span class="vc">28 · 17,1%</span></div><div class="vr"><span class="vn">7</span>
+              <div class="pb"><i class="t-cat" style="width:15.9%"></i></div>
+              <span class="vc">26 · 15,9%</span></div><div class="vr"><span class="vn">6</span>
+              <div class="pb"><i class="t-cat" style="width:14.0%"></i></div>
+              <span class="vc">23 · 14,0%</span></div><div class="vr"><span class="vn">5</span>
+              <div class="pb"><i class="t-cat" style="width:12.2%"></i></div>
+              <span class="vc">20 · 12,2%</span></div><div class="vr"><span class="vn">3</span>
+              <div class="pb"><i class="t-cat" style="width:11.6%"></i></div>
+              <span class="vc">19 · 11,6%</span></div><div class="vr"><span class="vn">4</span>
+              <div class="pb"><i class="t-cat" style="width:11.6%"></i></div>
+              <span class="vc">19 · 11,6%</span></div><div class="vr"><span class="vn">2</span>
+              <div class="pb"><i class="t-cat" style="width:9.1%"></i></div>
+              <span class="vc">15 · 9,1%</span></div><div class="vr"><span class="vn">1</span>
+              <div class="pb"><i class="t-cat" style="width:8.5%"></i></div>
+              <span class="vc">14 · 8,5%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">so_hien_thi</span>
+        
+        <span class="dm">147 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:0.1%;width:1.3%"></div>
+          <div class="md" style="left:0.4%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 36.347 – 640.535 ·
+          trung vị 203.264 · lớn nhất 47.281.986 ·
+          bằng 0 6,1% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">so_click</span>
+        
+        <span class="dm">147 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:0.2%;width:2.4%"></div>
+          <div class="md" style="left:0.9%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 897 – 11.865 ·
+          trung vị 4.205 · lớn nhất 464.923 ·
+          bằng 0 6,1% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">so_lead_khai_bao</span>
+        
+        <span class="dm">145 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:0.2%;width:2.8%"></div>
+          <div class="md" style="left:1.2%"></div></div>
+          <div class="meta">nhỏ nhất 8 · tứ phân vị 2.459 – 35.144 ·
+          trung vị 13.620 · lớn nhất 1.178.526 ·
+          bằng 0 0,0% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">chi_phi</span>
+        
+        <span class="dm">156 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:0.2%;width:1.8%"></div>
+          <div class="md" style="left:0.7%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 9.457.918 – 80.846.955 ·
+          trung vị 25.708.147 · lớn nhất 3.939.322.904 ·
+          bằng 0 0,6% · âm 0,0%</div></div></div><div class="panel" data-t="R4.1"><h2>R4.1 · gd_roi_bo</h2>
+      <p class="lead">5.000 dòng × 8 cột — bị cắt đúng 5.000 dòng.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>4</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>0</b> cảnh báo</span>
+        <span class="tl sok"><b>4</b> đạt</span>
+      </div><div class="alert"><div class="at">Vấn đề đe doạ trực tiếp tới phân tích</div><ul><li><code>level_account</code> — Suy biến — giá trị Basic chiếm 99,2%</li><li><code>ma_ly_do_chinh</code> — Trống 96,5% — trường gần như không có dữ liệu</li><li><code>ghi_chu_tu_do</code> — Trống 97,9% — trường gần như không có dữ liệu</li><li><code>kenh_ghi_nhan</code> — Suy biến — giá trị Online chiếm 99,2%</li></ul></div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        
+        <span class="dm">3.907 giá trị · trống 0,0%</span></div><div class="meta">3.907 giá trị khác nhau trên 5.000 dòng · lặp 1.093 lần · nhiều nhất: 9087785 (19), 9051190 (14), 1375989 (12)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_thue_bao</span>
+        
+        <span class="dm">5.000 giá trị · trống 0,0%</span></div><div class="meta">5.000 giá trị khác nhau trên 5.000 dòng · lặp 0 lần · nhiều nhất: 4088266 (1), 4092050 (1), 4095501 (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_ghi_nhan</span>
+        
+        <span class="dm">233 giá trị · trống 0,0%</span></div><div class="hist"><div class="hb"><i style="height:7%"></i><span>26-01</span></div><div class="hb"><i style="height:54%"></i><span>26-02</span></div><div class="hb"><i style="height:23%"></i><span>26-03</span></div><div class="hb"><i style="height:5%"></i><span>26-04</span></div><div class="hb"><i style="height:5%"></i><span>26-05</span></div><div class="hb"><i style="height:7%"></i><span>26-06</span></div><div class="hb"><i style="height:12%"></i><span>26-07</span></div><div class="hb"><i style="height:100%"></i><span>26-08</span></div></div><div class="meta">2026-01-01 → 2026-08-29 · trải 240 ngày</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">level_account</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">4 giá trị · trống 0,1%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị Basic chiếm 99,2%</div></div><div class="vals"><div class="vr"><span class="vn">Basic</span>
+              <div class="pb"><i class="f-crit" style="width:99.2%"></i></div>
+              <span class="vc">4.959 · 99,2%</span></div><div class="vr"><span class="vn">Bronze</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">15 · 0,3%</span></div><div class="vr"><span class="vn">Gold</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">11 · 0,2%</span></div><div class="vr"><span class="vn">Silver</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">8 · 0,2%</span></div><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_ly_do_chinh</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">12 giá trị · trống 96,5%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 96,5% — trường gần như không có dữ liệu</div></div><div class="meta">12 giá trị khác nhau trên 173 dòng · lặp 161 lần · nhiều nhất: 0.0 (68), 12.0 (25), 2.0 (25)</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ghi_chu_tu_do</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">11 giá trị · trống 97,9%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 97,9% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị (trống) chiếm 97,9%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="f-crit" style="width:97.9%"></i></div>
+              <span class="vc">4.895 · 97,9%</span></div><div class="vr"><span class="vn">Mua nhưng chưa có người sử dụng</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">25 · 0,5%</span></div><div class="vr"><span class="vn">Doanh nghiệp tạm dừng hoạt động</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">25 · 0,5%</span></div><div class="vr"><span class="vn">Doanh nghiệp đã giải thể</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">20 · 0,4%</span></div><div class="vr"><span class="vn">Chuyển sang sử dụng sản phẩm khác cùng l</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">19 · 0,4%</span></div><div class="vr"><span class="vn">Chưa liên lạc được</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">5 · 0,1%</span></div><div class="vr"><span class="vn">Tìm được sản phẩm khác tốt và giá rẻ hơn</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,1%</span></div><div class="vr"><span class="vn">Thuê KT dịch vụ làm</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">Sản phẩm không đáp ứng yêu cầu nghiệp vụ</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">Khách hàng ít sử dụng</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">Dịch vụ hỗ trợ không tốt</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">KH hủy do có nhiều domain</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">kenh_ghi_nhan</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">2 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị Online chiếm 99,2%</div></div><div class="vals"><div class="vr"><span class="vn">Online</span>
+              <div class="pb"><i class="f-crit" style="width:99.2%"></i></div>
+              <span class="vc">4.959 · 99,2%</span></div><div class="vr"><span class="vn">Trực tiếp</span>
+              <div class="pb"><i class="t-cat" style="width:0.8%"></i></div>
+              <span class="vc">41 · 0,8%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">nguoi_ghi_nhan</span>
+        
+        <span class="dm">94 giá trị · trống 7,3%</span></div><div class="meta">94 giá trị khác nhau trên 4.637 dòng · lặp 4.543 lần · nhiều nhất: D-1500 (888), C-0619 (372), D26-0029 (313)</div></div></div><div class="panel" data-t="R4.2"><h2>R4.2 · gd_khao_sat_nps</h2>
+      <p class="lead">5.000 dòng × 14 cột — bị cắt đúng 5.000 dòng.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>6</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>1</b> cảnh báo</span>
+        <span class="tl sok"><b>7</b> đạt</span>
+      </div><div class="alert"><div class="at">Vấn đề đe doạ trực tiếp tới phân tích</div><ul><li><code>fullname</code> — Trống 96,3% — trường gần như không có dữ liệu</li><li><code>taxcode</code> — Trống 97,6% — trường gần như không có dữ liệu</li><li><code>budgetcode</code> — Trống 99,1% — trường gần như không có dữ liệu</li><li><code>accountobjectname</code> — Trống 98,5% — trường gần như không có dữ liệu</li><li><code>diem_nps_0_10</code> — Trống 96,3% — trường gần như không có dữ liệu</li><li><code>nhan_xet</code> — Trống 99,0% — trường gần như không có dữ liệu</li></ul></div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_phan_hoi</span>
+        
+        <span class="dm">5.000 giá trị · trống 0,0%</span></div><div class="meta">5.000 giá trị khác nhau trên 5.000 dòng · lặp 0 lần · nhiều nhất: 0EDB1B3D-7B14-4067-8D2D-14E32A (1), 0EDB1CE1-277F-4EF5-9073-606943 (1), 0EDB22EB-D09D-4964-B730-3CD9E1 (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">userid</span>
+        
+        <span class="dm">4.520 giá trị · trống 0,0%</span></div><div class="meta">4.520 giá trị khác nhau trên 5.000 dòng · lặp 480 lần · nhiều nhất: 9041684A-7B19-416F-90F1-7894C3 (214), 8EAE8D10-C2AD-4FE5-83D1-289036 (13), 2ADE81CC-6697-42AB-B85C-D3B2DF (6)</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">fullname</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">182 giá trị · trống 96,3%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 96,3% — trường gần như không có dữ liệu</div></div><div class="meta">182 giá trị khác nhau trên 184 dòng · lặp 2 lần · nhiều nhất: admin admin (2), admin (2), TRẦN HỮU THỌ (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">applicationurl</span>
+        
+        <span class="dm">2.554 giá trị · trống 0,0%</span></div><div class="meta">2.554 giá trị khác nhau trên 5.000 dòng · lặp 2.446 lần · nhiều nhất: https://app.meinvoice.vn/ (978), emiskinder.misa.vn (299), meinvoice.vn (180)</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">taxcode</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">115 giá trị · trống 97,6%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 97,6% — trường gần như không có dữ liệu</div></div><div class="meta">115 giá trị khác nhau trên 118 dòng · lặp 3 lần · nhiều nhất: 5700100256-066 (3), 4600240441 (2), 075202007748 (1)</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">budgetcode</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">44 giá trị · trống 99,1%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 99,1% — trường gần như không có dữ liệu</div></div><div class="box"><div class="bx" style="left:13.5%;width:55.0%"></div>
+          <div class="md" style="left:35.3%"></div></div>
+          <div class="meta">nhỏ nhất 1.005.844 · tứ phân vị 1.027.970 – 1.118.146 ·
+          trung vị 1.063.814 · lớn nhất 1.169.941 ·
+          bằng 0 0,0% · âm 0,0%</div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">accountobjectname</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">71 giá trị · trống 98,5%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 98,5% — trường gần như không có dữ liệu</div></div><div class="meta">71 giá trị khác nhau trên 73 dòng · lặp 2 lần · nhiều nhất: Kho tổng (3), Trường Tiểu học Ngô Quyền (1), HỘ KINH DOANH SỮA BỈM THỊNH QU (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_khao_sat</span>
+        
+        <span class="dm">4.997 giá trị · trống 0,0%</span></div><div class="hist"><div class="hb"><i style="height:53%"></i><span>26-01</span></div><div class="hb"><i style="height:32%"></i><span>26-02</span></div><div class="hb"><i style="height:49%"></i><span>26-03</span></div><div class="hb"><i style="height:50%"></i><span>26-04</span></div><div class="hb"><i style="height:71%"></i><span>26-05</span></div><div class="hb"><i style="height:86%"></i><span>26-06</span></div><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:33%"></i><span>26-08</span></div></div><div class="meta">2026-01-01 → 2026-08-12 · trải 223 ngày</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">dot_khao_sat</span>
+        
+        <span class="dm">51 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Khảo sát cukcuk </span>
+              <div class="pb"><i class="t-cat" style="width:24.6%"></i></div>
+              <span class="vc">1.232 · 24,6%</span></div><div class="vr"><span class="vn">Khảo sát 2024 meInvoice web</span>
+              <div class="pb"><i class="t-cat" style="width:18.3%"></i></div>
+              <span class="vc">913 · 18,3%</span></div><div class="vr"><span class="vn">Khảo sát AMIS Kế toán_Chính thức (SMECLO</span>
+              <div class="pb"><i class="t-cat" style="width:7.2%"></i></div>
+              <span class="vc">361 · 7,2%</span></div><div class="vr"><span class="vn">Khảo sát AMIS PL Chấm công_Chính thức</span>
+              <div class="pb"><i class="t-cat" style="width:6.7%"></i></div>
+              <span class="vc">335 · 6,7%</span></div><div class="vr"><span class="vn">KS SME2022</span>
+              <div class="pb"><i class="t-cat" style="width:5.6%"></i></div>
+              <span class="vc">279 · 5,6%</span></div><div class="vr"><span class="vn">Khảo sát EMIS Phụ huynh Tư thục (SISAP) </span>
+              <div class="pb"><i class="t-cat" style="width:4.4%"></i></div>
+              <span class="vc">219 · 4,4%</span></div><div class="vr"><span class="vn">AMISPLATFORM_Chat</span>
+              <div class="pb"><i class="t-cat" style="width:4.2%"></i></div>
+              <span class="vc">211 · 4,2%</span></div><div class="vr"><span class="vn">Khảo sát Invoice bot</span>
+              <div class="pb"><i class="t-cat" style="width:3.6%"></i></div>
+              <span class="vc">180 · 3,6%</span></div><div class="vr"><span class="vn">AMIS Process_Chinh thức_V2</span>
+              <div class="pb"><i class="t-cat" style="width:3.0%"></i></div>
+              <span class="vc">149 · 3,0%</span></div><div class="vr"><span class="vn">Khảo sát AMIS Platform_Công việc (TMS)_C</span>
+              <div class="pb"><i class="t-cat" style="width:2.0%"></i></div>
+              <span class="vc">102 · 2,0%</span></div><div class="vr"><span class="vn">Khảo sát CRM platform_chính thức</span>
+              <div class="pb"><i class="t-cat" style="width:1.9%"></i></div>
+              <span class="vc">94 · 1,9%</span></div><div class="vr"><span class="vn">Khảo sát mức độ hài lòng của Khách hàng </span>
+              <div class="pb"><i class="t-cat" style="width:1.8%"></i></div>
+              <span class="vc">88 · 1,8%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">diem_nps_0_10</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">9 giá trị · trống 96,3%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 96,3% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị (trống) chiếm 96,3%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="f-crit" style="width:96.3%"></i></div>
+              <span class="vc">4.817 · 96,3%</span></div><div class="vr"><span class="vn">10.0</span>
+              <div class="pb"><i class="t-cat" style="width:1.6%"></i></div>
+              <span class="vc">80 · 1,6%</span></div><div class="vr"><span class="vn">9.0</span>
+              <div class="pb"><i class="t-cat" style="width:1.3%"></i></div>
+              <span class="vc">63 · 1,3%</span></div><div class="vr"><span class="vn">8.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">13 · 0,3%</span></div><div class="vr"><span class="vn">7.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">13 · 0,3%</span></div><div class="vr"><span class="vn">1.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">7 · 0,1%</span></div><div class="vr"><span class="vn">5.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">3 · 0,1%</span></div><div class="vr"><span class="vn">2.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">4.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">3.0</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div></div><div class="dim s-crit" data-sev="crit">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">nhan_xet</span>
+        <span class="sv scrit">Nghiêm trọng</span>
+        <span class="dm">27 giá trị · trống 99,0%</span></div><div class="iss"><div class="ir"><span class="ic scrit"></span>Trống 99,0% — trường gần như không có dữ liệu</div><div class="ir"><span class="ic scrit"></span>Suy biến — giá trị (trống) chiếm 99,0%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="f-crit" style="width:99.0%"></i></div>
+              <span class="vc">4.949 · 99,0%</span></div><div class="vr"><span class="vn">[MOBILE] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">14 · 0,3%</span></div><div class="vr"><span class="vn">[Mobile] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">11 · 0,2%</span></div><div class="vr"><span class="vn">[menu-undefined] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,0%</span></div><div class="vr"><span class="vn">Hạn chế rất nhiều trong quá trình thao t</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">[menu-YlwvD] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">mệt</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">[mini-started] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">tại sao ko tự động cập nhật hóa đơn về??</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">Sau 2 năm, nhân viên kế toán vẫn chưa dù</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">[auto-undefined] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div><div class="vr"><span class="vn">[auto-XYXjM] </span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,0%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">kenh_khao_sat_id</span>
+        
+        <span class="dm">6 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">6</span>
+              <div class="pb"><i class="t-cat" style="width:62.3%"></i></div>
+              <span class="vc">3.114 · 62,3%</span></div><div class="vr"><span class="vn">1</span>
+              <div class="pb"><i class="t-cat" style="width:30.1%"></i></div>
+              <span class="vc">1.507 · 30,1%</span></div><div class="vr"><span class="vn">5</span>
+              <div class="pb"><i class="t-cat" style="width:5.2%"></i></div>
+              <span class="vc">262 · 5,2%</span></div><div class="vr"><span class="vn">4</span>
+              <div class="pb"><i class="t-cat" style="width:1.5%"></i></div>
+              <span class="vc">74 · 1,5%</span></div><div class="vr"><span class="vn">0</span>
+              <div class="pb"><i class="t-cat" style="width:0.7%"></i></div>
+              <span class="vc">37 · 0,7%</span></div><div class="vr"><span class="vn">2</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">6 · 0,1%</span></div></div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">kenh_khao_sat</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">3 giá trị · trống 68,3%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Trống 68,3%</div></div><div class="vals"><div class="vr"><span class="vn">(trống)</span>
+              <div class="pb"><i class="t-cat" style="width:68.3%"></i></div>
+              <span class="vc">3.413 · 68,3%</span></div><div class="vr"><span class="vn">BE</span>
+              <div class="pb"><i class="t-cat" style="width:30.1%"></i></div>
+              <span class="vc">1.507 · 30,1%</span></div><div class="vr"><span class="vn">IOS</span>
+              <div class="pb"><i class="t-cat" style="width:1.5%"></i></div>
+              <span class="vc">74 · 1,5%</span></div><div class="vr"><span class="vn">Desktop</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">6 · 0,1%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ten_san_pham</span>
+        
+        <span class="dm">51 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">MISA CukCuk</span>
+              <div class="pb"><i class="t-cat" style="width:24.6%"></i></div>
+              <span class="vc">1.232 · 24,6%</span></div><div class="vr"><span class="vn">MISA Melnvoice Web</span>
+              <div class="pb"><i class="t-cat" style="width:18.3%"></i></div>
+              <span class="vc">913 · 18,3%</span></div><div class="vr"><span class="vn">AMIS Kế toán</span>
+              <div class="pb"><i class="t-cat" style="width:7.2%"></i></div>
+              <span class="vc">361 · 7,2%</span></div><div class="vr"><span class="vn">AMIS Chấm công</span>
+              <div class="pb"><i class="t-cat" style="width:6.7%"></i></div>
+              <span class="vc">335 · 6,7%</span></div><div class="vr"><span class="vn">MISA SME 2022</span>
+              <div class="pb"><i class="t-cat" style="width:5.6%"></i></div>
+              <span class="vc">279 · 5,6%</span></div><div class="vr"><span class="vn">EMIS Phụ huynh</span>
+              <div class="pb"><i class="t-cat" style="width:4.4%"></i></div>
+              <span class="vc">219 · 4,4%</span></div><div class="vr"><span class="vn">AMIS Chat</span>
+              <div class="pb"><i class="t-cat" style="width:4.2%"></i></div>
+              <span class="vc">211 · 4,2%</span></div><div class="vr"><span class="vn">MISA Melnvoice Inbot</span>
+              <div class="pb"><i class="t-cat" style="width:3.6%"></i></div>
+              <span class="vc">180 · 3,6%</span></div><div class="vr"><span class="vn">AMIS Quy trình</span>
+              <div class="pb"><i class="t-cat" style="width:3.0%"></i></div>
+              <span class="vc">149 · 3,0%</span></div><div class="vr"><span class="vn">AMIS Công việc</span>
+              <div class="pb"><i class="t-cat" style="width:2.0%"></i></div>
+              <span class="vc">102 · 2,0%</span></div><div class="vr"><span class="vn">AMIS Bán hàng</span>
+              <div class="pb"><i class="t-cat" style="width:1.9%"></i></div>
+              <span class="vc">94 · 1,9%</span></div><div class="vr"><span class="vn">MISA esign RemoteSigning</span>
+              <div class="pb"><i class="t-cat" style="width:1.8%"></i></div>
+              <span class="vc">88 · 1,8%</span></div></div></div></div><div class="panel" data-t="R4.3"><h2>R4.3 · gd_su_dung</h2>
+      <p class="lead">2.254 dòng × 8 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>1</b> cảnh báo</span>
+        <span class="tl sok"><b>7</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        
+        <span class="dm">148 giá trị · trống 0,0%</span></div><div class="meta">148 giá trị khác nhau trên 2.254 dòng · lặp 2.106 lần · nhiều nhất: 12650160 (40), 12630841 (40), 12633128 (40)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ma_sp</span>
+        
+        <span class="dm">36 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">P2.014.04.09.2102</span>
+              <div class="pb"><i class="t-cat" style="width:33.7%"></i></div>
+              <span class="vc">760 · 33,7%</span></div><div class="vr"><span class="vn">P2.014.04.00.2102</span>
+              <div class="pb"><i class="t-cat" style="width:33.4%"></i></div>
+              <span class="vc">752 · 33,4%</span></div><div class="vr"><span class="vn">P2.014.04.00.2201</span>
+              <div class="pb"><i class="t-cat" style="width:9.9%"></i></div>
+              <span class="vc">224 · 9,9%</span></div><div class="vr"><span class="vn">P2.014.04.09.2201</span>
+              <div class="pb"><i class="t-cat" style="width:9.6%"></i></div>
+              <span class="vc">216 · 9,6%</span></div><div class="vr"><span class="vn">P2.014.04.10.2102</span>
+              <div class="pb"><i class="t-cat" style="width:2.5%"></i></div>
+              <span class="vc">56 · 2,5%</span></div><div class="vr"><span class="vn">P2.013.01.09.2102</span>
+              <div class="pb"><i class="t-cat" style="width:1.6%"></i></div>
+              <span class="vc">36 · 1,6%</span></div><div class="vr"><span class="vn">P2.014.04.01.2102</span>
+              <div class="pb"><i class="t-cat" style="width:1.4%"></i></div>
+              <span class="vc">32 · 1,4%</span></div><div class="vr"><span class="vn">P2.013.01.10.2102</span>
+              <div class="pb"><i class="t-cat" style="width:1.2%"></i></div>
+              <span class="vc">28 · 1,2%</span></div><div class="vr"><span class="vn">P2.014.04.01.2201</span>
+              <div class="pb"><i class="t-cat" style="width:0.7%"></i></div>
+              <span class="vc">16 · 0,7%</span></div><div class="vr"><span class="vn">P2.014.04.02.2102</span>
+              <div class="pb"><i class="t-cat" style="width:0.7%"></i></div>
+              <span class="vc">16 · 0,7%</span></div><div class="vr"><span class="vn">P2.013.31.04.2102</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">13 · 0,6%</span></div><div class="vr"><span class="vn">P2.013.08.09.2102</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">8 · 0,4%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">ky_thang</span>
+        
+        <span class="dm">8 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">7</span>
+              <div class="pb"><i class="t-cat" style="width:15.4%"></i></div>
+              <span class="vc">347 · 15,4%</span></div><div class="vr"><span class="vn">8</span>
+              <div class="pb"><i class="t-cat" style="width:14.5%"></i></div>
+              <span class="vc">326 · 14,5%</span></div><div class="vr"><span class="vn">3</span>
+              <div class="pb"><i class="t-cat" style="width:11.7%"></i></div>
+              <span class="vc">264 · 11,7%</span></div><div class="vr"><span class="vn">5</span>
+              <div class="pb"><i class="t-cat" style="width:11.7%"></i></div>
+              <span class="vc">264 · 11,7%</span></div><div class="vr"><span class="vn">4</span>
+              <div class="pb"><i class="t-cat" style="width:11.7%"></i></div>
+              <span class="vc">264 · 11,7%</span></div><div class="vr"><span class="vn">1</span>
+              <div class="pb"><i class="t-cat" style="width:11.7%"></i></div>
+              <span class="vc">263 · 11,7%</span></div><div class="vr"><span class="vn">2</span>
+              <div class="pb"><i class="t-cat" style="width:11.7%"></i></div>
+              <span class="vc">263 · 11,7%</span></div><div class="vr"><span class="vn">6</span>
+              <div class="pb"><i class="t-cat" style="width:11.7%"></i></div>
+              <span class="vc">263 · 11,7%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_kich_hoat</span>
+        
+        <span class="dm">20 giá trị · trống 0,0%</span></div><div class="hist"><div class="hb"><i style="height:1%"></i><span>26-03</span></div><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:0%"></i><span>26-08</span></div></div><div class="meta">2026-03-13 → 2026-08-28 · trải 168 ngày</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">so_ngay_phat_sinh</span>
+        
+        <span class="dm">28 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:90.0%;width:10.0%"></div>
+          <div class="md" style="left:96.7%"></div></div>
+          <div class="meta">nhỏ nhất 1 · tứ phân vị 28 – 31 ·
+          trung vị 30 · lớn nhất 31 ·
+          bằng 0 0,0% · âm 0,0%</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">so_lan_dang_nhap</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">53 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Bằng 0 ở 93,3% số dòng</div></div><div class="box"><div class="bx" style="left:0.0%;width:0.8%"></div>
+          <div class="md" style="left:0.0%"></div></div>
+          <div class="meta">nhỏ nhất 0 · tứ phân vị 0 – 0 ·
+          trung vị 0 · lớn nhất 674 ·
+          bằng 0 93,3% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">so_log_su_dung_phat_sinh</span>
+        
+        <span class="dm">92 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:46.3%;width:13.3%"></div>
+          <div class="md" style="left:55.2%"></div></div>
+          <div class="meta">nhỏ nhất 1 · tứ phân vị 12.848.513 – 16.536.973 ·
+          trung vị 15.311.232 · lớn nhất 27.723.186 ·
+          bằng 0 0,0% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_hoat_dong_gan_nhat</span>
+        
+        <span class="dm">141 giá trị · trống 0,0%</span></div><div class="hist"><div class="hb"><i style="height:76%"></i><span>26-01</span></div><div class="hb"><i style="height:76%"></i><span>26-02</span></div><div class="hb"><i style="height:76%"></i><span>26-03</span></div><div class="hb"><i style="height:76%"></i><span>26-04</span></div><div class="hb"><i style="height:76%"></i><span>26-05</span></div><div class="hb"><i style="height:76%"></i><span>26-06</span></div><div class="hb"><i style="height:100%"></i><span>26-07</span></div><div class="hb"><i style="height:94%"></i><span>26-08</span></div></div><div class="meta">2026-01-30 → 2026-08-25 · trải 207 ngày</div></div></div><div class="panel" data-t="R4.4"><h2>R4.4 · gd_ticket_ho_tro</h2>
+      <p class="lead">1.648 dòng × 12 cột.
+      Mỗi khối là một chiều: chiều đó chứa gì, trải rộng đến đâu,
+      và mức độ tập trung của giá trị.</p>
+      <div class="tally">
+        <span class="tl scrit"><b>0</b> nghiêm trọng</span>
+        <span class="tl swarn"><b>2</b> cảnh báo</span>
+        <span class="tl sok"><b>10</b> đạt</span>
+      </div><div class="note">Bảng này mới có lớp hình tự động. Lớp kỳ vọng — phạm vi đã yêu cầu và
+        hệ quả khi chiều bị co lại — cần biên soạn tay như đã làm ở R2.1.</div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">ticket_id</span>
+        
+        <span class="dm">1.648 giá trị · trống 0,0%</span></div><div class="box"><div class="bx" style="left:79.3%;width:15.3%"></div>
+          <div class="md" style="left:87.4%"></div></div>
+          <div class="meta">nhỏ nhất 5.702.495 · tứ phân vị 6.506.010 – 6.661.008 ·
+          trung vị 6.587.639 · lớn nhất 6.715.398 ·
+          bằng 0 0,0% · âm 0,0%</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_ticket</span>
+        
+        <span class="dm">1.648 giá trị · trống 0,0%</span></div><div class="meta">1.648 giá trị khác nhau trên 1.648 dòng · lặp 0 lần · nhiều nhất: SME-1182806 (1), ESHOP-113137 (1), ES-206156 (1)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-id">Định danh</span><span class="dn">ma_kh</span>
+        
+        <span class="dm">665 giá trị · trống 0,0%</span></div><div class="meta">665 giá trị khác nhau trên 1.648 dòng · lặp 983 lần · nhiều nhất: 12641019 (39), 12640987 (34), 12738293 (25)</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_mo</span>
+        
+        <span class="dm">1.640 giá trị · trống 0,0%</span></div><div class="hist"><div class="hb"><i style="height:0%"></i><span>26-04</span></div><div class="hb"><i style="height:0%"></i><span>26-05</span></div><div class="hb"><i style="height:43%"></i><span>26-07</span></div><div class="hb"><i style="height:100%"></i><span>26-08</span></div></div><div class="meta">2026-04-16 → 2026-08-30 · trải 135 ngày</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-time">Thời gian</span><span class="dn">ngay_dong</span>
+        
+        <span class="dm">1.537 giá trị · trống 6,6%</span></div><div class="hist"><div class="hb"><i style="height:0%"></i><span>26-04</span></div><div class="hb"><i style="height:0%"></i><span>26-05</span></div><div class="hb"><i style="height:41%"></i><span>26-07</span></div><div class="hb"><i style="height:100%"></i><span>26-08</span></div></div><div class="meta">2026-04-17 → 2026-08-29 · trải 134 ngày</div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">nhom_van_de_id</span>
+        
+        <span class="dm">5 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">12502</span>
+              <div class="pb"><i class="t-cat" style="width:73.0%"></i></div>
+              <span class="vc">1.203 · 73,0%</span></div><div class="vr"><span class="vn">11204</span>
+              <div class="pb"><i class="t-cat" style="width:16.0%"></i></div>
+              <span class="vc">263 · 16,0%</span></div><div class="vr"><span class="vn">11202</span>
+              <div class="pb"><i class="t-cat" style="width:6.4%"></i></div>
+              <span class="vc">106 · 6,4%</span></div><div class="vr"><span class="vn">11203</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">43 · 2,6%</span></div><div class="vr"><span class="vn">11205</span>
+              <div class="pb"><i class="t-cat" style="width:2.0%"></i></div>
+              <span class="vc">33 · 2,0%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">nhom_van_de</span>
+        
+        <span class="dm">5 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Hỗ trợ Dữ liệu/Đăng nhập/Kết nối/Sửa mẫu</span>
+              <div class="pb"><i class="t-cat" style="width:73.0%"></i></div>
+              <span class="vc">1.203 · 73,0%</span></div><div class="vr"><span class="vn">Hỗ trợ nghiệp vụ</span>
+              <div class="pb"><i class="t-cat" style="width:16.0%"></i></div>
+              <span class="vc">263 · 16,0%</span></div><div class="vr"><span class="vn">Lỗi phần mềm</span>
+              <div class="pb"><i class="t-cat" style="width:6.4%"></i></div>
+              <span class="vc">106 · 6,4%</span></div><div class="vr"><span class="vn">Yêu cầu phát triển</span>
+              <div class="pb"><i class="t-cat" style="width:2.6%"></i></div>
+              <span class="vc">43 · 2,6%</span></div><div class="vr"><span class="vn">Gia hạn/Mua thêm/Nâng cấp/Thay đổi thông</span>
+              <div class="pb"><i class="t-cat" style="width:2.0%"></i></div>
+              <span class="vc">33 · 2,0%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">muc_do_uu_tien_id</span>
+        
+        <span class="dm">4 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">4</span>
+              <div class="pb"><i class="t-cat" style="width:45.6%"></i></div>
+              <span class="vc">752 · 45,6%</span></div><div class="vr"><span class="vn">1</span>
+              <div class="pb"><i class="t-cat" style="width:42.6%"></i></div>
+              <span class="vc">702 · 42,6%</span></div><div class="vr"><span class="vn">3</span>
+              <div class="pb"><i class="t-cat" style="width:6.0%"></i></div>
+              <span class="vc">99 · 6,0%</span></div><div class="vr"><span class="vn">2</span>
+              <div class="pb"><i class="t-cat" style="width:5.8%"></i></div>
+              <span class="vc">95 · 5,8%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">muc_do_uu_tien</span>
+        
+        <span class="dm">4 giá trị · trống 0,0%</span></div><div class="vals"><div class="vr"><span class="vn">Thấp</span>
+              <div class="pb"><i class="t-cat" style="width:45.6%"></i></div>
+              <span class="vc">752 · 45,6%</span></div><div class="vr"><span class="vn">Khẩn cấp</span>
+              <div class="pb"><i class="t-cat" style="width:42.6%"></i></div>
+              <span class="vc">702 · 42,6%</span></div><div class="vr"><span class="vn">Trung bình</span>
+              <div class="pb"><i class="t-cat" style="width:6.0%"></i></div>
+              <span class="vc">99 · 6,0%</span></div><div class="vr"><span class="vn">Cao</span>
+              <div class="pb"><i class="t-cat" style="width:5.8%"></i></div>
+              <span class="vc">95 · 5,8%</span></div></div></div><div class="dim s-ok" data-sev="ok">
+      <div class="dh"><span class="tp t-num">Số đo</span><span class="dn">thoi_gian_xu_ly</span>
+        
+        <span class="dm">1.200 giá trị · trống 6,6%</span></div><div class="box"><div class="bx" style="left:1.4%;width:0.8%"></div>
+          <div class="md" style="left:1.5%"></div></div>
+          <div class="meta">nhỏ nhất -61.215 · tứ phân vị 326 – 22.067 ·
+          trung vị 2.424 · lớn nhất 4.231.125 ·
+          bằng 0 6,8% · âm 1,2%</div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">trang_thai_id</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">5 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Tập trung cao — 10001 chiếm 93,3%</div></div><div class="vals"><div class="vr"><span class="vn">10001</span>
+              <div class="pb"><i class="t-cat" style="width:93.3%"></i></div>
+              <span class="vc">1.537 · 93,3%</span></div><div class="vr"><span class="vn">10000</span>
+              <div class="pb"><i class="t-cat" style="width:6.3%"></i></div>
+              <span class="vc">104 · 6,3%</span></div><div class="vr"><span class="vn">3</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,2%</span></div><div class="vr"><span class="vn">10300</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,1%</span></div><div class="vr"><span class="vn">10301</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,1%</span></div></div></div><div class="dim s-warn" data-sev="warn">
+      <div class="dh"><span class="tp t-cat">Phân loại</span><span class="dn">trang_thai</span>
+        <span class="sv swarn">Cảnh báo</span>
+        <span class="dm">5 giá trị · trống 0,0%</span></div><div class="iss"><div class="ir"><span class="ic swarn"></span>Tập trung cao — Đã xử lý chiếm 93,3%</div></div><div class="vals"><div class="vr"><span class="vn">Đã xử lý</span>
+              <div class="pb"><i class="t-cat" style="width:93.3%"></i></div>
+              <span class="vc">1.537 · 93,3%</span></div><div class="vr"><span class="vn">Chờ xử lý</span>
+              <div class="pb"><i class="t-cat" style="width:6.3%"></i></div>
+              <span class="vc">104 · 6,3%</span></div><div class="vr"><span class="vn">Đang xử lý</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">4 · 0,2%</span></div><div class="vr"><span class="vn">Từ chối</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">2 · 0,1%</span></div><div class="vr"><span class="vn">KH mở lại</span>
+              <div class="pb"><i class="t-cat" style="width:0.6%"></i></div>
+              <span class="vc">1 · 0,1%</span></div></div></div></div></div>
+
+<script>
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  document.querySelector('.panel[data-t="'+t.dataset.t+'"]').classList.add('on');
+  window.scrollTo(0,0);
+});
+document.querySelector('.panel[data-t="R2.1"]').classList.add('on');
+</script>
+</body></html>
