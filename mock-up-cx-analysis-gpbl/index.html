@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MISA GP Bán lẻ — Báo cáo chạy trên dữ liệu thực v0.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@600;700&family=Outfit:wght@400;600;800&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+  --ink:#231F20; --muted:#766F71; --line:#E9E2E4; --card:#ffffff; --bg:#F3EFEF;
+  --own:#982A3F; --neg:#982A3F; --soft:#F7EFF1; --warn:#5F5759; --warnbg:#FBF9F7;
+  --deep:#231F20; --c2:#C4818C; --c3:#4A4143; --c4:#8C8487; --c5:#231F20; --c6:#DDD4D6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13.5px;line-height:1.62}
+.mono{font-family:'DM Mono',monospace}
+.top{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);
+  padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top h1{font-family:'Noto Serif Display',serif;font-size:17px;font-weight:600;margin:0}
+.ver-badge{background:var(--own);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px}
+.rel-stamp{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted)}
+.spacer{flex:1}
+.logo{height:30px;width:auto;display:block;flex:none}
+
+.mockbar{background:#F7EFF1;border-bottom:1px solid #E4CFD4;padding:8px 20px;font-size:12px;color:var(--neg);font-weight:600}
+.hintbar{background:var(--soft);border-bottom:1px solid var(--line);padding:7px 20px;font-size:12px;color:#2c3d36}
+.hintbar b{color:var(--own)}
+.tabs{display:flex;gap:5px;padding:10px 20px 0;flex-wrap:wrap;position:sticky;top:47px;z-index:29;background:var(--bg)}
+.tab{font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-bottom:none;
+  border-radius:10px 10px 0 0;background:#EDE8E9;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tab.on{background:var(--card);color:var(--own)}
+.tab .cnt{font-family:'DM Mono',monospace;font-size:10px;opacity:.7;margin-left:5px}
+.shell{background:var(--card);border:1px solid var(--line);border-radius:0 12px 12px 12px;margin:0 20px 40px;padding:22px 24px}
+h2{font-family:'Noto Serif Display',serif;font-size:20px;margin:0 0 4px}
+h3{font-family:'Noto Serif Display',serif;font-size:15px;margin:26px 0 8px;color:var(--own)}
+.lead{color:var(--muted);font-size:13px;margin:0 0 16px;max-width:960px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;min-width:600px}
+th{background:var(--ink);color:#fff;text-align:left;padding:7px 10px;font-size:10.5px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase}
+td{padding:6px 10px;border-bottom:1px solid #F0EBEC;vertical-align:top}
+tr:hover td{background:#FBF9F7}
+tr.grp td{background:#F3EFEF;font-weight:800;color:var(--own)}
+td.c{font-family:'DM Mono',monospace;font-size:11.5px;white-space:nowrap}
+td.r{text-align:right;font-family:'DM Mono',monospace;font-size:11.5px}
+.mk{border:1px solid var(--line);border-radius:12px;margin-bottom:18px;background:#fff;overflow:hidden}
+.mkh{background:#F7EFF1;padding:11px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.mkh .num{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--own)}
+.mkh .nm{font-size:14.5px;font-weight:700}
+.mkh .ty{margin-left:auto;font-family:'DM Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:6px;
+  background:#E9E2E4;color:#4A4143}
+.mkb{padding:14px 18px 16px}
+.viz{margin:2px 0 12px}
+.blk{margin-top:12px}
+.blk>.lb{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.read{border-left:3px solid var(--own);background:var(--soft);padding:9px 14px;border-radius:0 8px 8px 0;font-size:12.5px}
+.src{display:inline-block;font-family:'DM Mono',monospace;font-size:10.5px;background:#FBF9F7;color:#4A4143;
+  border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin:0 5px 5px 0}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#FBF9F7}
+.kpi .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-family:'Noto Serif Display',serif;font-size:22px;font-weight:700;color:var(--own);line-height:1.25}
+.kpi .s{font-size:11px;color:var(--muted)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
+.lg span{display:flex;align-items:center;gap:5px}
+.sw{width:10px;height:10px;border-radius:3px;flex:none}
+svg{display:block;width:100%;height:auto;font-family:'Outfit',sans-serif}
+svg text{font-size:10px;fill:var(--muted)}
+svg text.v{font-family:'DM Mono',monospace;font-size:9.5px;fill:var(--ink)}
+svg text.ax{font-size:9.5px}
+@media(max-width:900px){.shell{margin:0 10px 30px;padding:16px 14px}.tabs{padding:8px 10px 0}
+  .top{padding:9px 12px}.hintbar,.mockbar{padding:7px 12px}}
+@media print{.tabs,.top{position:static}}
+</style>
+<style>
+.scope{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:#FBF9F7;
+  border:1px solid var(--line);border-radius:6px;padding:2px 8px;display:inline-block;margin-bottom:8px}
+.stt{display:inline-block;font-size:9.5px;font-weight:800;border-radius:6px;padding:2px 7px;
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.stt.ok{background:var(--own);color:#fff}
+.stt.part{background:#E9E2E4;color:#4A4143}
+.stt.no{background:#FBF9F7;color:#8C8487;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAACfCAMAAAClSEdxAAAAYFBMVEUAAAAjHyCYKT6bLEFpaGgwLC35+PgsKCn/AACgnp57AgNOS0ydNEiuXWqfJUuoS12bMUZ2BHbRn6icJjSXKT6XKT6zdof/AP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADfB35HAAAAGHRSTlMA+/3yG54EWwEUAlyjIhhaYwMTGGKlJAEVFKpfAAATjElEQVR42u1dh5LjOq6lzaCcLIf//9NHMIlZpNy9r6d2WbfmOqhlHYFEOAAohHKDEfsdYeinRkv6Vv5CN8/Twsc075M8f9tvH/TbYyv+sBqa/N9jWUeE8f2OMfx7xyNaV/nVvP0eLmJLrhlgNPzTjrlfX0PWw4mnBY0cEVa47hKhGOMiRKhE+xujIwQ19OYNShH5bnIKaO9lBFz36ADI4wr4fh4eEQILcVkIG/INNDbJqXhPD0A+LnATPz8PL4NM4Rsu4ePQOiG0++kQ0/Mt/uR00MSIQDtFJke9+PgkY8uIC5AZ+S0Po33So0ld4lVoMIZq5TuVSc0aMDnPll4hODbcagYdqsT2WHEdMjE7x+nM/pSBqxGbgkeKxcZn5P3SgLnZfw2uHlvx3Oy5wcb3q2PMy64E3HC7NBpWMidhtV0d+A5T8ytw5Hb7LXQcG76OTU7NjMk7B7fdLg/KzlRJfkpqtyt7CF947VVw5PbFaLLYWpbEZkC9Rvtd9NC1Q+waOEa/AXcbMrLrU9jAh7y/1vW58zHt87zy1/ckvrTszsA1t+8GyUzKKDaAMK7z7B8+z8/xnsDH7Xl7ARz5Elt62fUJbHyaCWD9Nvd9K8c890Ljz+s9GjLghfX14Dr6LbiUudu4nozqdgGNowolvfHP5v11j6KLRpJ5cF8Ljo8uji6Obd1VYJcO+dbI3MR4ivkqeXC52A3xELyBMeQDofh6e4S2m4ttP4tD275H8zMUHh7fEXOXAUfSguOOsS0QQgaaE11k3S2R63sWETFcQnNkbo4RpZKVXFMesLG0/zlEgt7QMcGvuZQ96BFbQ3QL22rAxW1c0t9PwQsUJkzKUG4z2ovj9hY9wwU7BaLLgesrY5mUbiUBuDXUJFGNwL2YNiG8IATEI6uR3FBnlUkKnfcnn0BTcmwx1aFx9X1fhG7xRZddcwk9k0ZHijxMNvorZvXFpszBNO/zJN/7EtzREwfRXfspBkejqi8bYg9xq+Hec1+b4Nfuzr5NuFvrS5qL8TnPESq299cdvvuiqwRHzxjb6LmYZQxaLrgAW8CFzesdH0wzuNF7QOaF6LixY4Xg2K0eHGtuJ+IOBIfvs3PD+etnwIXxP3n68Np+Cqc3+QLccMbaNnGNQqxr9wX3dK655e5xzPnnnz09dD3aPXSjS2ZmwHWFvpQtuPi89Oy3F2vaVwy+cYrBFO6Zh27E/qrrr4M7m5Zxw28Lhi2eQOxJyWXxypCz+O6jm18uurFUcuxWry3jKrZJM0J8rrXWt/vrhDGZHXRg7Xw3hVwHd54sGcJBkuC4NrGtwP7CZzzz7K1Q7y+ceZkDR6s5nwKf11sl9opr2QufU5WObu3bZ+CDtZeNuGIjL+bhmOcyO5fK9WQBiQl/Ymug2blb2HGf68FdTcEJEgR0YWLFcWxFiR78cp2Zpz8VtuuOs5Re06kotXZWLr7V3axYoYx8dqayb+scfZkDR05SqMxMtop5ib0AtU0pvoxS2R15uwt1tHy9y+BECnwgU10GdR+Ttxm9SrMGjk/Tu/MSFt1WFIkXMLIUHXQKO5fb2zUETzQfgqtI7lhqaHOXMbbDpyxBVJq7Ki3TmFxeyHU4RnwJHL8vjsjxUgSuLlFAtZLJmInJXVfWRfaFqjKmMD1wYylvWZl2pB7lF4Jz18e9PybXWpGnA0VkmRd3Hb9+kU7nWiaDb8RxxbBF6Ky8NbB4vOc1cBf5dDq8Y8g+XhBugetRVfaY/6VlHx1Lh/GR0PqlFFa0UIrrnKQ3warSx7Z4fM+Gg2O/nnwMCU7uWSbBzVU1NvieAfcuBnetTOOg3VkOnDFzbUAYnIGzGSeXSrFCuvOE/xfoPMrlt8C5wUQVuK8ykLTL8CffgEuXe/BpWQ6OFblhmZXHbO8rDu67NTddVShfT01Lr+QUCvr/0JbfwztmJvPt3GrZudcP2TkA96mtt0TZAuDCdZcEV+uhzGkPpcKIu6Xb1/ANCXoIvwzzVelb3nO+5aO+UlZnh6/gIybt9AtRgX/HiqOCOL6BVgJMxnNXWIaQvHRDHlQYzyWbJrgAhxqAXdTQ2cFqjeh4xNMiOxLHiXRBveQsbrl4ijY6LPBohtEYuoDoyevKHSUiQWzrmovgTNcLGlABQlXQwBF4i39PET1Zwe02yzB5uRArW/CF5AxrWaBl+ii1d79bt7nty9C5lHNA5Y7sKCX6BhyyUn0kD3CIa3zskLKFjPM697au9NzmUsa5sjUrU0Sk83rE9y7vm3Od95JcgVNM03v0kE1b/gw4C+VZ2aXno2A3H36ODjSsk+WZvSwPKqTTL8GjKWNAYiWk3Bzbl8rO0HnY/Pwcvi8MoV8Dl0Kncv6tZwzu3sWifOMLYNvdlD/GlzKr2RRpBt0tW9DAxgy/mp+Z+I69nHjr2YH7+LCJjQy4K/n+5CkHBW7z5yV+9m6Wex5T1Qz4+farGeZMdqsaXFG2KgfOVylBjU0PIUys0Jc7XVuIDd+TedVacLfzeZkoRTHgWrR4V/TaW78SdvWK7AHaOodF4E+/psWtUv+Pg9vQNAZzKSj+mtfxKP6CvpAZBbVfQdkmdtVJNbihwNSRfIXUxyuzEU7YHhYk7vNTaAv8es7w9RxU7QW6xy8nrQRXtOjyxTlhEbBXoCCLFFwoYTlp7znhsULgSnBOjVpNzaVVov7hChNnTbOuj239mlnkFht52BArr5Sl10QXzS7YNuTTBvXbQVHXeVlE0FSIwwrunBG/XVp1w+lfRVoCq9GFoS1egjNkwDW1fVVZB+WkSQnQobZUbOj5ijRd1HSEpHIEzSXX0i2oD7tdZPV9W4gtWm36qKlOT4VnMu/tVg/Jd6l2cn+ltpE+JSwy3afwwAjGHbRwXl4rsonv7pLu6BnCDHKkmYcL7wwet4D7M+Vajw9UXnrP8htodBZAlmWjIyoWimpi8PYsPNGklO5enb1Gp2w8N5xVZlCIi2DziuoGwRZ1Y7SD7i67A+cQ4Nar3scMAdGXg2PfNz4GGUi7vyDRZrzuoqKsn+beDEEKzc98X3UVuB/pfEwZjwQ6IRm8rrv/V7voOM6F6VVrDjGGfgBbqtE/1ml2dBzzSGB87rMez/F1P8lP4qmqOfC7bH9uUkaLgoP56Smb040M2jpwP9BvTPItjEX7F5TUPofe16/WoThEesoiL7Vb2KSwMYSqwX2J7sQT/fRo+TVsv12HUsIFfrMjitlao5yH80jZy+iK9urpr+/TE+jJbZpILePcDb+HTfY5jtdXnrWdTesknorp9CsLbyguyedKZ7k8N/H6UNTHB03rOl1IhLCB/orYjk7O6Zr0xkVzfrKncrTRle3Y1lfCo7UdMZPULLhWk8CU/Dhc9ngtgdMVTk4eDl3YL1HsJLjWiQ8swJGRZlgF5Bc3GSTozNukqOku95+J7S2l/EqcEhBb65XNRdiGKvk1qbiUNs1Xu3eiVgSbj+Wpt+88g9bb933GR06sbS9JTqa/ocPRXq8QtPY/sLNsu8nrfYj9ZMfMYgOfxE2yLqqCKLQJFQAz7mL/Ezu+fsicd14goPV3EVTN9bqCaHr/3B6+Pz4+wKb3UXQKmjfxFKEmN+x582k9vtHfHuFWfLAUAVrvL+5eJTUh08NfSou3/Wl0vV+4AjsCI7S3oTKQTCh3oXcdaCx/HBy/PINObAYM261GVAXTKc0RGXCJUOFvDXBc5DbOMB+jrOaHRxbS+C9HiVwsNv976+6xjHyoDao/cQOlZuIomgrUOp3/+rTUjot8RWL2uYWIEOuglaN/SOPvZ8j/qOx6mV5tNVZ7ZsKXb00zLezTbjr7N1b1Qf+RwZjAuvEhEsomkAeH7GOSf94OG/8GNL4Al6O6HhaktUtPe+T+/gV94mNbsbJ2+8z/40hNjCSrEXX9VSRF/vc9FhUPYRUUmcAByxD84OjH/IIjeqDjWRLE/sY71nZ9zZ2WRzI7F2uOJKQnqRNGYhGnV84jovWG1Wb3h39DVyoPRLv+KJKzvAsCjCB7i8ITwXXHgNf6M+sb68eJjlObxhxmn4PJ19ZJBGXYSEaiC8/oSK45pCD8Fc+VHvUe+J8jtbKU7jw+8Nfys0HUMlCPT1al25DPadRGdoOiNejREzLwrxjcW3oTfoRiZCjpDHcRLXLp3DLWxySUiE6QAEekw9b+SPmNj/aTj7op/Cj/F7bzogocFeAoROGmm58IhoEC5dWoOggN7mYdqm4HkUVWROyr0lBADH8lktCx6xi8Ch1BJCFoJ+T6cbWeGjId2E5VJRPSG5Dcq4wyWO8anGv85aePDsXAHfdcpf45qrfg6AX/xwZxS5I1uKyjrqPRqmifdRMTX6jSMDjZmM7VRafmoP7vSs67t8e1heCOw24NVRUgb3EgsX4mXWBMguxlu027aXAiH4m4tVMO41Rivy1wHVfVHdLgxPInx7TUVGVEckZT8IPEjIR/GLXxwOmjKoprIkpZXNFwX0u6m63gXKYjjzmWsXsHOLv+jnqUu2hHhqdLkAi4o2qPKyMQkQZn5cqbMG82kA3Kawc+KwYv69CBB+YmwJlNR3BsRbGOBU5SeFqhwLBISlFic2hLR6EI5k+B4xqSdFFw4rDe1SIwcUmY4xtV6Pp+AJnIZnj+0uGpALYyp/IAhzJrTqe5mhOF0ogTSHCNNy39hUagkEwkM/xfUr4jGIEXRLEvweDaBRuFPqW15pgNLla5RwNwxFcoaOMSQwLwoGGzGLhGvOe/yQYvKLM3jIlUA+QeX3BNWxJYFCwEh0LJybodIg4XarBrBhbRluJnGv2PAy6TRMeQ0CrmFlLgnMpLuM5hoM6aU9/7CkUpD2HEqTDwIt3V+NXCgzyEB9nUq6puk5ku9Sii8mGtOWbcL+aBU46UsMnyLjRBQeqgXTdlvfmxU2NSeQE4wrUVEYaZsoAskO4lPqfYT8kZFZKomEe920SAstmBzWDn5Ij+npAjmjkCHaK7j/lfET+4MgdZi88L6lQeT6026WKOS3ctt/OrYUw+MokFZeYxdS/1lLpxmd9O3PdvDBLdiqqVe1g/9ml6v99oFytt+4dIBSb3OE0JoyXuttb/mNAg5BryGWguwW3r23+OwfsvGOR/t+B7Cpux+NuWyWF9+wk/UkEmlGLbz4H1z3qc3TuFezr/m/Dg7ElZfQohkjdztPPxRJr+b2kAQ8+pm2BFzQ85rLvB9EeeX8EN7wQP82XOaVHwrrOH/fvu1QT8o/0R80/KOu9I6tZxm3ousUmBdmhXlfWUaU9pocxHR/jRok66TJJlbPVpqak50IyR06ox6GgKvG1mvGrTGuCUEzYWETWZOEwWIg9+Ox/1doLU/rn1bhZ9z2qIUlwmNjzUid7J8uWP8EtX1pHjiuQer1lw2stkxzu3QZZanMURZMpfOAVHkfVTGtyKRZ2ciIahNkKAw5INsFItUGvAZbaugqLCi/QsG3FSpi+5MYLRhUnEBidaQ4l9MfKNPrixCRnigZMkiTq4CcGJrYSIbpU24PAKiEAyogYEiucweHsECgyU3N6jKbIWKV6RSpOXpuYDMRc0AL2pODNm305BquvgzwLHOnG0nraNLQkNjiE4iEKJKxHeuAMOpvIgXXKAb4ODDUZ72PEOdo+W4GCfAbF7yyjd+FUWWcueHFHzKaljIy4JybwKGAwgJ+T3cG+RCy5IA8D1DSK2o04zIz0Yexec/k24oMEFBwncfZZNwwrc1m/zzD96iWJPKBYcVT90K7JMaovNA9Lxu/IzJ76Dn9OShWtpXHAqaDzANYPWfw64LgWOMtXtLV57khOklMz/SXDIfCSWyYqtfBlpJ6y30yGy+Z+JFx3KSI406sLUawtcmMARFyiow1Jw6jig8Dxw87xP0Pu9mDU3zTM3amIutmKfAYytBwnAU4fW4zYzqb+bQ9NTvUfJseYIkULu4H8uOH1wd4AzS7gQnJouApcD7nhU4ySyg0w/m57/i1RNLrZrC2b0wvhg4hUXZmgyW2srAuX4TXE3vGnpdWjILxtJEpeCm6hi+ilywalEmTRq0s7dFa+h1zqA62Pg1FojVu/n4PSDGnAgXH0X4uAmGxwxTcVF01LSdmLqu+C4RhzXVdUby2m5PuUyQ4eytFgsqB5ckb3CGuspW/BJJ/VJZ01LeRFECMQFpw4m9rREyikoBneoEhfcauUFjZ0TAOTz7jZXobC2MwqlFVc3dVSZ6IxCkT9qSPu8QkHycMqKwTFpbhqGPIXCdXyvm2iUKZjAmuFJrDhZN26qH2dhCibLQENqq7GyfVFTYAxYhwJTQDxTQGENiOVcDE6thgH54GwqVBvxGUSnSgp6SHlCfe5EyNRbRtysZ5t1H8LeawmuM65Hc2bEzYtbMTii0/oF4EB0On3b6kYURRi75T3UayVPTUsdHKCSaamxlINj1OqxPgHHo77V5JPko37xuqD3ItTrYtMkXh3DEPrC1JQKyOxJE3ecNxecmmmFCkVpIEehPBPgiKx3Wa2smmLAsVOgK50T+1GzQ9gvpX6u05caNwXHwdQOjgrAwVWjB5Wmx5Xc6oHj4Y/cBXsREZ1aTdOiqX00BZNuQHFw1AEnqwRaZclT4BorQ+Pmom1XoTHToiNHjZZKfEir8kHvafIqqhma3jKV9HjDK71xJ4e3vl4rlPO6JEpnTJT5MTNaJ3dyVJFp3egcrB8WdDxzxjJ/zrv/A+6d95pmPT+6AAAAAElFTkSuQmCC" alt="SOI.Pro">
+  <h1>MISA GP Bán lẻ — Báo cáo chạy trên dữ liệu thực</h1>
+  <span class="ver-badge" data-ver></span>
+  <span class="rel-stamp" data-stamp></span>
+  <span class="spacer"></span>
+  <span class="rel-stamp">Nguồn: Data_Request_GPBL · 13 bảng</span>
+</div>
+<div class="mockbar">
+  PHẠM VI DỮ LIỆU: đơn hàng 03/07–29/08/2026 · 5 bảng bị cắt ở đúng 5.000 dòng · các con số dưới đây đúng với tập dữ liệu đã nhận, chưa phải toàn bộ hoạt động của khối.
+</div>
+<div class="hintbar">
+  <b>Cách đọc:</b> Tab 1 là kết quả nạp dữ liệu — chỉ số nào dựng được, chỉ số nào chưa và thiếu gì.
+  Tab 2–5 là các chỉ số dựng được, số liệu tính trực tiếp từ file MISA cung cấp.
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="shell" id="shell"></div>
+
+<script>
+const APP_VERSION='v0.1', BUILD_STAMP='Released 20/08/2026 · nạp lần 1 · 2/19 chỉ số đủ · 7/19 một phần';
+document.querySelectorAll('[data-ver]').forEach(e=>e.textContent=APP_VERSION);
+document.querySelectorAll('[data-stamp]').forEach(e=>e.textContent=BUILD_STAMP);
+
+const C=['#982A3F','#C4818C','#4A4143','#8C8487','#231F20','#DDD4D6'];
+const MO=['T1','T2','T3','T4','T5','T6','T7'];
+const fmt=n=>n.toLocaleString('vi-VN');
+const vn=(v,d=3)=>Number(v).toFixed(d).replace('.',',');
+const vd=v=>String(v).replace('.',',');
+
+/* ═════════ SVG chart helpers ═════════ */
+function frame(w,h){return {w,h,p:{l:44,r:12,t:14,b:26}};}
+function gridY(f,max,ticks){let s='';for(let i=0;i<=ticks;i++){
+  const y=f.p.t+(f.h-f.p.t-f.p.b)*(1-i/ticks), v=max*i/ticks;
+  s+=`<line x1="${f.p.l}" y1="${y}" x2="${f.w-f.p.r}" y2="${y}" stroke="#EFEAEB"/>
+      <text class="ax" x="${f.p.l-6}" y="${y+3}" text-anchor="end">${v>=1000?fmt(Math.round(v/1000))+'k':vd(Math.round(v*10)/10)}</text>`;}
+  return s;}
+
+function vbar(d){
+  const f=frame(700,220), iw=f.w-f.p.l-f.p.r, ih=f.h-f.p.t-f.p.b;
+  const max=Math.max(...d.values, d.target||0)*1.15, bw=iw/d.values.length*0.56;
+  let s=`<svg viewBox="0 0 ${f.w} ${f.h}">`+gridY(f,max,4);
+  d.values.forEach((v,i)=>{const x=f.p.l+iw*(i+0.5)/d.values.length, hh=ih*v/max;
+    s+=`<rect x="${x-bw/2}" y="${f.p.t+ih-hh}" width="${bw}" height="${hh}" rx="3" fill="${d.color||C[0]}"/>
+        <text class="v" x="${x}" y="${f.p.t+ih-hh-5}" text-anchor="middle">${d.lab?d.lab[i]:fmt(v)}</text>
+        <text class="ax" x="${x}" y="${f.h-8}" text-anchor="middle">${d.labels[i]}</text>`;});
+  if(d.target){const y=f.p.t+ih-ih*d.target/max;
+    s+=`<line x1="${f.p.l}" y1="${y}" x2="${f.w-f.p.r}" y2="${y}" stroke="${C[3]}" stroke-dasharray="5 4"/>
+        <text class="v" x="${f.p.l+4}" y="${y-5}" fill="${C[3]}">${d.targetLabel}</text>`;}
+  return s+'</svg>';}
+
+function stack(d){
+  const f=frame(700,230), iw=f.w-f.p.l-f.p.r, ih=f.h-f.p.t-f.p.b;
+  const tot=d.labels.map((_,i)=>d.series.reduce((a,s)=>a+s.values[i],0));
+  const max=d.pct?100:Math.max(...tot)*1.12, bw=iw/d.labels.length*0.56;
+  let s=`<svg viewBox="0 0 ${f.w} ${f.h}">`+gridY(f,max,4);
+  if(d.group){const gw=bw/d.series.length;
+    d.labels.forEach((L,i)=>{const x=f.p.l+iw*(i+0.5)/d.labels.length;
+      d.series.forEach((se,k)=>{const hh=ih*se.values[i]/Math.max(...d.series.flatMap(z=>z.values))/1.12;
+        const bx=x-bw/2+k*gw;
+        s+=`<rect x="${bx}" y="${f.p.t+ih-hh}" width="${gw-3}" height="${hh}" rx="3" fill="${se.color||C[k]}"/>
+            <text class="v" x="${bx+(gw-3)/2}" y="${f.p.t+ih-hh-4}" text-anchor="middle">${vd(se.values[i])}</text>`;});
+      s+=`<text class="ax" x="${x}" y="${f.h-8}" text-anchor="middle">${L}</text>`;});
+    return s+'</svg>';}
+  d.labels.forEach((L,i)=>{const x=f.p.l+iw*(i+0.5)/d.labels.length; let acc=0;
+    d.series.forEach((se,k)=>{const v=d.pct?se.values[i]/tot[i]*100:se.values[i], hh=ih*v/max;
+      s+=`<rect x="${x-bw/2}" y="${f.p.t+ih-ih*acc/max-hh}" width="${bw}" height="${hh}" fill="${se.color||C[k]}"/>`;
+      if(hh>15)s+=`<text class="v" x="${x}" y="${f.p.t+ih-ih*acc/max-hh/2+3}" text-anchor="middle" fill="#fff">${d.pct?Math.round(v)+'%':fmt(se.values[i])}</text>`;
+      acc+=v;});
+    s+=`<text class="ax" x="${x}" y="${f.h-8}" text-anchor="middle">${L}</text>`;});
+  return s+'</svg>';}
+
+function line(d){
+  const f=frame(700,220), iw=f.w-f.p.l-f.p.r, ih=f.h-f.p.t-f.p.b;
+  const all=d.series.flatMap(s=>s.values), max=Math.max(...all)*1.18;
+  let s=`<svg viewBox="0 0 ${f.w} ${f.h}">`+gridY(f,max,4);
+  d.labels.forEach((L,i)=>{const x=f.p.l+iw*(i+0.5)/d.labels.length;
+    s+=`<text class="ax" x="${x}" y="${f.h-8}" text-anchor="middle">${L}</text>`;});
+  d.series.forEach((se,k)=>{const pts=se.values.map((v,i)=>
+      [f.p.l+iw*(i+0.5)/d.labels.length, f.p.t+ih-ih*v/max]);
+    s+=`<polyline fill="none" stroke="${se.color||C[k]}" stroke-width="2.2"
+        points="${pts.map(p=>p[0]+','+p[1]).join(' ')}"/>`;
+    pts.forEach((p,i)=>{s+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${se.color||C[k]}"/>`;
+      if(d.showVals)s+=`<text class="v" x="${p[0]}" y="${p[1]+(k===1?16:-8)}" text-anchor="middle" fill="${se.color||C[k]}">${se.values[i]}${d.unit||''}</text>`;});});
+  return s+'</svg>';}
+
+function hbar(d){
+  const rowH=28, f={w:700,h:d.items.length*rowH+18,p:{l:210,r:64,t:6}};
+  const max=Math.max(...d.items.map(i=>i.value));
+  let s=`<svg viewBox="0 0 ${f.w} ${f.h}">`;
+  d.items.forEach((it,i)=>{const y=f.p.t+i*rowH, bw=(f.w-f.p.l-f.p.r)*it.value/max;
+    s+=`<text x="${f.p.l-8}" y="${y+16}" text-anchor="end" fill="#231F20">${it.label}</text>
+        <rect x="${f.p.l}" y="${y+4}" width="${bw}" height="17" rx="3" fill="${it.color||C[i%6]}"/>
+        <text class="v" x="${f.p.l+bw+7}" y="${y+17}">${it.disp||fmt(it.value)}</text>`;});
+  return s+'</svg>';}
+
+function donut(d){
+  const cx=120,cy=120,r=88,ir=54, tot=d.items.reduce((a,b)=>a+b.value,0);
+  let s=`<svg viewBox="0 0 700 240">`, a=-Math.PI/2;
+  d.items.forEach((it,i)=>{const ang=it.value/tot*Math.PI*2, b=a+ang, la=ang>Math.PI?1:0;
+    const p=(rr,t)=>[cx+rr*Math.cos(t),cy+rr*Math.sin(t)];
+    const [x1,y1]=p(r,a),[x2,y2]=p(r,b),[x3,y3]=p(ir,b),[x4,y4]=p(ir,a);
+    s+=`<path d="M${x1},${y1} A${r},${r} 0 ${la},1 ${x2},${y2} L${x3},${y3} A${ir},${ir} 0 ${la},0 ${x4},${y4} Z"
+         fill="${it.color||C[i%6]}"/>`;
+    const [tx,ty]=p((r+ir)/2,a+ang/2);
+    if(it.value/tot>0.07)s+=`<text class="v" x="${tx}" y="${ty+3}" text-anchor="middle" fill="#fff">${Math.round(it.value/tot*100)}%</text>`;
+    a=b;});
+  s+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" style="font-size:11px">${d.centerLabel||''}</text>
+      <text x="${cx}" y="${cy+16}" text-anchor="middle" style="font-size:17px;fill:#982A3F;font-weight:700">${d.center||fmt(tot)}</text>`;
+  d.items.forEach((it,i)=>{const y=54+i*26;
+    s+=`<rect x="270" y="${y-10}" width="11" height="11" rx="3" fill="${it.color||C[i%6]}"/>
+        <text x="290" y="${y}" fill="#231F20">${it.label}</text>
+        <text class="v" x="670" y="${y}" text-anchor="end">${it.disp||fmt(it.value)}</text>`;});
+  return s+'</svg>';}
+
+function funnel(d){
+  const W=700,sH=44,gap=8;let s=`<svg viewBox="0 0 ${W} ${d.steps.length*(sH+gap)}">`;
+  const max=d.steps[0].value;
+  d.steps.forEach((st,i)=>{const w=(W-230)*st.value/max, x=(W-230-w)/2, y=i*(sH+gap);
+    s+=`<rect x="${x}" y="${y}" width="${w}" height="${sH}" rx="4" fill="${C[Math.min(i,5)]}" opacity="${1-i*0.11}"/>
+        <text x="${x+w/2}" y="${y+27}" text-anchor="middle" fill="#fff" style="font-size:12px;font-weight:600">${fmt(st.value)}</text>
+        <text x="${W-220}" y="${y+20}" fill="#231F20">${st.label}</text>
+        <text class="v" x="${W-220}" y="${y+35}">${i?Math.round(st.value/d.steps[i-1].value*100)+'% từ bước trước':'100%'}</text>`;});
+  return s+'</svg>';}
+
+function bridge(d){
+  const f=frame(700,230), iw=f.w-f.p.l-f.p.r, ih=f.h-f.p.t-f.p.b;
+  const max=d.bars[0].value*1.2, bw=iw/d.bars.length*0.5;
+  let s=`<svg viewBox="0 0 ${f.w} ${f.h}">`+gridY(f,max,4);
+  let base=0;
+  d.bars.forEach((b,i)=>{const x=f.p.l+iw*(i+0.5)/d.bars.length, hh=ih*b.value/max;
+    const y=b.float?f.p.t+ih-ih*(base+b.value)/max:f.p.t+ih-hh;
+    s+=`<rect x="${x-bw/2}" y="${y}" width="${bw}" height="${hh}" rx="3" fill="${b.color}"/>
+        <text class="v" x="${x}" y="${y-5}" text-anchor="middle">${fmt(b.value)}${b.pct?' · '+b.pct:''}</text>
+        <text class="ax" x="${x}" y="${f.h-8}" text-anchor="middle">${b.label}</text>`;
+    if(b.float)base+=b.value;});
+  return s+'</svg>';}
+
+function gauge(d){
+  const cx=190,cy=160,r=120;
+  const ang=t=>Math.PI*(1+t), p=(rr,t)=>[cx+rr*Math.cos(ang(t)),cy+rr*Math.sin(ang(t))];
+  const t=(d.value-d.min)/(d.max-d.min);
+  let s=`<svg viewBox="0 0 700 200">`;
+  d.zones.forEach(z=>{const a=(z.from-d.min)/(d.max-d.min),b=(z.to-d.min)/(d.max-d.min);
+    const [x1,y1]=p(r,a),[x2,y2]=p(r,b),[x3,y3]=p(r-26,b),[x4,y4]=p(r-26,a);
+    s+=`<path d="M${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} L${x3},${y3} A${r-26},${r-26} 0 0,0 ${x4},${y4} Z" fill="${z.color}"/>`;});
+  const [nx,ny]=p(r-34,t);
+  s+=`<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="#231F20" stroke-width="3"/>
+      <circle cx="${cx}" cy="${cy}" r="6" fill="#231F20"/>
+      <text x="${cx}" y="${cy+34}" text-anchor="middle" style="font-size:26px;fill:#982A3F;font-weight:700">${d.value}</text>
+      <text x="${cx}" y="${cy+52}" text-anchor="middle">${d.label}</text>`;
+  d.side.forEach((it,i)=>{const y=44+i*34, w=280*it.value/10;
+    s+=`<text x="400" y="${y}" fill="#231F20">${it.label}</text>
+        <rect x="400" y="${y+6}" width="${w}" height="10" rx="3" fill="${C[i%6]}"/>
+        <text class="v" x="690" y="${y+15}" text-anchor="end">${it.value}/10</text>`;});
+  return s+'</svg>';}
+
+function matrix(d){
+  const cw=118,ch=44,x0=170,y0=34;
+  const max=Math.max(...d.cells.flat());
+  let s=`<svg viewBox="0 0 700 ${y0+d.rows.length*ch+16}">`;
+  d.cols.forEach((c,j)=>s+=`<text x="${x0+j*cw+cw/2}" y="${y0-10}" text-anchor="middle" fill="#231F20">${c}</text>`);
+  d.rows.forEach((r,i)=>{s+=`<text x="${x0-10}" y="${y0+i*ch+27}" text-anchor="end" fill="#231F20">${r}</text>`;
+    d.cells[i].forEach((v,j)=>{const o=0.12+0.78*v/max;
+      s+=`<rect x="${x0+j*cw+2}" y="${y0+i*ch+4}" width="${cw-4}" height="${ch-8}" rx="4" fill="${C[0]}" opacity="${o}"/>
+          <text class="v" x="${x0+j*cw+cw/2}" y="${y0+i*ch+26}" text-anchor="middle" fill="${o>0.5?'#fff':'#231F20'}">${fmt(v)}</text>`;});});
+  return s+'</svg>';}
+
+function kpis(items){return `<div class="kpis">`+items.map(k=>
+  `<div class="kpi"><div class="k">${k.k}</div><div class="v">${k.v}</div><div class="s">${k.s||''}</div></div>`).join('')+`</div>`;}
+
+function tbl(d){return `<div class="tw"><table><thead><tr>`+
+  d.cols.map((c,i)=>`<th${i?' style="text-align:right"':''}>${c}</th>`).join('')+`</tr></thead><tbody>`+
+  d.rows.map(r=>`<tr>`+r.map((c,i)=>i?`<td class="r">${c}</td>`:`<td>${c}</td>`).join('')+`</tr>`).join('')+
+  `</tbody></table></div>`;}
+
+function legend(items){return `<div class="lg">`+items.map((it,i)=>
+  `<span><i class="sw" style="background:${it.color||C[i%6]}"></i>${it.label}</span>`).join('')+`</div>`;}
+
+
+
+const R={"meta": {"da_ghi": 4720, "dong": 5000, "tu": "2026-07-03", "den": "2026-08-29"}, "rev": {"tong_ty": 3.825, "don": 1426, "kh": 1316, "thang": {"7": 2.374, "8": 1.451}}, "loai": [{"k": "Bán mới", "ty": 3.49, "don": 1332, "aov": 2.62}, {"k": "Bán thêm", "ty": 0.201, "don": 45, "aov": 4.47}, {"k": "Gia hạn/Cập nhật", "ty": 0.104, "don": 41, "aov": 2.53}, {"k": "Dịch vụ đào tạo", "ty": 0.019, "don": 4, "aov": 4.74}, {"k": "Nâng cấp", "ty": 0.011, "don": 4, "aov": 2.85}], "dongsp": [{"k": "MISA meInvoice - Dịch vụ phát hành hóa đơn điệ", "ty": 1.404, "kh": 667}, {"k": "MISA meInvoice - Dịch vụ Xử lý hóa đơn (HKD)", "ty": 0.682, "kh": 365}, {"k": "MISA eSign – Chữ ký số từ xa (HKD)", "ty": 0.463, "kh": 502}, {"k": "Phần mềm Mshopkeeper.VN", "ty": 0.379, "kh": 330}, {"k": "Phần mềm CUKCUK.VN", "ty": 0.334, "kh": 74}, {"k": "MISA ASP Kế toán", "ty": 0.164, "kh": 87}, {"k": "AMIS Kế toán (HKD)", "ty": 0.142, "kh": 73}], "tinh": [{"k": "TP Hà Nội", "ty": 1.024, "kh": 336}, {"k": "TP Hồ Chí Minh", "ty": 0.948, "kh": 293}, {"k": "Ninh Bình", "ty": 0.252, "kh": 56}, {"k": "TP Hải Phòng", "ty": 0.137, "kh": 40}, {"k": "Phú Thọ", "ty": 0.127, "kh": 41}, {"k": "TP Đồng Nai", "ty": 0.124, "kh": 53}], "loaihinh": [{"k": "DN", "ty": 0.236, "kh": 29}, {"k": "HKD", "ty": 3.589, "kh": 1287}], "cross": {"phanbo": {"1": 775, "2": 158, "3": 315, "4": 65, "5": 2, "6": 1}, "da": 541, "tong": 1316, "pct": 41.1, "aov1": 1.66, "aov2": 4.69}, "lead": {"tong": 690, "win": 618, "cr": 89.6, "bang": [{"k": "Ao cơ hội", "lead": 177, "win": 151, "cr": 85.3}, {"k": "Telesales", "lead": 168, "win": 151, "cr": 89.9}, {"k": "Khách hàng giới thiệu", "lead": 143, "win": 136, "cr": 95.1}, {"k": "Khách tìm đến / Nội bộ MISA", "lead": 44, "win": 38, "cr": 86.4}, {"k": "Đối tác giới thiệu", "lead": 41, "win": 39, "cr": 95.1}, {"k": "Khách hàng tự tìm đến", "lead": 39, "win": 35, "cr": 89.7}, {"k": "NV tự tìm kiếm (đi thị trường)", "lead": 26, "win": 24, "cr": 92.3}, {"k": "Khách hàng cũ giới thiệu", "lead": 18, "win": 17, "cr": 94.4}]}, "mkt": {"tong_ty": 32.27, "t78_ty": 12.16}, "roibo": {"tong": 5000, "co_ma": 173, "phu": 3.5, "top": [{"k": "Doanh nghiệp tạm dừng hoạt động", "c": "C1", "v": 25}, {"k": "Mua nhưng chưa có người sử dụng", "c": "C2", "v": 25}, {"k": "Doanh nghiệp đã giải thể", "c": "C1", "v": 20}, {"k": "Chuyển sang sử dụng sản phẩm khác cùng loại", "c": "C2", "v": 19}, {"k": "Chưa liên lạc được", "c": "C2", "v": 5}, {"k": "Tìm được sản phẩm khác tốt và giá rẻ hơn", "c": "C2", "v": 4}, {"k": "Sản phẩm không đáp ứng yêu cầu nghiệp vụ", "c": "C2", "v": 2}, {"k": "Thuê KT dịch vụ làm", "c": "C2", "v": 2}], "churn": {"chưa xác định": 68, "C2": 60, "C1": 45}, "thang": {"1": 168, "2": 1267, "3": 547, "4": 113, "5": 127, "6": 166, "7": 270, "8": 2342}}, "nps": {"co_diem": 183, "tong": 5000, "ty_le": 3.7, "p": 78.1, "pa": 14.2, "d": 7.7, "nps": 70.5, "tb": 8.72, "sp": [{"k": "MISA Melnvoice Web", "n": 27, "m": 9.11}, {"k": "MISA Mimosa Online", "n": 25, "m": 8.76}, {"k": "AMIS Chấm công", "n": 23, "m": 9.22}, {"k": "MISA QLCB", "n": 13, "m": 7.69}, {"k": "MISA SME 2022", "n": 12, "m": 9.17}]}, "thuebao": {"tong": 5000, "trangthai": {"Đang hiệu lực": 4628, "Khác": 249, "Gia hạn": 118, "Tới hạn chưa xử lý": 5}, "null": 249, "sentinel": 8, "q4": 51, "masp_null": 61.6}, "sudung": {"kh": 148, "kh8": 138, "tb": 22.8, "phanbo": {"1-3 ngày": 12, "4-10 ngày": 11, "11-20 ngày": 21, "trên 20 ngày": 282}}, "ticket": {"tong": 1648, "kh": 665, "tb": 14.2, "med": 0.7, "nhom": [{"k": "Hỗ trợ Dữ liệu/Đăng nhập/Kết nối/Sửa mẫu", "v": 1203}, {"k": "Hỗ trợ nghiệp vụ", "v": 263}, {"k": "Lỗi phần mềm", "v": 106}, {"k": "Yêu cầu phát triển", "v": 43}, {"k": "Gia hạn/Mua thêm/Nâng cấp/Thay đổi thông t", "v": 33}]}, "chatluong": [{"b": "gd_ban_hang", "r": 5000, "c": 1, "n": "Chỉ 03/07–29/08/2026. Không đủ 24 tháng để phân biệt khách mới với khách cũ."}, {"b": "dm_khach_hang", "r": 5000, "c": 1, "n": "nganh_hang trống 99,6% · kenh_thu_hut_dau_tien trống 86,6%. Mất hai chiều cắt lát chính."}, {"b": "gd_thue_bao", "r": 5000, "c": 1, "n": "ma_sp trống 61,6% · ngay_gia_han_thuc_te trống 97,6% · chỉ 5 thuê bao ở trạng thái Tới hạn chưa xử lý."}, {"b": "gd_roi_bo", "r": 5000, "c": 1, "n": "ma_ly_do_chinh trống 93,6%. ma_thue_bao không khớp bảng thuê bao — độ trùng 0%."}, {"b": "gd_khao_sat_nps", "r": 5000, "c": 1, "n": "Không có ma_kh · diem_nps trống 96,3% · thiếu 4 điểm khía cạnh thành phần."}, {"b": "dm_kenh", "r": 2659, "c": 0, "n": "367 mã trên 2.659 dòng, trùng 2.292. nhom_kenh có 126 giá trị chưa chuẩn hoá (Facebook, facebook, fb, FBAds…)."}, {"b": "gd_lead", "r": 690, "c": 0, "n": "ngay_demo và ngay_bao_gia trống 100%. 89,6% lead đã chuyển đổi — đây là tập cơ hội cuối phễu, không phải toàn phễu."}, {"b": "gd_chi_phi_mkt", "r": 164, "c": 0, "n": "Chi phí toàn MISA, không tách được phần GP Bán lẻ. T7+T8 là 12,16 tỷ so với doanh thu mẫu 3,82 tỷ."}, {"b": "gd_su_dung", "r": 2254, "c": 0, "n": "Chỉ 148 khách trên 5.000 khách trong danh mục — độ phủ 3,0%."}, {"b": "dm_ly_do_roi_bo", "r": 39, "c": 0, "n": "Đạt yêu cầu: có phan_loai_churn C1/C2 đầy đủ. Vấn đề nằm ở bảng giao dịch không gắn mã."}, {"b": "gd_ticket_ho_tro", "r": 1648, "c": 0, "n": "Đạt yêu cầu."}, {"b": "dm_nhan_su", "r": 1234, "c": 0, "n": "Đạt yêu cầu."}, {"b": "dm_san_pham", "r": 2103, "c": 0, "n": "Đạt yêu cầu. 100% ma_sp trong đơn hàng tra được về danh mục."}]};
+const ST=[{"n": 1, "g": 2, "name": "Doanh thu GP Bán Lẻ 2026", "s": "part", "note": "Chỉ dựng được cho 03/07–29/08/2026 trên 4.720 dòng đơn Đã ghi. Không phải luỹ kế năm.", "need": "gd_ban_hang bị cắt ở 5.000 dòng"}, {"n": 2, "g": 0, "name": "Doanh thu từ khách mới", "s": "no", "note": "Toàn bộ ngay_mua_dau_tien nằm trong T7–T8/2026, nên 100% khách đọc ra là khách mới.", "need": "Cần lịch sử đơn hàng từ 2024 — câu I"}, {"n": 3, "g": 0, "name": "Doanh thu từ khách cũ", "s": "no", "note": "Hệ quả trực tiếp của chỉ số 2.", "need": "Cần lịch sử đơn hàng từ 2024 — câu I"}, {"n": 4, "g": 2, "name": "Doanh thu cross-sell / up-sell", "s": "part", "note": "Dùng loai_gd_he_thong: Bán thêm 201 tr, Nâng cấp 11,4 tr. Chưa kiểm chứng lại được bằng lịch sử mua.", "need": "Thiếu bac_goi trong đơn và lịch sử 24 tháng"}, {"n": 5, "g": 2, "name": "Doanh thu gia hạn", "s": "part", "note": "Gia hạn/Cập nhật đạt 104 tr, bằng 2,7% doanh thu kỳ. Bảng thuê bao chỉ có 118 dòng trạng thái Gia hạn nên không đối chiếu chéo được.", "need": "ngay_gia_han_thuc_te trống 97,6%"}, {"n": 6, "g": 0, "name": "Hiệu suất chuyển đổi theo kênh", "s": "no", "note": "ngay_demo và ngay_bao_gia trống 100% nên không dựng được phễu. 89,6% lead trong file đã chuyển đổi — đây là tập cơ hội cuối phễu, không phải toàn bộ lead.", "need": "Cần bản trích xuất gồm cả lead thua"}, {"n": 7, "g": 2, "name": "AOV bán mới", "s": "ok", "note": "2,62 triệu đồng trên 1.332 đơn bán mới.", "need": "—"}, {"n": 8, "g": 2, "name": "AOV gia hạn", "s": "part", "note": "2,53 triệu đồng nhưng chỉ trên 41 đơn — cỡ mẫu quá nhỏ để so sánh với AOV bán mới.", "need": "Cần đủ cohort gia hạn"}, {"n": 9, "g": 3, "name": "Số lượng khách mới", "s": "part", "note": "1.235 khách có đơn bán mới trong kỳ. Không tách được khách thật sự mới khỏi khách cũ mua thêm.", "need": "Cần lịch sử đơn hàng từ 2024 — câu I"}, {"n": 10, "g": 0, "name": "WOM index", "s": "no", "note": "kenh_thu_hut_dau_tien trống 86,6% trong danh mục khách hàng.", "need": "Cần trường nguồn thu hút được ghi nhận"}, {"n": 11, "g": 0, "name": "Khách mới từ kênh quảng cáo · CAC", "s": "no", "note": "Chi phí marketing 12,16 tỷ trong T7+T8 là của toàn MISA, không tách được phần GP Bán lẻ. ma_kenh trong đơn hàng chỉ có hai giá trị Trực tiếp và Online.", "need": "Cần chi phí lọc theo GP Bán lẻ — câu E"}, {"n": 12, "g": 3, "name": "Số lượng khách bán chéo", "s": "ok", "note": "541 trên 1.316 khách dùng từ 2 dòng sản phẩm trở lên, chiếm 41,1%.", "need": "—"}, {"n": 13, "g": 0, "name": "Số lượng khách gia hạn", "s": "no", "note": "Bảng thuê bao chỉ có 118 dòng trạng thái Gia hạn và 5 dòng Tới hạn chưa xử lý trên 5.000 dòng.", "need": "Không có cohort tới hạn — câu A"}, {"n": 14, "g": 0, "name": "Tỷ lệ gia hạn", "s": "no", "note": "Không xác định được mẫu số là nhóm khách tới hạn trong kỳ.", "need": "Không có cohort tới hạn — câu A"}, {"n": 15, "g": 0, "name": "Tỷ lệ rời bỏ kỹ thuật (C2)", "s": "no", "note": "93,6% lượt rời bỏ không có mã lý do, và bảng rời bỏ không nối được với bảng thuê bao (độ trùng ma_thue_bao bằng 0%).", "need": "Câu D và câu A"}, {"n": 16, "g": 4, "name": "Bảng lý do rời bỏ", "s": "part", "note": "173 trên 5.000 lượt có mã lý do, độ phủ 3,5% — dưới ngưỡng 30% nên thứ hạng chỉ mang tính tham khảo.", "need": "Câu D"}, {"n": 17, "g": 4, "name": "Số lượng khách tới hạn T9–T12", "s": "no", "note": "Chỉ 51 thuê bao hết hạn trong T9–T12/2026. Tập thuê bao trong file là các hợp đồng mới ký T7–T8 với hạn tới 2029.", "need": "Cần toàn bộ thuê bao đang hiệu lực"}, {"n": 18, "g": 5, "name": "Khảo sát hài lòng (NPS)", "s": "part", "note": "183 trên 5.000 phản hồi có điểm, tỷ lệ 3,7%. NPS đạt 70,5 nhưng cỡ mẫu nhỏ và không nối được sang hành vi gia hạn.", "need": "Không có ma_kh — câu C"}, {"n": 19, "g": 0, "name": "Tỷ lệ rời bỏ tự nhiên (C1)", "s": "no", "note": "Như chỉ số 15.", "need": "Câu D và câu A"}];
+const BS=[{"k": "Bỏ giới hạn 5.000 dòng", "d": "5 bảng bị cắt đúng 5.000 dòng: bán hàng, khách hàng, thuê bao, rời bỏ, khảo sát. Tỷ số tính từ hai bảng bị cắt khác nhau thì tử số và mẫu số không cùng một tập.", "i": "9 chỉ số"}, {"k": "Lịch sử đơn hàng từ 01/2024", "d": "Cần tối thiểu 24 tháng để phân biệt khách mới với khách cũ. Hiện có 2 tháng.", "i": "2 · 3 · 4 · 9"}, {"k": "Toàn bộ thuê bao đang hiệu lực", "d": "Không chỉ hợp đồng ký trong T7–T8. Cần cả nhóm tới hạn trong kỳ để có mẫu số.", "i": "13 · 14 · 15 · 17 · 19"}, {"k": "Gắn mã lý do cho lượt rời bỏ", "d": "Danh mục lý do đã chuẩn với phân loại C1/C2 đầy đủ. Vấn đề nằm ở bảng giao dịch: 93,6% dòng để trống mã.", "i": "15 · 16 · 19"}, {"k": "Mã khách hàng trong khảo sát NPS", "d": "Kèm 4 điểm khía cạnh thành phần. Hiện chỉ có điểm tổng và trống 96,3%.", "i": "16 · 18"}, {"k": "Chuẩn hoá danh mục kênh", "d": "367 mã trên 2.659 dòng và 126 giá trị nhóm kênh chưa chuẩn hoá. Cần một dòng một kênh, một bộ mã dùng chung cho lead, chi phí và đơn hàng.", "i": "6 · 10 · 11"}, {"k": "Điền nganh_hang trong danh mục khách hàng", "d": "Trống 99,6%, làm mất chiều cắt lát chính của toàn bộ báo cáo.", "i": "chiều phân tích của cả 19 chỉ số"}];
+const stL={ok:'Dựng được',part:'Một phần',no:'Chưa dựng được'};
+const GR=[{t:2,n:'Doanh thu'},{t:3,n:'Khách hàng'},{t:4,n:'Giữ chân'},{t:5,n:'Trải nghiệm'}];
+let TAB=1;
+const sc=t=>`<div class="scope">${t}</div>`;
+
+function card(num,name,body,scope){
+  const st=ST.find(x=>x.n===num);
+  return `<div class="mk" id="m-${num}"><div class="mkh">
+    <span class="num">Chỉ số ${num}</span><span class="nm">${name}</span>
+    <span class="stt ${st.s}">${stL[st.s]}</span></div>
+    <div class="mkb">${scope?sc(scope):''}${body}
+    ${st.s!=='ok'?`<div class="blk"><div class="lb">Giới hạn của con số này</div>
+      <div class="read">${st.note}</div></div>`:''}</div></div>`;
+}
+
+/* ── TAB 1 ── */
+function renderIndex(){
+  const c=s=>ST.filter(x=>x.s===s).length;
+  let h=`<h2>Kết quả nạp dữ liệu — lần 1</h2>
+  <p class="lead">Đã nhận và giải mã đủ <b>13 bảng</b> theo đúng danh mục yêu cầu, tên bảng và tên trường khớp hoàn toàn.
+  Sau khi kiểm tra chất lượng và tính thử, <b>${c('ok')} trên 19 chỉ số dựng được đầy đủ</b>,
+  <b>${c('part')} chỉ số dựng được một phần</b> với giới hạn ghi rõ ở từng thẻ, và
+  <b>${c('no')} chỉ số chưa dựng được</b>. Nguyên nhân tập trung ở ba điểm: giới hạn 5.000 dòng,
+  độ dài lịch sử chỉ 2 tháng, và các trường phân loại để trống.</p>
+
+  <div class="kpis" style="margin-bottom:18px">
+    <div class="kpi"><div class="k">Doanh thu ghi nhận trong kỳ</div><div class="v">${R.rev.tong_ty} tỷ</div>
+      <div class="s">4.720 dòng đơn Đã ghi · ${fmt(R.rev.don)} đơn · ${fmt(R.rev.kh)} khách</div></div>
+    <div class="kpi"><div class="k">Khách dùng ≥ 2 dòng sản phẩm</div><div class="v">${R.cross.pct}%</div>
+      <div class="s">${fmt(R.cross.da)} / ${fmt(R.cross.tong)} khách</div></div>
+    <div class="kpi"><div class="k">NPS</div><div class="v">${vn(R.nps.nps,1)}</div>
+      <div class="s">chỉ ${R.nps.co_diem} phản hồi có điểm · ${vn(R.nps.ty_le,1)}%</div></div>
+    <div class="kpi"><div class="k">Độ phủ mã lý do rời bỏ</div><div class="v">${vn(R.roibo.phu,1)}%</div>
+      <div class="s">${R.roibo.co_ma} / ${fmt(R.roibo.tong)} lượt</div></div>
+  </div>
+
+  <h3>Trạng thái 19 chỉ số</h3>
+  <div class="tw"><table><thead><tr><th style="width:34px">#</th><th style="width:230px">Chỉ số</th>
+   <th style="width:120px">Trạng thái</th><th>Ghi nhận khi tính thử</th>
+   <th style="width:210px">Cần bổ sung</th></tr></thead><tbody>`;
+  ST.forEach(x=>{h+=`<tr><td class="c" style="font-weight:700;color:var(--own)">${x.n}</td>
+    <td style="font-weight:600">${x.g?`<a href="#" onclick="go(${x.g},${x.n});return false" style="color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)">${x.name}</a>`:x.name}</td>
+    <td><span class="stt ${x.s}">${stL[x.s]}</span></td>
+    <td style="color:var(--muted)">${x.note}</td>
+    <td style="color:var(--muted);font-size:11.5px">${x.need}</td></tr>`;});
+  h+=`</tbody></table></div>
+
+  <h3>Chất lượng 13 bảng nhận được</h3>
+  <div class="tw"><table><thead><tr><th style="width:190px">Bảng</th><th style="width:80px">Số dòng</th>
+   <th style="width:96px">Bị cắt mẫu</th><th>Ghi nhận</th></tr></thead><tbody>`;
+  R.chatluong.forEach(x=>{h+=`<tr><td class="c" style="font-weight:600">${x.b}</td>
+    <td class="r">${fmt(x.r)}</td>
+    <td>${x.c?'<span class="stt part">Đúng 5.000</span>':'<span class="stt no">Không</span>'}</td>
+    <td style="color:var(--muted)">${x.n}</td></tr>`;});
+  h+=`</tbody></table></div>
+
+  <h3>Đề nghị bổ sung cho lần trích xuất thứ hai</h3>
+  <p class="lead">Xếp theo số chỉ số được gỡ. Mục đầu tiên một mình gỡ được nhiều chỉ số hơn cả sáu mục còn lại cộng lại.</p>
+  <div class="tw"><table><thead><tr><th style="width:250px">Nội dung</th><th>Lý do</th>
+   <th style="width:200px">Gỡ được chỉ số</th></tr></thead><tbody>`;
+  BS.forEach(x=>h+=`<tr><td style="font-weight:600">${x.k}</td><td style="color:var(--muted)">${x.d}</td>
+    <td class="c" style="font-size:11.5px">${x.i}</td></tr>`);
+  h+=`</tbody></table></div>
+  <div class="read" style="margin-top:14px"><b>Về cách gửi file:</b> danh sách mật khẩu nằm chung trong cùng file nén
+  với các file đã mã hoá, nên lớp mã hoá không tạo thêm lớp bảo vệ nào. Lần sau đề nghị tách hai kênh gửi.</div>`;
+  return h;}
+
+/* ── TAB 2 · DOANH THU ── */
+function tab2(){
+  const SC='Phạm vi: đơn trạng thái Đã ghi · 03/07–29/08/2026 · nguồn gd_ban_hang (5.000 dòng, bị cắt mẫu)';
+  let h=`<h2>Doanh thu</h2><p class="lead">Bốn chỉ số dựng được từ bảng đơn hàng. Hai tháng trong dữ liệu đều không trọn tháng —
+  T7 bắt đầu từ ngày 03 và T8 kết thúc ngày 29 — nên không so sánh trực tiếp hai cột được.</p>`;
+
+  h+=card(1,'Doanh thu GP Bán Lẻ',
+    kpis([{k:'Tổng doanh thu trong kỳ',v:vn(R.rev.tong_ty)+' tỷ',s:'4.720 dòng đơn Đã ghi'},
+      {k:'Số đơn',v:fmt(R.rev.don),s:'trung bình '+vn(R.rev.tong_ty*1000/R.rev.don,2)+' tr/đơn'},
+      {k:'Số khách phát sinh',v:fmt(R.rev.kh)},
+      {k:'Đơn không được ghi',v:fmt(R.meta.dong-R.meta.da_ghi),s:'nháp, đề nghị ghi, từ chối ghi'}])
+    +`<div class="viz">`+vbar({labels:['T7/2026 (từ 03)','T8/2026 (đến 29)'],
+      values:[R.rev.thang['7'],R.rev.thang['8']],lab:[vn(R.rev.thang['7'])+' tỷ',vn(R.rev.thang['8'])+' tỷ']})+`</div>`
+    +hbar({items:R.dongsp.map(x=>({label:x.k.length>30?x.k.slice(0,29)+'…':x.k,value:x.ty,disp:vn(x.ty)+' tỷ'}))})
+    +`<div class="lg"><span>Số khách theo dòng sản phẩm: ${R.dongsp.map(x=>x.k.split(' ')[1]+' '+fmt(x.kh)).join(' · ')}</span></div>`,SC);
+
+  h+=card(4,'Cơ cấu theo loại giao dịch',
+    donut({center:vn(R.rev.tong_ty)+' tỷ',centerLabel:'T7+T8/2026',
+      items:R.loai.map(x=>({label:x.k,value:x.ty,disp:vn(x.ty)+' tỷ'}))})
+    +tbl({cols:['Loại giao dịch','Doanh thu (tỷ)','Số đơn','AOV (triệu)'],
+      rows:R.loai.map(x=>[x.k,vn(x.ty),fmt(x.don),vn(x.aov,2)])}),SC);
+
+  h+=card(5,'Doanh thu gia hạn',
+    kpis([{k:'Gia hạn / Cập nhật',v:vn((R.loai.find(x=>x.k==='Gia hạn/Cập nhật')||{ty:0}).ty)+' tỷ',
+        s:'chiếm '+vn((R.loai.find(x=>x.k==='Gia hạn/Cập nhật').ty/R.rev.tong_ty)*100,1)+'% doanh thu kỳ'},
+      {k:'Số đơn gia hạn',v:fmt(R.loai.find(x=>x.k==='Gia hạn/Cập nhật').don)},
+      {k:'Thuê bao trạng thái Gia hạn',v:fmt(R.thuebao.trangthai['Gia hạn']),s:'trên '+fmt(R.thuebao.tong)+' dòng thuê bao'}]),SC);
+
+  h+=card(7,'AOV theo loại giao dịch',
+    stack({group:true,labels:R.loai.map(x=>x.k.length>16?x.k.slice(0,15)+'…':x.k),
+      series:[{name:'AOV',values:R.loai.map(x=>x.aov)}]})
+    +`<div class="lg"><span>Đơn vị: triệu đồng trên một đơn hàng. AOV bán mới ${vn(R.loai[0].aov,2)} triệu trên ${fmt(R.loai[0].don)} đơn.</span></div>`,SC);
+  return h;}
+
+/* ── TAB 3 · KHÁCH HÀNG ── */
+function tab3(){
+  const SC='Phạm vi: 1.316 khách có đơn Đã ghi trong 03/07–29/08/2026';
+  let h=`<h2>Khách hàng</h2><p class="lead">Chỉ số 12 là chỉ số dựng được đầy đủ nhất trong lần nạp này, vì nó chỉ cần
+  bảng đơn hàng và danh mục sản phẩm — hai bảng có chất lượng tốt.</p>`;
+
+  h+=card(12,'Khách bán chéo — số dòng sản phẩm trên một khách',
+    `<div class="viz">`+vbar({labels:Object.keys(R.cross.phanbo).map(k=>k+' dòng'),
+      values:Object.values(R.cross.phanbo)})+`</div>`
+    +kpis([{k:'Khách dùng ≥ 2 dòng sản phẩm',v:vn(R.cross.pct,1)+'%',s:fmt(R.cross.da)+' / '+fmt(R.cross.tong)+' khách'},
+      {k:'Doanh thu bình quân · 1 dòng',v:vn(R.cross.aov1,2)+' tr'},
+      {k:'Doanh thu bình quân · ≥2 dòng',v:vn(R.cross.aov2,2)+' tr',s:'gấp '+vn(R.cross.aov2/R.cross.aov1,1)+' lần'}])
+    +`<div class="blk"><div class="lb">Đọc được gì</div><div class="read">
+    Khách dùng từ 2 dòng sản phẩm trở lên có doanh thu bình quân gấp ${vn(R.cross.aov2/R.cross.aov1,1)} lần khách một dòng.
+    775 khách hiện chỉ dùng một dòng — đây là tập bán chéo còn lại, và là con số duy nhất trong báo cáo này
+    đủ chắc để đưa thành chỉ tiêu.</div></div>`,SC);
+
+  h+=card(9,'Phân bố doanh thu theo địa bàn và loại hình',
+    hbar({items:R.tinh.map(x=>({label:x.k+' · '+x.kh+' KH',value:x.ty,disp:vn(x.ty)+' tỷ'}))})
+    +tbl({cols:['Loại hình','Doanh thu (tỷ)','Số khách','Bình quân (triệu/khách)'],
+      rows:R.loaihinh.map(x=>[x.k,vn(x.ty),fmt(x.kh),vn(x.ty*1000/x.kh,2)])}),SC);
+
+  h+=card(6,'Cơ hội kinh doanh theo kênh',
+    tbl({cols:['Kênh','Số cơ hội','Đã chuyển đổi','Tỷ lệ'],
+      rows:R.lead.bang.map(x=>[x.k,fmt(x.lead),fmt(x.win),vn(x.cr,1)+'%'])})
+    +`<div class="lg"><span>Tổng ${fmt(R.lead.tong)} cơ hội · ${fmt(R.lead.win)} đã chuyển đổi.
+    Tỷ lệ ${vn(R.lead.cr,1)}% không đọc là tỷ lệ chuyển đổi được — xem ghi chú bên dưới.</span></div>`,
+    'Nguồn: gd_lead (690 dòng) · đã khử trùng danh mục kênh trước khi nối');
+  return h;}
+
+/* ── TAB 4 · GIỮ CHÂN ── */
+function tab4(){
+  let h=`<h2>Giữ chân</h2><p class="lead">Nhóm chịu ảnh hưởng nặng nhất. Năm chỉ số về gia hạn và rời bỏ đều dừng lại
+  ở cùng một nguyên nhân: không có nhóm khách tới hạn trong kỳ để làm mẫu số.</p>`;
+
+  h+=card(16,'Lý do rời bỏ đã ghi nhận',
+    hbar({items:R.roibo.top.map(x=>({label:(x.k.length>26?x.k.slice(0,25)+'…':x.k)+' ['+x.c+']',value:x.v,disp:x.v+' lượt'}))})
+    +kpis([{k:'Tổng lượt rời bỏ trong file',v:fmt(R.roibo.tong)},
+      {k:'Có mã lý do',v:fmt(R.roibo.co_ma),s:'độ phủ '+vn(R.roibo.phu,1)+'%'},
+      {k:'Phân loại C2 · xử lý được',v:fmt(R.roibo.churn['C2']||0)},
+      {k:'Phân loại C1 · ngoài kiểm soát',v:fmt(R.roibo.churn['C1']||0)}])
+    +`<div class="blk"><div class="lb">Đọc được gì</div><div class="read">
+    Trên ${R.roibo.co_ma} lượt có mã, hai lý do dẫn đầu là doanh nghiệp tạm dừng hoạt động (C1) và
+    mua nhưng chưa có người sử dụng (C2), mỗi lý do 25 lượt. Nhóm C2 chiếm ${R.roibo.churn['C2']} lượt, C1 chiếm ${R.roibo.churn['C1']} lượt.
+    Ở độ phủ ${vn(R.roibo.phu,1)}%, thứ hạng này chưa dùng để ra quyết định được.</div></div>`,
+    'Nguồn: gd_roi_bo (5.000 dòng, bị cắt mẫu) nối dm_ly_do_roi_bo');
+
+  h+=card(17,'Trạng thái thuê bao trong file',
+    donut({center:fmt(R.thuebao.tong),centerLabel:'dòng thuê bao',
+      items:Object.entries(R.thuebao.trangthai).map(([k,v])=>({label:k,value:v,disp:fmt(v)}))})
+    +kpis([{k:'Hết hạn trong T9–T12/2026',v:fmt(R.thuebao.q4),s:'trên '+fmt(R.thuebao.tong)+' dòng'},
+      {k:'ngay_het_han để trống',v:fmt(R.thuebao['null'])},
+      {k:'Giá trị 30/12/2110',v:fmt(R.thuebao.sentinel),s:'mã quy ước cho vĩnh viễn'},
+      {k:'ma_sp để trống',v:vn(R.thuebao.masp_null,1)+'%'}]),
+    'Nguồn: gd_thue_bao (5.000 dòng, bị cắt mẫu)');
+
+  h+=card(15,'Mức độ sử dụng sản phẩm — T8/2026',
+    `<div class="viz">`+vbar({labels:Object.keys(R.sudung.phanbo),values:Object.values(R.sudung.phanbo)})+`</div>`
+    +kpis([{k:'Khách có dữ liệu sử dụng',v:fmt(R.sudung.kh),s:'trên 5.000 khách · độ phủ 3,0%'},
+      {k:'Khách hoạt động T8',v:fmt(R.sudung.kh8)},
+      {k:'Số ngày phát sinh bình quân',v:vn(R.sudung.tb,1),s:'trên tổng số ngày trong tháng'}])
+    +`<div class="blk"><div class="lb">Đọc được gì</div><div class="read">
+    Trong tập 138 khách có log, không có khách nào ở mức 0 ngày phát sinh và 282 bản ghi ở mức trên 20 ngày.
+    Tức là tập này gồm khách đang dùng tốt, không phải mẫu đại diện — chưa dùng để cảnh báo sớm rời bỏ được.</div></div>`,
+    'Nguồn: gd_su_dung (2.254 dòng · 148 khách)');
+  return h;}
+
+/* ── TAB 5 · TRẢI NGHIỆM ── */
+function tab5(){
+  let h=`<h2>Trải nghiệm</h2><p class="lead">NPS tính được nhưng trên cỡ mẫu nhỏ. Bảng ticket là một trong ba bảng đạt yêu cầu hoàn toàn.</p>`;
+  h+=card(18,'Khảo sát mức độ hài lòng',
+    gauge({value:R.nps.nps,min:-100,max:100,label:'NPS · '+R.nps.co_diem+' phản hồi có điểm',
+      zones:[{from:-100,to:0,color:'#E9E2E4'},{from:0,to:30,color:'#E6CDD3'},{from:30,to:100,color:'#C0798A'}],
+      side:R.nps.sp.map(x=>({label:x.k+' ('+x.n+' phản hồi)',value:x.m}))})
+    +kpis([{k:'Promoter (9–10)',v:vn(R.nps.p,1)+'%'},{k:'Passive (7–8)',v:vn(R.nps.pa,1)+'%'},
+      {k:'Detractor (0–6)',v:vn(R.nps.d,1)+'%'},
+      {k:'Phản hồi có điểm',v:vn(R.nps.ty_le,1)+'%',s:R.nps.co_diem+' / '+fmt(R.nps.tong)+' dòng'}])
+    +`<div class="blk"><div class="lb">Đọc được gì</div><div class="read">
+    Điểm trung bình ${vn(R.nps.tb,2)}/10. NPS ${vn(R.nps.nps,1)} là mức cao, nhưng 96,3% dòng khảo sát không có điểm
+    nên nhiều khả năng chỉ những khách chủ động phản hồi mới được ghi nhận — đây là thiên lệch chọn mẫu,
+    không phải mức hài lòng của toàn tệp.</div></div>`,
+    'Nguồn: gd_khao_sat_nps (5.000 dòng, bị cắt mẫu) · không có ma_kh');
+
+  h+=`<div class="mk"><div class="mkh"><span class="num">Ngoài 19 chỉ số</span>
+    <span class="nm">Phiếu hỗ trợ khách hàng</span><span class="stt ok">Bảng đạt yêu cầu</span></div>
+    <div class="mkb">`+sc('Nguồn: gd_ticket_ho_tro (1.648 dòng · 665 khách)')
+    +hbar({items:R.ticket.nhom.map(x=>({label:x.k,value:x.v,disp:fmt(x.v)+' phiếu'}))})
+    +kpis([{k:'Tổng phiếu',v:fmt(R.ticket.tong)},{k:'Số khách',v:fmt(R.ticket.kh)},
+      {k:'Thời gian xử lý trung bình',v:vn(R.ticket.tb,1)+' giờ'},
+      {k:'Trung vị',v:vn(R.ticket.med,1)+' giờ',s:'chênh lệch lớn với trung bình'}])
+    +`<div class="blk"><div class="lb">Đọc được gì</div><div class="read">
+    Trung vị ${vn(R.ticket.med,1)} giờ nhưng trung bình ${vn(R.ticket.tb,1)} giờ — phần lớn phiếu xử lý rất nhanh,
+    một nhóm nhỏ kéo dài rất lâu và kéo trung bình lên. Nhóm dài đuôi đó mới là nhóm cần xem.</div></div>
+    </div></div>`;
+  return h;}
+
+function render(){
+  document.getElementById('tabs').innerHTML=
+    [`<div class="tab ${TAB===1?'on':''}" onclick="setTab(1)">1 · Kết quả nạp<span class="cnt">19</span></div>`]
+    .concat(GR.map(g=>`<div class="tab ${TAB===g.t?'on':''}" onclick="setTab(${g.t})">${g.t} · ${g.n}</div>`)).join('');
+  const f={1:renderIndex,2:tab2,3:tab3,4:tab4,5:tab5}[TAB];
+  document.getElementById('shell').innerHTML=f();}
+function setTab(t){TAB=t;render();window.scrollTo(0,0);}
+function go(t,n){TAB=t;render();setTimeout(()=>{const e=document.getElementById('m-'+n);if(e)e.scrollIntoView({behavior:'smooth',block:'start'});},60);}
+render();
+</script>
+</body>
+</html>
