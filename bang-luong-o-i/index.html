@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bảng lương &amp; P&amp;L theo timesheet — OmniKey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@500;600&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+  --ink:#16201C; --muted:#6a746e; --line:#e3e8e4; --bg:#f4f6f4; --panel:#fff;
+  --accent:#0B5D4B; --neg:#B3402E; --warn:#8a5a12; --warnbg:#fff9e8; --soft:#eaf3ef;
+  --serif:'Noto Serif Display',Georgia,serif;
+  --sans:'Outfit',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+  --c1:#0B5D4B; --c2:#2b7d69; --c3:#4d9c88; --c4:#74baa8; --c5:#9dd6c7; --c6:#c2e5da; --c0:#b9c2bd;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+
+/* ---------- TOP BAR ---------- */
+#top{position:sticky;top:0;z-index:60;background:var(--panel);border-bottom:1px solid var(--line);
+     display:flex;align-items:center;gap:12px;padding:8px 14px;flex-wrap:wrap}
+#top .id{display:flex;flex-direction:column;gap:1px;min-width:0}
+#top .id h1{font-family:var(--serif);font-weight:600;font-size:16px;margin:0;letter-spacing:-.01em}
+#top .id .stamp{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.badge{font-family:var(--mono);font-size:9.5px;padding:2px 6px;border:1px solid var(--line);border-radius:4px;color:var(--muted);background:var(--bg)}
+#top .sp{flex:1}
+#pill{font-size:11.5px;padding:3px 10px;border-radius:999px;opacity:0;transition:opacity .2s;white-space:nowrap;font-family:var(--mono)}
+#pill.on{opacity:1}
+#pill.ok{background:var(--soft);color:var(--accent)}
+#pill.warn{background:var(--warnbg);color:var(--warn)}
+#pill.err{background:#fbeeeb;color:var(--neg)}
+
+/* ---------- BUTTONS: đúng 3 loại ---------- */
+.btn{font:500 12px var(--sans);border:1px solid var(--line);background:#fff;color:var(--ink);
+     border-radius:6px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:#c9d2cc;background:#fafbfa}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#0a4f40}
+.btn.danger{color:var(--neg);border-color:#eccfc9}
+.btn.sm{font-size:11px;padding:3px 7px}
+
+/* ---------- SEGMENTED: đúng 1 kiểu toàn tool ---------- */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.seg button{font:500 11.5px var(--sans);border:0;background:#fff;color:var(--muted);padding:4px 9px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.active{background:var(--accent);color:#fff}
+
+/* ---------- TABS ---------- */
+#tabs{display:flex;gap:2px;padding:0 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:47px;z-index:55;overflow-x:auto}
+#tabs button{font:500 12.5px var(--sans);border:1px solid transparent;border-bottom:0;background:transparent;color:var(--muted);
+   padding:7px 12px;cursor:pointer;border-radius:7px 7px 0 0;white-space:nowrap;margin-bottom:-1px}
+#tabs button.active{background:var(--bg);border-color:var(--line);color:var(--ink);font-weight:600}
+
+/* ---------- SHELL ---------- */
+#shell{display:flex;align-items:stretch;min-height:calc(100vh - 78px)}
+#left{width:330px;flex:0 0 auto;background:var(--panel);border-right:1px solid var(--line);padding:12px;overflow:auto}
+#rz{width:5px;flex:0 0 auto;cursor:col-resize;background:transparent;border-right:1px solid var(--line)}
+#rz:hover{background:var(--soft)}
+#main{flex:1;min-width:0;padding:14px 16px 60px}
+
+.fgroup{margin-bottom:12px}
+.flabel{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px}
+input,select,textarea{font:400 12.5px var(--sans);border:1px solid var(--line);border-radius:6px;padding:5px 7px;background:#fff;color:var(--ink);width:100%;outline:none}
+input:focus,select:focus,textarea:focus,.btn:focus-visible,.seg button:focus-visible,#tabs button:focus-visible{
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(11,93,75,.18)}
+.chkline{display:flex;align-items:center;gap:6px;font-size:12px;padding:2px 0}
+.chkline input{width:auto}
+
+h2.sec{font-family:var(--serif);font-size:17px;font-weight:600;margin:0 0 3px}
+p.hint{font-size:11.5px;color:var(--muted);margin:0 0 12px;max-width:78ch}
+.subnav{display:flex;gap:2px;margin:0 0 12px}
+
+/* ---------- CARDS / KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+.kpi .k{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.04em}
+.kpi .v{font-family:var(--mono);font-size:17px;font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:10.5px;color:var(--muted);margin-top:1px}
+.kpi.acc .v{color:var(--accent)}
+.kpi.neg .v{color:var(--neg)}
+.kpi.wr{background:var(--warnbg);border-color:#efe0b8}
+.kpi.wr .v{color:var(--warn);font-size:14px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.card h3{font-size:13px;font-weight:600;margin:0 0 8px}
+.note{border-left:3px solid var(--warn);background:var(--warnbg);padding:9px 12px;border-radius:0 6px 6px 0;font-size:12px;margin-bottom:12px}
+.note.ok{border-left-color:var(--accent);background:var(--soft)}
+.note b{font-weight:600}
+
+/* ---------- TABLES ---------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{position:sticky;top:0;background:var(--panel);z-index:2;text-align:left;font-family:var(--mono);font-size:9.5px;
+   font-weight:400;color:var(--muted);letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.num{text-align:right}
+td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:#fafbfa;cursor:default}
+tbody tr.clk{cursor:pointer}
+tbody tr.dim{opacity:.22}
+tbody tr.sel{background:var(--soft)}
+tr.grp td{background:#f0f3f1;font-weight:600}
+tr.tot td{background:var(--soft);font-weight:600;border-top:1px solid #cfded7}
+.twrap{max-height:62vh;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+
+.chip{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:1px 5px;border-radius:3px;background:#eef1ef;color:var(--muted);margin-right:3px;white-space:nowrap}
+.chip.acc{background:var(--soft);color:var(--accent)}
+.chip.wr{background:var(--warnbg);color:var(--warn)}
+.chip.ng{background:#fbeeeb;color:var(--neg)}
+.miss{font-family:var(--mono);font-size:11px;color:var(--warn)}
+
+.bar{height:7px;background:#eef1ef;border-radius:3px;overflow:hidden;display:flex;min-width:60px}
+.bar i{display:block;height:100%}
+.lg{display:flex;flex-wrap:wrap;gap:8px;font-size:10.5px;color:var(--muted);margin-top:6px}
+.lg span{display:flex;align-items:center;gap:4px}
+.lg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+.nbtns{display:none;gap:3px}
+tbody tr:hover .nbtns{display:inline-flex}
+
+svg text{font-family:var(--mono);font-size:9px;fill:var(--muted)}
+
+@media (max-width:900px){
+  #shell{flex-direction:column}
+  #left{width:auto!important;border-right:0;border-bottom:1px solid var(--line)}
+  #rz{display:none}
+  .twrap{max-height:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div id="top">
+  <div class="id">
+    <h1>Bảng lương &amp; P&amp;L theo timesheet</h1>
+    <div class="stamp"><span data-stamp></span></div>
+  </div>
+  <span class="badge" data-ver></span>
+  <span class="badge" id="ctxBadge">kỳ 08-2026</span>
+  <div class="sp"></div>
+  <span id="pill"></span>
+  <button class="btn" id="btnUndo" onclick="undo()">↩ Undo (0)</button>
+  <button class="btn" id="btnModel" onclick="exportModel()" title="Toàn bộ dữ liệu + cấu hình + bản lưu. IMPORT NGƯỢC ĐƯỢC.">💾 Full model (backup)</button>
+  <button class="btn primary" onclick="exportSchema()" title="Bảng phẳng các dòng hiệu lực + P&L đã chốt, có version + hash. KHÔNG import ngược được.">📤 Schema P&amp;L (cho hệ khác)</button>
+</div>
+
+<div id="tabs">
+  <button data-tab="1" class="active">1. Tổng quan P&amp;L</button>
+  <button data-tab="2">2. Nhân sự</button>
+  <button data-tab="3">3. Báo cáo nhân sự 360°</button>
+  <button data-tab="4">4. Khách hàng &amp; công việc</button>
+  <button data-tab="5">5. Báo cáo khách hàng 360°</button>
+  <button data-tab="6">6. Theo ngày</button>
+  <button data-tab="7">7. Cấu hình doanh thu</button>
+  <button data-tab="8">8. Đối chiếu</button>
+</div>
+
+<div id="shell">
+  <div id="left">
+    <div class="fgroup">
+      <div class="flabel">CƠ SỞ CHI PHÍ</div>
+      <div class="seg" id="segBasis">
+        <button data-b="payroll" class="active">Payroll (tiền thật)</button>
+        <button data-b="timesheet">Timesheet (đơn giá)</button>
+      </div>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:4px" id="basisNote"></div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">TÌM TRONG NỘI DUNG TASK</div>
+      <input id="fq" placeholder="ví dụ: báo cáo, IBS, mail…" oninput="onFilter()">
+    </div>
+    <div class="fgroup">
+      <div class="flabel">NHÂN SỰ</div><div id="fPeople"></div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">KHÁCH HÀNG</div><div id="fClients"></div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">PHÁP NHÂN</div><div id="fEnt"></div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">KHOẢNG NGÀY</div>
+      <div style="display:flex;gap:6px">
+        <input type="date" id="fd1" onchange="onFilter()"><input type="date" id="fd2" onchange="onFilter()">
+      </div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel">DÒNG KHÔNG KHỚP FILTER</div>
+      <div class="seg" id="segDim"><button data-d="dim" class="active">Làm mờ</button><button data-d="hide">Ẩn hẳn</button></div>
+    </div>
+    <div class="fgroup"><button class="btn sm" onclick="resetFilter()">Xoá bộ lọc</button>
+      <span class="chip" id="fCount"></span></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+    <div class="flabel">CHI TIẾT</div>
+    <div id="detail" style="font-size:12px;color:var(--muted)">Bấm một dòng ở bảng bên phải để xem chi tiết tại đây.</div>
+  </div>
+  <div id="rz"></div>
+  <div id="main"></div>
+</div>
+
+<script>
+/* ============================================================
+   1 CONST DUY NHẤT cho version — render ra mọi chỗ
+   ============================================================ */
+const APP_VERSION = 'v1.1';
+const BUILD_STAMP = 'Released 04/09/2026 · scope: +Dashboard 360° nhân sự & khách hàng, +Bảng kê deliverables, +Chi tiết timesheet';
+const LS = 'omni_pl_v1';
+
+const DATA = {"ts": [{"id": "t000", "task": "Chạy báo cáo", "h": 0.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-01", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t001", "task": "Chạy báo cáo & Update báo cáo thêm report HTML & hình ảnh", "h": 1.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-03", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t002", "task": "Setup auto đổi status nghỉ việc\n- Chốt rule với HR\n- Backfill data ngày nghỉ việc thực tế (cộng 1 ngày so với ngày mong muốn) \n- Backfill status đã nghỉ việc, offboarding\n- Setup automation", "h": 1.0, "pid": "Rabity-HR", "proj": "HR", "date": "2026-08-03", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t003", "task": "Study, setup update theo yêu cầu của Lan\n- Trao đổi nắm yêu cầu\n- Bổ sung ảnh lô hàng, ảnh mã sp\n- Sửa form design", "h": 2.0, "pid": "Rabity-Mua nguyên phụ liệu", "proj": "Mua nguyên phụ liệu", "date": "2026-08-03", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t004", "task": "Chạy báo cáo, tối ưu template báo cáo, setup chạy báo cáo bán tự động bằng API key", "h": 2.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-04", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 500000}, {"id": "t005", "task": "Xly adhoc task: \n- update đề xuất duyệt mẫu support Mỹ Lan nhận thông báo\n- Hướng dẫn HR xly form cv, communicate trao đổi hướng develop HR profile", "h": 0.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-04", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t006", "task": "Setup automation gửi cảnh báo 72h \n- Tìm hiểu hệ thống \n- Chuẩn hoá data\n- Setup cơ chế automation", "h": 9.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-06", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 1800000}, {"id": "t007", "task": "Chạy report", "h": 0.25, "pid": "Rabity-General", "proj": "General", "date": "2026-08-06", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 50000}, {"id": "t008", "task": "Support xly adhoc task\n- Fix case lỗi SL dự trù của Lan\n- Update ĐNTT thêm step chấp nhận hoá đơn theo request của Thảo\n- Bổ sung warning trùng lặp theo Mã NV", "h": 1.0, "pid": "Rabity-General", "proj": "General", "date": "2026-08-06", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t009", "task": "Study phương án, tìm solution theo request c Hạnh \n- KH đánh giá\n- Cửa hàng báo cáo", "h": 1.0, "pid": "Rabity-General", "proj": "General", "date": "2026-08-06", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t010", "task": "Clone từ Rabity sang, setup tư động chạy layer AI leader", "h": 1.5, "pid": "OmniKey-Demo treasury 15 công ty", "proj": "Demo treasury 15 công ty", "date": "2026-08-06", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t011", "task": "Setup phần 2 \n- Thư xác nhận\n- Cơ chế tự động\n- Communicate sửa woring theo feedback", "h": 6.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-07", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 1200000}, {"id": "t012", "task": "Study real data & setup base lên IBS", "h": 3.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-07", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 600000}, {"id": "t013", "task": "Study phương án setup Layer 2 ổn định để thay thế VM oracle free", "h": 1.0, "pid": "OmniKey-Demo treasury 15 công ty", "proj": "Demo treasury 15 công ty", "date": "2026-08-07", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t014", "task": "Communicate, confirm requireemnt về data cần collect", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-10", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t015", "task": "Support, xly adhoc task,Q &A", "h": 1.0, "pid": "Rabity-General", "proj": "General", "date": "2026-08-10", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t016", "task": "Chạy báo cáo các ngày còn thiếu \nUpgrade báo cáo, bổ sung format cho phép user filter data", "h": 2.0, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-10", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t017", "task": "Upgrade format báo cáo & kích hoạt chế độ tự động chạy báo cáo daily (expect là từ mai ko cần check và kêu claude tạo báo cáo nữa)", "h": 3.0, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-11", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 600000}, {"id": "t018", "task": "Tổng hợp file tổng kết nghiệm thu cho a Trung\n- Làm version 1\n- Communicate, Collect thông tin feedback từ a Trung\n-  Lấy data từ Tài để làm version report mới", "h": 2.0, "pid": "SVN-Project Management", "proj": "Project Management", "date": "2026-08-11", "my": "08-2026", "kh": "SVN", "ct": "ideaLAB", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t019", "task": "Phản hồi, check lỗi do user feedback \n- Mỹ Linh\n- C Lý\n- Mai Thượng Uyển", "h": 1.5, "pid": "Thanh Yen-Thanh Yen treasury", "proj": "Thanh Yen treasury", "date": "2026-08-11", "my": "08-2026", "kh": "Thanh Yen", "ct": "ideaLAB", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t020", "task": "Confirm requirement với em Trâm & update wording files", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-11", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t021", "task": "Tiếp tục xử lý tổng hợp file", "h": 2.0, "pid": "SVN-Project Management", "proj": "Project Management", "date": "2026-08-12", "my": "08-2026", "kh": "SVN", "ct": "ideaLAB", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t022", "task": "Tiếp nhận phản hồi wording, lên phương án gửi mail tháng 7, xử lý gửi trước 50 mail tháng 7", "h": 5.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-12", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 1000000}, {"id": "t023", "task": "Support, adhoc task: c Linh, em Nhung, a Quang, ...", "h": 0.25, "pid": "Rabity-General", "proj": "General", "date": "2026-08-12", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 50000}, {"id": "t024", "task": "Chạy gửi thêm 70 email, Hoàn thiện tài liệu & note bàn giao", "h": 3.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-13", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 600000}, {"id": "t025", "task": "Edit tài liệu tóm tắt bàn giao SVN theo feedback của a Trung", "h": 4.0, "pid": "SVN-Project Management", "proj": "Project Management", "date": "2026-08-13", "my": "08-2026", "kh": "SVN", "ct": "ideaLAB", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 800000}, {"id": "t026", "task": "Gửi nốt tháng 7, kích hoạt tự động tháng 8, edit tab Điều khiển cho nhiều kỳ báo cáo, ko chỉ là 1 kỳ", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-14", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t027", "task": "Sửa tài liệu hướng dẫn sử dụng theo feedback của em Nhi", "h": 2.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-14", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 500000}, {"id": "t028", "task": "Follow review tài liệu bàn giao", "h": 1.0, "pid": "SVN-Project Management", "proj": "Project Management", "date": "2026-08-14", "my": "08-2026", "kh": "SVN", "ct": "ideaLAB", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t029", "task": "Sửa form in ấn cho Lan", "h": 1.0, "pid": "Rabity-General", "proj": "General", "date": "2026-08-14", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t030", "task": "Sửa form in ấn cho Lan cho case dặt vải theo sản phẩm\n- Thêm ảnh lô vải\n- Xoá cột Người mua, gia công\n- Thêm cột mã ảnh ncc...\n- Thêm cột data phụ ở table Mã NPL, đề nghị mua... để có thể kéo được ảnh", "h": 4.0, "pid": "Rabity-General", "proj": "General", "date": "2026-08-20", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 800000}, {"id": "t031", "task": "Sửa HR profile: fix lại rule nhân viên bán hàng thử việc 1 tháng thay vì 2 tháng", "h": 1.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-22", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t032", "task": "Update form approval, support c Thu", "h": 0.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-22", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t033", "task": "Xly gửi mail cho các cá nhân complain là sai email", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-22", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t034", "task": "Edit chức năng: Đổi thời gian thử việc nhân viên bán hàng xuống 30 ngày thay vì 2 tháng như cũ \n- Gửi notify backfill các case quá hạn nhắc review", "h": 2.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-23", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 500000}, {"id": "t035", "task": "Xly gửi mail thật rà soát \nXly issue hòm mail bị bounce", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-23", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t036", "task": "Xử lý tiếp IBS", "h": 4.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-23", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 800000}, {"id": "t037", "task": "Setup tiếp IBS", "h": 5.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-24", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 1000000}, {"id": "t038", "task": "Xử lý case ko gửi nhận được mail", "h": 1.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-24", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t039", "task": "Support adhoc task: \n- Support c Yến đổi máy, đăng nhập lại \n- Bỏ các report management, fin\n- Sửa lỗi HR profile: chưa đổi status offboard, đổi logic thử việc 1 tháng cho nhân viên bán hàng", "h": 1.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-25", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t040", "task": "Tiếp tục setup IBS", "h": 5.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-25", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 1000000}, {"id": "t041", "task": "Xly tiếp gửi các email ko nhận được mail", "h": 0.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-25", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t042", "task": "Fix lỗi ko tải được data xuống", "h": 1.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-25", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t043", "task": "Tiếp tục xly IBS", "h": 4.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-26", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 800000}, {"id": "t044", "task": "Check data, communicate, hdsd", "h": 0.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-26", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t045", "task": "Fix lỗi thiếu data cửa hàng", "h": 1.0, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-26", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t046", "task": "Study yêu cầu và phương án báo cáo doanh thu gộp vào báo cáo daily", "h": 2.5, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-26", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 500000}, {"id": "t047", "task": "Tiếp tục setup IBS", "h": 4.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-27", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 800000}, {"id": "t048", "task": "Tạo form báo cáo doanh thu, communicate", "h": 1.5, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-27", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 300000}, {"id": "t049", "task": "Xly adhoc task \n- Update, hướng dẫn sử dụng cho c Thu, HR...", "h": 0.5, "pid": "Rabity-Rabity general", "proj": "Rabity general", "date": "2026-08-27", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t050", "task": "Check fix lỗi báo cáo trùng cửa hàng", "h": 1.0, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-27", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t051", "task": "Study phương án xly báo cáo khác", "h": 1.0, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-27", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t052", "task": "Tiếp tục setup IBS\n- Làm tài liệu\n- Meeting trao đổi với IBS, a Trung", "h": 6.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-28", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 1200000}, {"id": "t053", "task": "Làm báo cáo daily, fix lỗi ko auto chạy, communicate thay đổi form", "h": 1.0, "pid": "Rabity-Retail report", "proj": "Retail report", "date": "2026-08-28", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 200000}, {"id": "t054", "task": "Fix lỗi ko tự động báo cáo, làm báo cáo ngày", "h": 0.75, "pid": "Rabity-General", "proj": "General", "date": "2026-08-29", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 150000}, {"id": "t055", "task": "Làm báo cáo & fix lỗi", "h": 0.5, "pid": "Rabity-General", "proj": "General", "date": "2026-08-31", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 100000}, {"id": "t056", "task": "Extract tài liệu để gửi team amis & edt theo comment anh Trung", "h": 4.0, "pid": "OmniKey-IBS", "proj": "IBS", "date": "2026-08-31", "my": "08-2026", "kh": "OmniKey", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 800000}, {"id": "t057", "task": "Edit form báo cáo doanh thu & làm template report tổng hợp mới", "h": 2.0, "pid": "Rabity-General", "proj": "General", "date": "2026-08-31", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Huyên", "name": "Lê Thị Thu Huyên", "rate": 200000, "amt": 400000}, {"id": "t058", "task": "Thêm minio green giá vốn và giá niêm yết mới vào VFX profit simulator. Cập nhật khoản quy đổi tiền mặt bảo hiểm 5.5tr trừ vào hóa đơn.", "h": 1.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-01", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 150000}, {"id": "t059", "task": "Cập nhật các chính sách ưu đãi VinFast tháng 8/2026 cho VFX simulator:\nGia hạn và cập nhật 5 chương trình đang áp (Limo Green, VF 5, VF MPV 7, giảm 10%MSRP vf5 và herio, khoản 10tr cho EC Van & Minio đời 2025) tới hết 31/08 — phát hiện công cụ đã tự ngắt ưu đãi từ 01/08, khắc phục kịp thời trước khi phát sinh đơn bị thiệt. Bổ sung 2 chương trình chưa có trên công cụ: giảm giá EC Van Tiêu Chuẩn, và miễn phí màu sơn nâng cao cho VF 3 đời cũ. Update sheet để ghi nhận đầy đủ các khoản ưu đãi mới. Làm rõ về chính sách giảm 10% MSRP VF5, HERIO về ckcb điều chỉnh của nó (liệu DMS vẫn giữ nguyên sau giảm không, từ đó xác định ckcb điều chỉnh không ảnh hưởng hay không) với chị Nhi.", "h": 3.8, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-03", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 570000}, {"id": "t060", "task": "Nhận hai báo cáo Sell-in và Sell-out tháng 7/2026 từ chị Nhi, gộp và nạp số thực tế đã bán – đã nhập của cả bốn showroom vào công cụ kế hoạch cung–cầu Quý 3, chốt tháng 7 để công cụ tính thưởng theo số thực thay vì theo kế hoạch, sau đó xuất bộ 5 file báo cáo gửi anh Trung: hai file nêu số còn phải bán và còn phải nhập của tháng 8 và tháng 9 cho từng showroom, ba file nêu thưởng từng chương trình và tổng tiền thưởng theo ba đơn vị chấm thưởng. Kết quả tháng 7: bán 215/163 xe (132%), nhập 179/163 xe (110%).", "h": 1.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-04", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 150000}, {"id": "t061", "task": "kick off Nutrinest, thiết lập các chức năng liên quan đến Org Chart cho kênh GT Nutrines\n1h:join cuộc họp với chị Nhi và anh Trung, thống nhất về chương trình giảm 10% msrp cho vf5 và herio có trừ vào dms hay không.", "h": 1.1, "pid": "NutriNest-", "proj": "(chưa phân loại)", "date": "2026-08-04", "my": "08-2026", "kh": "NutriNest", "ct": "ideaLAB", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 165000}, {"id": "t062", "task": "chạy lại nhiều chính sách bán hàng T7/2026 cho 1 số lượng nhiều đơn: áp ưu đãi bảo hiểm PL14/PL18 cho 3 dòng xe (Limo Green 12tr · MPV 7 9tr · VF 5 Plus 8,5tr — 118 đơn, ghi giá trị BH tặng khách và phần đại lý gánh), tính trích trước rủi ro khoản 10% MSRP cho 39 đơn VF 5/Herio, ghi thưởng hoa hồng xe tồn kho PL17 (22 xe) và PL14 Đợt 2 (6 xe) kèm 4 cột mới chia thưởng theo vị trí (tổng 4 vị trí · Trưởng phòng BH · Giám đốc SR · Hành chính SR); rà soát toàn bảng, truy nguyên các đơn có mức thưởng năng suất, khoản 10% MSRP và ưu đãi bảo hiểm không khớp chính sách theo ngày cọc, lập danh sách chi tiết để đối chiếu với chị Nhi; xuất Excel bàn giao 4 trang gồm 132 đơn đủ 222 cột (đánh dấu ô mới cập nhật), tổng hợp theo khoản, bảng chia thưởng tồn kho 4 vị trí và ưu đãi bảo hiểm theo dòng xe.", "h": 8.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-04", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1200000}, {"id": "t063", "task": "đối chiếu sheet claim với deals T7, so sánh các cột LN mà chị Nhi tạo", "h": 0.6, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-05", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 90000}, {"id": "t064", "task": "chạy các đơn có Thưởng nóng S11007 (PL14) - xhđ trước 22/07 chưa từng được áp, dù văn bản có từ 06/07. Chốt phạm vi với chị Nhi (theo ngày hóa đơn trên sheet Claim T7, từ 01–21/07) ra 39 đơn. Bổ sung khoản này vào công cụ, thêm 2 cột vào bảng chốt đơn, chạy lại các đơn quá khứ: 37 đơn · 37.000.000đ · 25 nhân viên. Xuất Excel bàn giao 4 trang, có bảng chia thưởng theo từng nhân viên.", "h": 3.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-05", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 450000}, {"id": "t065", "task": "tính toán lời lỗ cho đơn hàng Limo Green (file word báo giá chị Nhi gửi)", "h": 0.6, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-05", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 90000}, {"id": "t066", "task": "họp với anh Trung, chị Nhi và đội ngũ VFX để giải quyết vấn đề nhanh, tự động, chính xác, liên quan đến bảo hiểm, lương năng suất, v.v...", "h": 1.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-05", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 225000}, {"id": "t067", "task": "điều tra, truy xuất, cập nhật, giải trình 58 đơn bị lệch LN cho chị Nhi và anh Trung và chạy lại các đơn đó. Liệt kê các điều cần làm rõ với nhân sự về nhiều nhóm đơn hàng có sự sai lệch từ cả 2 phía", "h": 6.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-05", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 900000}, {"id": "t068", "task": "Đối chiếu bảng thưởng T07 với nhân sự VFX. Đã gửi chị Nhi bản đối chiếu đầy đủ 48 đơn còn lệch, giải thích rõ từng đơn: 36 đơn nhân sự không tính các vị trí quản lý (hai bên so hai cột khác phạm vi, chênh đúng bằng phần thưởng ba vị trí quản lý — 29,4 triệu), 10 đơn bên mình đã tự sửa xong sau khi đổi cách xét ngày và bỏ phần ghi thừa, còn 2 đơn chờ chị Nhi xác nhận dữ liệu gốc. Phía nhân sự có 16 đơn cần xử: 7 đơn chưa trả thưởng Trưởng phòng Bán hàng do cột tên trưởng nhóm bỏ trống (1,85 triệu), 7 đơn tính thừa thưởng nóng cho hóa đơn ngày 22/07, 1 đơn ghi nhầm dòng xe từ Limo Green thành Minio Green (chênh 22,5 triệu), 1 đơn quên trừ khoản nhân viên tự cắt từ hoa hồng (2,04 triệu). Ngoài ra đã xử yêu cầu chạy lại đơn HĐ 7389 — xe bán rồi hủy, xuất lại cho khách sau 30/07: rà toàn bộ chính sách và xác nhận ngày xuất hóa đơn mới không làm đổi ưu đãi nào, thay đổi thực tế chỉ là bỏ khoản nhân viên tự cắt, giá DMS và chiết khấu công ty giữ nguyên.", "h": 4.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-06", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 600000}, {"id": "t069", "task": "Đối soát số liệu kế toán VFX tháng 7/2026: nhận file đối soát của kế toán (4 sheet, 1.077 bút toán, 213 đơn), giải mã 5 mã P&L và bóc trọn khoảng chênh 3,55 tỷ giữa sổ kế toán và công cụ tính đơn thành 4 thành phần — claim 10% MSRP 1,94 tỷ chưa vào sổ, quà tặng bảo hiểm 1,41 tỷ, thuế giá trị gia tăng, lệch lương 113,9 triệu — còn 1,6% chưa giải thích. Soi 153 bút toán chênh lệch mua sỉ, bóc lệch lương 108,7 triệu thành 8 nhóm nguyên nhân (49 đơn thiếu thưởng tồn kho PL14/PL17, 23 đơn lệch khoản cố định, 22 đơn sổ ghi thấp hơn), bóc quà tặng bảo hiểm 1,33 tỷ thành 3 nhóm và phát hiện 11 bút toán không gắn số khung. Giải mã 6 công thức đối chiếu trong file kế toán, xác nhận doanh thu, giá vốn và chênh lệch mua sỉ khớp tuyệt đối 210/210 đơn. Phân tích cơ chế khoản giảm 10% MSRP, đo 4 tình huống trên engine và dựng 2 phương án xử lý khoản trích trước để trình duyệt. Lập tài liệu giải trình 6 phần gửi kế toán, kèm hướng dẫn tra file và 8 câu hỏi cần làm rõ.", "h": 4.6, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-06", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 690000}, {"id": "t070", "task": "họp với anh Trung, chị Nhi và kế toán, nhân sự VFX để làm rõ sự khác nhau giữa nhiều đơn hàng", "h": 1.2, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-07", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 180000}, {"id": "t071", "task": "Rà soát file chị Thảo, bóc tách sự chênh lệch và nguyên nhân của chúng, xác nhận về cách tính bảo hiểm vào các tầng lợi nhuận. Rà soát và chạy lại 6 đơn hàng bị hàng chờ. Cập nhật 1 số phần trên sheet.", "h": 6.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-07", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 900000}, {"id": "t072", "task": "Làm rõ và chốt toàn bộ cách tính của Phụ lục 19: thưởng bán lẻ tăng cho ba dòng xe (VF5 Plus 17→20 triệu, MPV 7 30→35 triệu, VF7 40→48 triệu), trần giảm giá thay đổi theo hai chiều khác nhau tuỳ dòng (VF3 hạ từ 6 xuống 4 triệu, VF5 Plus nới từ 10 lên 60 triệu), mở thêm đợt thưởng xe tồn kho tháng 8. Điểm khác biệt lớn nhất của phụ lục này là xét theo ngày xuất hoá đơn thay vì ngày cọc như các phụ lục trước, nên công cụ phải bổ sung ô nhập ngày xuất hoá đơn. Cùng ngày chốt cơ chế Vinclub tháng 8 với kế toán: khách nhận hai khoản riêng biệt — một khoản giảm thẳng vào hoá đơn, một khoản tích điểm vào thẻ tính trên giá đã xuất hoá đơn — công ty chịu 30% của cả hai nhưng không quá 2% giá niêm yết, xe xuất hoá đơn trong 01/08–31/10 được nhân ba theo hạng thẻ. Xử lý quyền chọn giữ Phụ lục 18 cho xe đã cọc trước 05/08: trần giảm giá hai phụ lục khác nhau tuỳ dòng nên phải cho người bán so hai phương án rồi chọn phương án có lợi hơn. Song song, hoàn tất đợt đối soát 222 xe với kế toán, truy ra bốn nguyên nhân gây lệch và khép được 93,5% khoảng cách, kết luận không có thất thoát.", "h": 10.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-08", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1500000}, {"id": "t073", "task": "Đưa cơ chế Vinclub hai khoản vào công cụ và cho chạy thật. Phần phức tạp nhất là khoản tích điểm do có cơ sở tính khác hẳn khoản giảm giá: khoản giảm giá tính trên giá sau khuyến mãi của hãng, khoản tích điểm tính trên giá đã xuất hoá đơn, và không được trừ ngược vào hoá đơn hay vào giá báo lên hệ thống của hãng — trừ nhầm sẽ khiến đại lý mất chiết khấu cơ bản. Đưa hệ số nhân ba vào theo đúng mốc ngày xuất hoá đơn, xử lý riêng trường hợp khách chưa có hạng thẻ thì hưởng mức Gold nền và không được nhân. Tách phần nhập liệu bảo hiểm thành hai ô riêng cho Phụ lục 19 thay vì gộp một ô như trước. Chốt mốc bắt đầu đợt thưởng tồn kho tháng 8 là ngày 05/08 theo đúng câu chữ trong văn bản.", "h": 8.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-09", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1200000}, {"id": "t074", "task": "Hoàn tất cách tính hoa hồng bảo hiểm theo Phụ lục 19 mục 8: tách riêng phần người bán (10% nếu khách vay ngân hàng, 12% nếu trả tiền mặt) và phần nhân viên hỗ trợ (2% với bảo hiểm vật chất, 6% với trách nhiệm dân sự), lấy cơ sở là doanh thu trước thuế thay vì nguyên phí như các phụ lục trước, bổ sung hai cột riêng trong bảng đơn để phân định ai nhận bao nhiêu. Làm rõ bốn mặt của khoản giảm 10% giá niêm yết, trong đó khoản này ăn vào trần chống phá giá nên không còn cộng dồn như trước. Truy và xử lý lỗi đọc ngày lệch một ngày ảnh hưởng 510 đơn. Vá các lỗi hiển thị phát hiện khi mở trực tiếp công cụ: nhãn trần làm tròn thành 10 thay vì 10,4 triệu, và một chỗ bản dành cho người bán lộ giá vốn cùng lợi nhuận công ty — thông tin người bán không được phép thấy. Chốt lại mô hình bảo hiểm đúng bản chất: bán bảo hiểm là môi giới nên không có giá vốn, tặng thì công ty chịu trọn giá gói; tạm chưa đưa vào công cụ do còn thiếu tỷ lệ hoa hồng nhà bảo hiểm trả lại, đổi sớm sẽ ra lãi âm ở mọi đơn.", "h": 9.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-10", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1350000}, {"id": "t075", "task": "Chốt cách tính Vinclub: nhân viên gánh trọn phần công ty chịu. Hoàn thiện phần bảo hiểm — đưa vào 2 bảng tỷ lệ hoa hồng theo từng nhà bảo hiểm (10 nhà Bến Lức/Tân An, 12 nhà TP.HCM), cập nhật biểu phí HCM bản 10/8 (PJICO DSG KKD 4tr → 4,5tr), thêm ô chọn nhà bảo hiểm và loại xe kinh doanh. Sửa cách tính đơn tặng bảo hiểm: công ty chỉ tặng vật chất, khách vẫn trả dân sự — và phần dân sự vẫn có hoa hồng. Bổ sung đối chiếu số khung cho 26 + 50 xe. Nối biểu phí vào ô nhập để tự điền nhưng vẫn sửa tay được; mức nào chưa có thì để trống và báo rõ chứ không đoán.", "h": 6.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-11", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 900000}, {"id": "t076", "task": "Mở tặng bảo hiểm cho mọi dòng xe, bỏ giới hạn 3 dòng. Chạy thử 33 đơn Sell-out, khớp số VinFast 33/33 từng đồng. Chốt cách chọn phụ lục cho từng đơn — 30/30 khớp hoá đơn. Chị Nhi bắt một lỗi: quy đổi tiền mặt bảo hiểm không được làm giảm giá DMS — đã sửa và ghi lại 12 ô của 2 đơn. Sửa đơn 1ab52828 (nhân viên cắt 12tr → 10tr). Làm bảng đối soát và mẫu điền cho chị Nhi với 28 đơn — chị chỉ phải điền phần máy không tự biết được.", "h": 7.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-12", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1050000}, {"id": "t077", "task": "Nhập 30 đơn Sell-out lên bảng, kiểm toàn bộ từng ô chứ không chỉ vài cột — khớp 30/30, bắt được 4 chỗ sai không báo lỗi. Ghi đơn 10 và đơn 28 — hai ca đầu tiên phải xử riêng vì không theo khuôn chung. Chốt: đơn được quyền chọn Phụ lục 18 hay 19, lấy hoá đơn VinFast làm trọng tài. Xác nhận với VinFast là hạng Member không nhân 3, ghi chú lại 4 đơn liên quan.", "h": 7.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-13", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1050000}, {"id": "t078", "task": "Chị Nhi cho nguyên tắc lớn: chương trình VinFast xét theo ngày xuất hoá đơn, chính sách nội bộ VFX xét theo ngày cọc. Nhập 9 đơn Sell-out và sửa Vinclub 2 đơn, khớp VinFast từng đồng; chạy 2 đơn Vạn Phúc và đơn 06 — đơn cuối của lô 35 đơn. Tính lại đơn 10 theo Phụ lục 19. Sửa đơn 4y04adbc: nhân viên không gánh Vinclub. Đo lại cách tính lợi nhuận tầng Xe anh đề xuất trên 578 đơn thật — 97,6% lệch 0 đồng. Đề xuất chỉnh mẫu Sell-out cho dễ nhập hơn.", "h": 7.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-14", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1050000}, {"id": "t079", "task": "Đưa khoản trích trước 10% MSRP vào lợi nhuận tầng Xe, áp cho 16 đơn. Sửa lại: đơn không thuộc Phụ lục 19 thì nhân viên không gánh Vinclub. Phát hiện mốc Vinclub 11/08 không xét theo ngày đơn — nhân viên có thể bị trừ thừa 30.156.705đ. Rà soát 44 đơn mới thêm, tìm ra 3 dòng Xe Demo và 1 số khung trùng. Dựng biểu đồ thác nước lợi nhuận và bảng phân rã 18 chương trình trên 578 đơn, tách rõ khoản nào VFX gánh, khoản nào VinFast gánh.", "h": 5.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-15", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 750000}, {"id": "t080", "task": "Đảo mặc định: đơn có quyền chọn nay tính theo Phụ lục 18 — cả lương năng suất, trần khung lẫn Vinclub. Anh chốt tách phần bảo hiểm ra khỏi nút giữ Phụ lục 18 sau khi đo bằng bảng thật — trước đó bấm nút giữ PL18 kéo theo cả tầng bảo hiểm. Chạy lại 33 đơn theo cách tính mới: 7 đơn qua sạch, 26 đơn vướng và biết rõ vướng vì sao. Ghi 2 đơn đầu tiên theo mặc định mới — 24/24 ô khớp sau khi đọc lại. Bịt một lỗ hổng cho phép đơn hưởng lợi kép ở cả hai phụ lục. Đính chính một con số báo sai trước đó: chỗ tưởng bằng 0 thật ra là 603.134đ.", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-16", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 300000}, {"id": "t081", "task": "Ghi xong đơn 569 — đơn khó nhất vì mang hai thế hệ cách tính, phải dựng lại từng bước rồi đọc lại bảng thật khớp 7/7, lợi nhuận lệch 0. Nâng phiếu kiểm mỗi đơn từ 14 lên 218 mục để đối chiếu được đầy đủ. Chốt cách hiểu cột đối chiếu kế toán và phát hiện chúng có nhiều tầng — tổng dealer share tự nó cũng gồm nhiều thành phần. Truy xong 12 đơn còn vướng từ các đợt trước.", "h": 5.8, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-17", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 870000}, {"id": "t082", "task": "Áp Phụ lục 20: Limo Green thưởng 30tr → 25tr, xét theo ngày cọc. Ghi 7/9 đơn Sell-out, bảng lên 588, cả 7 khớp mốc VinFast từng đồng; 2 đơn còn lại chờ mã nhân viên và chị Nhi xác nhận. Chị Nhi chốt chương trình VinFast xét theo ngày xuất hoá đơn — Vinclub đã có tiền lệ này từ trước. Làm phiếu tóm tắt tự sinh cho mỗi đơn: đơn đó áp phụ lục nào, vì sao, gồm khoản gì, xét theo ngày nào, ai trả. File 18.8 đổi tên 5 cột và thiếu 2 cột quan trọng — phải suy ra từ dữ liệu để không tắc việc.", "h": 7.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-18", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1050000}, {"id": "t083", "task": "Ghi đơn 0017 vào bảng sau khi chạy thử và đối chiếu với nguồn ngoài, khớp hoàn toàn. Bù số cho 51 đơn ở phần đối chiếu kế toán, để mọi đơn đã nhập trước đó đều có đủ số liệu so với sổ sách. Gỡ thưởng quý theo bậc KB ra khỏi lợi nhuận tầng Xe — đây là khoản thưởng tính theo quý, không thuộc từng đơn, để lẫn vào sẽ làm lợi nhuận từng xe sai lệch; thử 48 tình huống khác nhau đều khớp sau khi gỡ. Sửa ô khung đơn 0046 từ 7 triệu lên 10 triệu theo đúng mức nhân viên đã cắt, sau đó khuôn đối chiếu khớp 50/50 đơn. Bổ sung một cách tính chạy song song, độc lập với cách tính chính, để tự phát hiện sai lệch trước khi số lên bảng — thay vì phát hiện sau khi kế toán đối soát. Xử lý xong danh sách chương trình neo theo ngày xuất hoá đơn còn tồn từ đợt trước.", "h": 3.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-19", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 450000}, {"id": "t084", "task": "Gỡ nút \"VFX tặng bảo hiểm vật chất\" (Phụ lục 13) khỏi màn hình nhập: bỏ đường bấm nhưng giữ nguyên cách tính, để không ai bấm nhầm mà đơn cũ vẫn tính đúng; đã lên bản chạy thật. Ghi đơn 0058 vào bảng. Đơn 0053 khớp từng đồng sau khi chuyển 6 chương trình VinFast sang xét theo ngày xuất hoá đơn — trước đó cả bốn cách kiểm đều ra số khác nhau, sau khi đổi thì hội tụ về một. Chốt nguyên tắc hai trục kèm bằng chứng gốc từ chị Nhi, và chốt thêm: giá niêm yết cũng xét theo ngày xuất hoá đơn chứ không theo ngày cọc. Ghi thưởng tồn kho cho 2 đơn. Đo ra 29 đơn thuộc Phụ lục 18 vẫn hưởng thưởng tồn kho, do hai nguyên nhân khác nhau — một nhóm đúng theo quy định, một nhóm do bỏ trống ngày xuất hoá đơn nên rơi vào nhánh xét lỏng hơn. Bổ sung cột lưu lại toàn bộ dữ liệu gốc của mỗi đơn, để sau này chạy lại đơn cũ không phải đoán lại đầu vào.", "h": 4.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-20", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 600000}, {"id": "t085", "task": "Đưa vào khoản khuyến mãi B2B 0,75% cho lô 20-49 xe — chương trình này áp thật cho lô 20 xe Vinasun, đối chiếu khớp 20/20 lệch 0. Làm rõ chỗ tưởng mâu thuẫn với quyết định hôm 14/08: khi đó kết luận \"B2B không áp\" là đúng cho đơn lẻ, còn lô Vinasun đủ 20 xe nên đủ điều kiện — hai ca khác nhau. Chốt cùng lúc năm điểm cho đợt nhập: 4 đơn còn quyền chọn thì giữ Phụ lục 18 cho nhất quán với đơn 0017 và 0058; nhân viên chưa có mã thì dùng mã tạm; thưởng tồn kho chị Nhi để trống nhưng trùng danh sách thì cứ áp; phụ kiện bỏ qua đợt này; khoản B2B tạm thời không cắt lương năng suất vì chưa có quy định. Dựng xong kịch bản nhập cho 35 đơn tháng 8, không đơn nào phải dừng giữa chừng. Hoàn tất ba khoản tổng của đơn 569 và sửa lỗi làm mất tên showroom ở 35/35 đơn.", "h": 7.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-21", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 1050000}, {"id": "t086", "task": "Đọc trọn 5 phụ lục bảo hiểm tháng 7 và 22 trang tệp Sell-out để chuẩn bị tính hoa hồng bảo hiểm. Phát hiện hai nguồn số ngược nhau giữa các phụ lục — nếu tính tiếp theo một trong hai thì kết quả sẽ sai mà không ai biết. Dừng lại, ghi rõ chỗ mâu thuẫn để hỏi lại thay vì chọn bừa một nguồn.", "h": 2.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-22", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 300000}, {"id": "t087", "task": "Chốt hạ bảo hiểm tháng 7: 6 nhóm câu hỏi, 12 câu, mỗi câu kèm danh sách đơn cụ thể để chị Nhi trả lời nhanh. Bảng điều khiển của VinFast xác nhận số bên mình lệch 0, đồng thời phát hiện 34 ô bị gõ thành chữ trong file nguồn. Tìm được trang định nghĩa biểu mẫu trong tệp Sell-out, giải dứt điểm hai câu treo. Chốt phạm vi: đơn tháng 8 tính từ dòng 539 trở đi. Đọc trọn Phụ lục 11: 24 đơn PL11 + 188 đơn PL15 = 212 đơn.", "h": 5.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-23", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 750000}, {"id": "t088", "task": "Nhập 21 đơn: dựng được 19, đối chiếu VinFast khớp 18/19. Chị Nhi đổi tên 15 cột trong file, giải bằng đối chiếu số học nên vẫn khớp 21/21. Phát hiện một chương trình đã hết hiệu lực từ 31/05 mà vẫn còn chạy — cơ chế giảm 10% cho showroom VF8/VF9, đã trừ oan 2 nhân viên. Mở ba câu cần chị Nhi: Vinclub lệch ở 2 đơn, một cột bị gộp, và khoản 10% chỉ xuất hiện ở 3/21 đơn.", "h": 4.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-24", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 600000}, {"id": "t089", "task": "Hoàn tất ba việc nền cho bảo hiểm: bảng quy đổi tên nhà bảo hiểm (xác định được 30/39 đơn), bảng phí trách nhiệm dân sự khớp từng số với tệp chị Ly, và cách tính bảo hiểm được đối chiếu qua 308 phép tính độc lập. Chốt nền tính bảo hiểm tháng 8 theo Phụ lục 19, đính chính 3 lỗi trong công thức và bổ sung 2 phần cấn trừ công nợ — cấn trừ chỉ đổi số tiền nhân viên thực nhận, không đổi lợi nhuận bảo hiểm. Chốt cách xử khoản trích trước 10% MSRP: trừ vào chiết khấu cơ bản. Bác bỏ một giả định đã dùng trước đó — suy khu vực bảo hiểm từ showroom — sau khi đo ra 3/18 đơn lệch. Ghi đơn 0190 và 18 đơn khác, điền đủ 7 cột cho từng đơn. Đưa nút tắt ưu đãi tháng 7 lên bản chạy thật.", "h": 4.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-25", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 600000}, {"id": "t090", "task": "Phát hiện lỗi nặng: cách tính bảo hiểm tháng 8 thiếu trừ giá gói khi công ty tặng, khiến nhóm này từ lãi 9,9tr hoá lỗ 38,4tr. Sửa xong, chạy lại 11/11 đơn khớp dự tính, lệch 0. Ghi 27 đơn. Giải xong câu treo Vinclub: 2 đơn không thiếu tiền, giả thuyết hôm 24/08 sai. Đọc bản Sell-out trực tuyến, ra ba phát hiện phải xử trước khi tính bảo hiểm tháng 8.", "h": 5.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-26", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 825000}, {"id": "t091", "task": "Khôi phục 6 cột đối chiếu kế toán từ dòng 539: 649 ô, khớp 100%. Ghi giá vốn theo file cho 35 đơn, ghi 4 đơn còn tắc vì tên người bán (bảng lên 659), ghi xong đơn 569 với 10 khoản đổi đều ±13.297.500đ. Bảo hiểm tháng 8 lên 22 đơn. Bản Sell-out 27.8 đổi đơn vị tỷ lệ Vinclub, nếu không phát hiện sẽ chặn mọi đơn Vinclub. Giải xong đơn TH797283: không phải 3 ô mà khoảng 13 ô, và có một chỗ giá trùng nhau gây nhầm.", "h": 3.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-27", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 450000}, {"id": "t092", "task": "Rà toàn bộ chính sách đang chạy trong công cụ: 16 chính sách, đánh dấu 11 chính sách đã hết hạn để không ai áp nhầm. Làm xong Phiếu thu 34 (quy đổi tiền mặt VinFast trả), từ thiết kế, đưa vào tính toán, tới kiểm trên trang thật. Ghi 4 đơn sau khi chị Nhi xác nhận lỗi nằm bên VFX còn cách tính bên mình đúng.", "h": 1.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-28", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 225000}, {"id": "t093", "task": "Nhập file Sell-out 29.08: ghi 6 đơn, bảng lên 674, giá hoá đơn khớp VinFast từng đồng. Đo tận gốc đơn 0140, phát hiện hai cách tính trần khung cho cùng một đơn, một ra 10,4tr một ra 0; chốt ngoại lệ nâng trần khi áp khoản 10% MSRP. Phát hiện công cụ bỏ sót khoản nhân viên cắt khi đơn có khoản 10% MSRP. Sửa lỗi chọn nhầm người bán khi mã nhân viên để trống. Mở 3 câu cần chị Nhi về đơn 0030, đơn 0111 và ba đơn VF5.", "h": 4.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-29", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 600000}, {"id": "t094", "task": "Cập nhật chính sách tháng 9. Sửa trần khung theo văn bản 261001: Herio 60tr, VF 8 NEW 20tr. Rà lại thấy việc nới trần đời 2025 lên 60tr không có căn cứ, truy ngọn nguồn ra hai nhánh, chốt đưa trần Herio về 20tr/10tr và chờ phụ lục VFX tháng 9. Thêm cơ chế đổi chiết khấu cơ bản từ 01/9/2026. Tra lại Vinclub, xác nhận không có lệch.", "h": 4.5, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-31", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Hiếu", "name": "Thân Trung Hiếu", "rate": 150000, "amt": 675000}, {"id": "t095", "task": "[PM][Acceptance] DB2 P&L key-user review round 2: review phiên bản đã cập nhật feedback với CFO, kiểm tra logic/visual và ghi nhận các điểm cần điều chỉnh tiếp theo → Review result và follow-up actions được thống nhất", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-04", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t096", "task": "[PM][Cadence] BI Project Weekly W32: review tiến độ các dashboard, blockers, dependencies và kế hoạch xử lý tiếp theo → Trạng thái, owners và follow-up actions được cập nhật", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-06", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t097", "task": "[PM][Requirement][Dependency] DB3 ECOM working session: làm rõ tài khoản BI, phương án Data Hub trên SharePoint, phạm vi Omnichannel, dashboard Inventory ECOM và cơ chế phối hợp định kỳ → Danh sách đầu việc, PIC và lịch catch-up thứ Ba hằng tuần được thống nhất", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-06", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t098", "task": "PM][Coordination] Weekly Rabity async coordination W32 (03/08–07/08): follow-up PIC, làm rõ trách nhiệm, theo dõi actions và cập nhật tiến độ các workstream → Programme tracker, owners và action status được cập nhật; không bao gồm meeting và task chuyên môn đã log riêng", "h": 3.0, "pid": "Rabity-PM & Coordinator", "proj": "PM & Coordinator", "date": "2026-08-08", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 600000}, {"id": "t099", "task": "[PM][Cadence][Dependency] Catch-up BI–ECOM 11/08: thống nhất lịch cập nhật dữ liệu theo vận hành ECOM, Master Data phân loại hàng hóa, nguồn tồn kho Haravan và Data Hub trên SharePoint → 6 action items về lịch refresh, logic đơn Processing, dữ liệu Data Hub, phiên bản report, Power BI Pro license và danh sách câu hỏi nghiệp vụ được phân công", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-11", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t100", "task": "[PM][Coordination] Weekly Rabity async coordination W33 (10/08–14/08): follow-up các dependency, lịch xử lý và pending actions với PO/team phụ trách → Programme tracker, owners và action status được cập nhật; không bao gồm meeting và task chuyên môn đã log riêng", "h": 3.5, "pid": "Rabity-PM & Coordinator", "proj": "PM & Coordinator", "date": "2026-08-15", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 700000}, {"id": "t101", "task": "[PM][Acceptance][Contract] Giai đoạn 2 DWH & ETL: tiếp nhận bộ biên bản bàn giao/nghiệm thu từ IdeaLAB, kiểm tra phạm vi hoàn thành, kết quả kiểm thử và đối chiếu điều kiện nghiệm thu/thanh toán theo hợp đồng → Kết quả review ban đầu, evidence gaps và các nội dung cần xác nhận được tổng hợp", "h": 1.5, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-18", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 300000}, {"id": "t102", "task": "[PM][Design Governance][Delivery] Rabity BI Dashboard: rà soát, điều chỉnh và thống nhất bộ màu áp dụng cho các dashboard → Bộ màu dashboard được chốt làm visual baseline cho team BI triển khai", "h": 1.5, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-19", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 300000}, {"id": "t103", "task": "[PM][Delivery][Cutover] DB3 ECOM catch-up 19/08: review hai dashboard Sales ECOM và Omnichannel, thống nhất kế hoạch ngắt nguồn dữ liệu cũ ngày 21/08, rà soát feedback và các nội dung còn mở → Dashboard links, cutover actions, owners và các điểm cần xác nhận với key users được cập nhật", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-19", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t104", "task": "[PM][Executive Sync][Delivery] Rabity BI management review 21/08: cập nhật tiến độ DB2–DB5 và phạm vi Phase 1 với CFO, review kế hoạch hoàn thiện P&L, Sale Retail và nghiệm thu Giai đoạn 2 → Thống nhất 3 follow-up actions và mục tiêu hoàn thành/go-live các dashboard", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-21", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t105", "task": "[PM][Coordination] Weekly Rabity async coordination W34 (17/08–21/08): theo dõi tiến độ, blockers, hồ sơ nghiệm thu và các nội dung cần stakeholder xác nhận → Programme tracker, owners và action status được cập nhật; không bao gồm meeting và task chuyên môn đã log riêng", "h": 3.0, "pid": "Rabity-PM & Coordinator", "proj": "PM & Coordinator", "date": "2026-08-22", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 600000}, {"id": "t106", "task": "[PM][Cadence] Meeting - DB3 - Project BI - Cập nhật 25/08", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-26", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t107", "task": "[PM][Executive Reporting][Preparation] Rabity BI: tổng hợp plan-vs-actual, trạng thái DB1–DB5, risks, dependencies và stakeholder asks để chuẩn bị buổi review 27/08 → Deck báo cáo tiến độ", "h": 3.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-26", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 600000}, {"id": "t108", "task": "[PM][Requirement][Data] DB1 Inventory–ECOM: làm rõ yêu cầu bổ sung đơn Processing, đánh giá ảnh hưởng đến công thức tồn và thay đổi nguồn Sales ECOM từ MISA sang Haravan → Logic cần mapping, đối chiếu dữ liệu và action kiểm chứng được xác định", "h": 0.5, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-26", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 100000}, {"id": "t109", "task": "[PM][Approval][Contract] Giai đoạn 2 DWH & ETL: hoàn thiện kết quả đánh giá bộ hồ sơ nghiệm thu IdeaLAB và gửi email CEO đề nghị phê duyệt theo hợp đồng → Hồ sơ xin duyệt Giai đoạn 2 được trình CEO để quyết định và chuyển bước thanh toán", "h": 0.5, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-26", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 100000}, {"id": "t110", "task": "[PM][Executive Review] Rabity BI Progress & Dashboard Review (27/08): báo cáo plan-vs-actual và trạng thái DB1–DB5 → Status, priorities và follow-up actions được thống nhất", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-27", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t111", "task": "[PM][Acceptance][Requirement] DB4 Retail: tổng hợp và chuyển feedback key user về Target MTD, MoM/YoY, UPT, ASP, phân loại màu, khách vãng lai, giá trị đơn hàng và phân tích sản phẩm → Feedback backlog được cấu trúc và bàn giao cho DA xử lý", "h": 1.0, "pid": "Rabity-BI", "proj": "BI", "date": "2026-08-28", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 200000}, {"id": "t112", "task": "[PM][Coordination] Weekly Rabity async coordination W35 (24/08–28/08): điều phối lịch review, follow-up priorities, resources và pending actions giữa các PIC/stakeholders → Programme tracker, owners và action status được cập nhật; không bao gồm meeting và task chuyên môn đã log riêng", "h": 3.5, "pid": "Rabity-PM & Coordinator", "proj": "PM & Coordinator", "date": "2026-08-29", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Hiển", "name": "Hoàng Xuân Hiển", "rate": 200000, "amt": 700000}, {"id": "t113", "task": "update và confirm thông tin XDV để run thực", "h": 40.0, "pid": "VFX-Profit Simulator", "proj": "Profit Simulator", "date": "2026-08-01", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Quỳnh", "name": "Lê Đỗ Lam Quỳnh", "rate": 25000, "amt": 1000000}, {"id": "t114", "task": "Khung strategy", "h": 2.0, "pid": "Beta Cinema-", "proj": "(chưa phân loại)", "date": "2026-08-02", "my": "08-2026", "kh": "Beta Cinema", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 50000}, {"id": "t115", "task": "Survey", "h": 6.0, "pid": "Beta Cinema-", "proj": "(chưa phân loại)", "date": "2026-08-01", "my": "08-2026", "kh": "Beta Cinema", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 150000}, {"id": "t116", "task": "Action Plan", "h": 4.0, "pid": "Beta Cinema-", "proj": "(chưa phân loại)", "date": "2026-08-06", "my": "08-2026", "kh": "Beta Cinema", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 100000}, {"id": "t117", "task": "Financial", "h": 4.0, "pid": "Beta Cinema-", "proj": "(chưa phân loại)", "date": "2026-08-10", "my": "08-2026", "kh": "Beta Cinema", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 100000}, {"id": "t118", "task": "Tổng quan doanh nghiệp", "h": 10.0, "pid": "VFX-ĐATBIKE", "proj": "ĐATBIKE", "date": "2026-08-11", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 250000}, {"id": "t119", "task": "Site visit", "h": 4.0, "pid": "VFX-ĐATBIKE", "proj": "ĐATBIKE", "date": "2026-08-13", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 100000}, {"id": "t120", "task": "Tìm hiểu context", "h": 4.0, "pid": "Rabity-Tối ưu CX", "proj": "Tối ưu CX", "date": "2026-08-24", "my": "08-2026", "kh": "Rabity", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 100000}, {"id": "t121", "task": "Kiểm tra model", "h": 4.0, "pid": "VFX-ĐATBIKE", "proj": "ĐATBIKE", "date": "2026-08-14", "my": "08-2026", "kh": "VFX", "ct": "OmniKey", "code": "Quang", "name": "Lương Minh Quang", "rate": 25000, "amt": 100000}, {"id": "t122", "task": "Thực hiện file tổng quan dự án theo concept What/Who/When (từ file html, đến file pptx + file checklist excel)", "h": 1.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-06", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 300000}, {"id": "t123", "task": "Draft file kickoff", "h": 0.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-07", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 150000}, {"id": "t124", "task": "Meeting với team MISA", "h": 1.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-10", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 450000}, {"id": "t125", "task": "Meeting với team MISA", "h": 2.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-11", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 600000}, {"id": "t126", "task": "Điều chỉnh checklist project management + trao đổi/follow up với team MISA", "h": 3.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-11", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 900000}, {"id": "t127", "task": "Đối chiếu và update file project management cho sát với MISA CX Playbook Siren (anh Trung)", "h": 1.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-12", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 450000}, {"id": "t128", "task": "Điều chỉnh và hoàn thiện format checklist dự án", "h": 1.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-12", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 300000}, {"id": "t129", "task": "Coordinate giữa các bên + docs update", "h": 1.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-13", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 300000}, {"id": "t130", "task": "Meeting với Khối Bán lẻ + coordinating để làm việc", "h": 2.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-14", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 600000}, {"id": "t131", "task": "Update + điều chỉnh tài liệu", "h": 0.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-14", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 150000}, {"id": "t132", "task": "Update tiến độ dự án + làm template phỏng vấn gửi cho KH", "h": 1.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-15", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 300000}, {"id": "t133", "task": "Meeting phỏng vấn chị Lệ - DNKV", "h": 1.17, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-17", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 351000}, {"id": "t134", "task": "Brainstorming ideas cho bảng phác họa với khối nhỏ + trao đổi giữa các stakeholder", "h": 1.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-17", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 450000}, {"id": "t135", "task": "Brainstorming cho mô phỏng của khối vừa", "h": 5.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-18", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 1500000}, {"id": "t136", "task": "Brainstorming cho mô phỏng của khối vừa (tiếp tục)", "h": 1.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-18", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 300000}, {"id": "t137", "task": "Meeting trình bày mạch mô phỏng vận hành khối bán lẻ + khoanh vùng điểm nghi ngờ + họp nội bộ SOI", "h": 1.75, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-19", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 525000}, {"id": "t138", "task": "Hệ thống dải thông tin cần MISA cung cấp", "h": 0.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-19", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 150000}, {"id": "t139", "task": "Meeting phỏng vấn Giám đốc Khối Nhỏ + working with stakeholders to have docs exchanged", "h": 2.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-20", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 600000}, {"id": "t140", "task": "Dựng trận cho khối vừa", "h": 0.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-20", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 150000}, {"id": "t141", "task": "Họp với đội data để làm rõ yêu cầu lấy data", "h": 1.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-24", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 450000}, {"id": "t142", "task": "Call với Hạnh để giải thích về dự án", "h": 0.33, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-24", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 99000}, {"id": "t143", "task": "Trình bày Bảng Mô hình Tác động đến Trải nghiệm Khách hàng - Khối DNV", "h": 1.0, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-25", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 300000}, {"id": "t144", "task": "Trình bày Bảng Mô hình Tác động đến Trải nghiệm Khách hàng - Khối DNN", "h": 1.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-25", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 450000}, {"id": "t145", "task": "Coordinate with stakeholders", "h": 0.25, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-25", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 75000}, {"id": "t146", "task": "Coordinate with stakeholders + update project file", "h": 0.5, "pid": "MISA-Misa Quick Win", "proj": "Misa Quick Win", "date": "2026-08-25", "my": "08-2026", "kh": "MISA", "ct": "OmniKey", "code": "Mẫn", "name": "Trương Gia Mẫn", "rate": 300000, "amt": 150000}], "people": [{"code": "Dphuong", "name": "Đoàn Phương", "since": "Nhận hết T04/2026", "fixed": null, "rate": null, "ai": null, "type": "Check mr Trung"}, {"code": "Hiển", "name": "Hoàng Xuân Hiển", "since": "Từ T02/2026", "fixed": null, "rate": 200000.0, "ai": null, "type": "Man hour"}, {"code": "Huyên", "name": "Lê Thị Thu Huyên", "since": "28/8: hỏi zalo", "fixed": null, "rate": 200000.0, "ai": null, "type": "Man hour"}, {"code": "Hạnh", "name": "Nguyễn Gia Ngọc Hạnh", "since": "10/2025 - GPKD", "fixed": null, "rate": 200000.0, "ai": null, "type": "Man hour"}, {"code": "Trung", "name": "Trương Thành Trung", "since": "10/2025 - GPKD", "fixed": 60000000.0, "rate": null, "ai": null, "type": "Fix"}, {"code": "Dõng", "name": "Trần Dõng", "since": "Từ 04/2026", "fixed": null, "rate": 200000.0, "ai": null, "type": "Man hour"}, {"code": "Hiếu", "name": "Thân Trung Hiếu", "since": "28/8: hỏi zalo", "fixed": null, "rate": 150000.0, "ai": null, "type": "Man hour"}, {"code": "Giang", "name": "Hoàng Thị Cẩm Giang", "since": "Từ 10/07/2026", "fixed": 3000000.0, "rate": null, "ai": null, "type": "Fix"}, {"code": "Búp", "name": "Lê Thị Búp", "since": "Từ 05/2026", "fixed": 3000000.0, "rate": null, "ai": null, "type": "Fix"}, {"code": "Mẫn", "name": "Trương Gia Mẫn", "since": "Từ 08/2026", "fixed": null, "rate": 300000.0, "ai": null, "type": "Man hour"}, {"code": "Quỳnh", "name": "Lê Đỗ Lam Quỳnh", "since": "Intern 16/6/2026", "fixed": null, "rate": 25000.0, "ai": 526000.0, "type": "Man hour"}, {"code": "Quang", "name": "Lương Minh Quang", "since": "Từ 25/07/2026", "fixed": null, "rate": 25000.0, "ai": 526000.0, "type": "Man hour"}, {"code": "PPhương", "name": "Phạm Thị Phương", "since": "Từ 06/2026", "fixed": 30000000.0, "rate": null, "ai": null, "type": "Fix"}, {"code": "Lợi", "name": "Đào Thắng Lợi", "since": "Nhận từ 05/2026", "fixed": null, "rate": null, "ai": null, "type": "Check mr Trung"}], "payroll": [{"name": "Lê Thị Búp", "form": "Cố định (BTLT)", "role": "Kế toán", "base": 3000000, "units": 31.0, "salary": 3000000, "other": 0, "gross": 3000000, "pit": 0, "net": 2446650, "bh_nld": 557550, "bh_cty": 1141650}, {"name": "Trương Thành Trung", "form": "Cố định (10% PIT)", "role": "Giám đốc", "base": 60000000, "units": 31.0, "salary": 60000000, "other": 0, "gross": 60000000, "pit": 6000000, "net": 54000000, "bh_nld": 0, "bh_cty": 0}, {"name": "Hoàng Thị Cẩm Giang", "form": "Cố định (10% PIT)", "role": "Thư ký", "base": 3000000, "units": 31.0, "salary": 3000000, "other": 0, "gross": 3000000, "pit": 300000, "net": 2700000, "bh_nld": 0, "bh_cty": 0}, {"name": "Phạm Thị Phương", "form": "Cố định (10% PIT)", "role": null, "base": 30000000, "units": 31.0, "salary": 30000000, "other": 0, "gross": 30000000, "pit": 3000000, "net": 27000000, "bh_nld": 0, "bh_cty": 0}, {"name": "Hoàng Xuân Hiển", "form": "Man hour", "role": null, "base": 200000, "units": 29, "salary": 5800000, "other": 0, "gross": 5800000, "pit": 580000, "net": 5220000, "bh_nld": 0, "bh_cty": 0}, {"name": "Lê Thị Thu Huyên", "form": "Man hour", "role": null, "base": 200000, "units": 115.75, "salary": 23150000, "other": 0, "gross": 23150000, "pit": 2315000, "net": 20835000, "bh_nld": 0, "bh_cty": 0}, {"name": "Nguyễn Gia Ngọc Hạnh", "form": "Man hour", "role": null, "base": 200000, "units": 0, "salary": 0, "other": 0, "gross": 0, "pit": 0, "net": 0, "bh_nld": 0, "bh_cty": 0}, {"name": "Trần Dõng", "form": "Man hour", "role": null, "base": 200000, "units": 0, "salary": 0, "other": 0, "gross": 0, "pit": 0, "net": 0, "bh_nld": 0, "bh_cty": 0}, {"name": "Thân Trung Hiếu", "form": "Man hour", "role": null, "base": 150000, "units": 162.6, "salary": 24390000, "other": 0, "gross": 24390000, "pit": 2439000, "net": 21951000, "bh_nld": 0, "bh_cty": 0}, {"name": "Trương Gia Mẫn", "form": "Man hour", "role": null, "base": 300000, "units": 33.5, "salary": 10050000, "other": 0, "gross": 10050000, "pit": 1005000, "net": 9045000, "bh_nld": 0, "bh_cty": 0}, {"name": "Lê Đỗ Lam Quỳnh", "form": "Man hour", "role": null, "base": 25000, "units": 40, "salary": 1000000, "other": 526000.0, "gross": 1526000, "pit": 152600, "net": 1373400, "bh_nld": 0, "bh_cty": 0}, {"name": "Lương Minh Quang", "form": "Man hour", "role": null, "base": 25000, "units": 38, "salary": 950000, "other": 526000.0, "gross": 1476000, "pit": 147600, "net": 1328400, "bh_nld": 0, "bh_cty": 0}], "invRabity": [{"name": "Hoàng Xuân Hiển", "form": "Man hour", "rate": 200000, "units": 29, "pre": 5800000, "vat": 464000, "total": 6264000}, {"name": "Lê Thị Thu Huyên", "form": "Man hour", "rate": 200000, "units": 39.25, "pre": 7850000, "vat": 628000, "total": 8478000}, {"name": "Nguyễn Gia Ngọc Hạnh", "form": "Man hour", "rate": 200000, "units": 0, "pre": 0, "vat": 0, "total": 0}, {"name": "Trần Dõng", "form": "Man hour", "rate": 200000, "units": 0, "pre": 0, "vat": 0, "total": 0}, {"name": "Thân Trung Hiếu", "form": "Man hour", "rate": 150000, "units": 0, "pre": 0, "vat": 0, "total": 0}, {"name": "Trương Gia Mẫn", "form": "Man hour", "rate": 300000, "units": 0, "pre": 0, "vat": 0, "total": 0}, {"name": "Lê Đỗ Lam Quỳnh", "form": "Man hour", "rate": 25000, "units": 0, "pre": 0, "vat": 0, "total": 0}, {"name": "Lương Minh Quang", "form": "Man hour", "rate": 25000, "units": 4, "pre": 100000, "vat": 8000, "total": 108000}, {"name": "Trương Thành Trung", "form": "Fix", "rate": null, "units": null, "pre": 60000000.0, "vat": 4800000, "total": 64800000}]};
+
+/* ============================================================
+   NHÓM TASK — quy tắc từ khoá, TẠM (provisional), chưa verify
+   ============================================================ */
+const TASK_RULES = [
+  ['Báo cáo & vận hành', ['báo cáo','report','chạy','gửi mail','gửi email','gửi nốt','backfill','kích hoạt','automation','tự động']],
+  ['Sửa & tối ưu',       ['sửa','fix','edit','update','upgrade','tối ưu','chỉnh','điều chỉnh','đổi']],
+  ['Phát triển & setup', ['setup','build','dựng','xây','tạo','deploy','clone','develop','triển khai','base']],
+  ['Hỗ trợ & adhoc',     ['support','adhoc','hỗ trợ','q &a','q&a','phản hồi','complain','lỗi','issue','xly','xử lý']],
+  ['Nghiên cứu & tài liệu',['study','tìm hiểu','research','tài liệu','hướng dẫn','phương án','solution','note','đọc']],
+  ['Trao đổi & xác nhận',['communicate','confirm','trao đổi','requirement','follow','họp','meeting','nắm yêu cầu']]
+];
+function taskGroup(t){
+  const s=(t||'').toLowerCase();
+  for(const [g,ks] of TASK_RULES) if(ks.some(k=>s.includes(k))) return g;
+  return 'Khác';
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const DEF_CFG = {
+  basis:'payroll',
+  allocOverhead:false,
+  clients:{},                 // ten: {bill, rev, src}
+  fixedAlloc:{},              // ten nhan su co dinh: client | OVERHEAD
+  incBhCty:true, incAi:true,
+  snaps:[]
+};
+let cfg, undoStack=[], filt={q:'',people:new Set(),clients:new Set(),ent:new Set(),d1:'',d2:'',mode:'dim'};
+let tab='1', sub3='kh', sel=null, selPerson=null, selClient=null, sortK='date', sortD=1;
+
+const CLIENTS=[...new Set(DATA.ts.map(r=>r.kh))].sort();
+const ENTS=[...new Set(DATA.ts.map(r=>r.ct))].sort();
+const NAMES=[...new Set(DATA.ts.map(r=>r.name))].sort();
+const PAY = Object.fromEntries(DATA.payroll.map(p=>[p.name,p]));
+const FIXED = DATA.payroll.filter(p=>String(p.form||'').startsWith('Cố định'));
+
+function seedCfg(){
+  const c=JSON.parse(JSON.stringify(DEF_CFG));
+  CLIENTS.forEach(k=>{
+    c.clients[k]={bill:(k==='OmniKey'?'internal':'fixed'), rev:null, src:''};
+  });
+  // Nguồn DUY NHẤT có chứng từ trong file: sheet "XHĐ Rabity"
+  if(c.clients['Rabity']){
+    c.clients['Rabity']={bill:'passthrough', rev:73750000,
+      src:'Sheet XHĐ Rabity — 13.750.000 man-hour + 60.000.000 lương cố định GĐ (chưa VAT)'};
+  }
+  FIXED.forEach(p=>{ c.fixedAlloc[p.name]='OVERHEAD'; });
+  // Chứng từ: hoá đơn Rabity có dòng Fix 60.000.000 mang tên Trương Thành Trung
+  if(c.fixedAlloc['Trương Thành Trung']!==undefined) c.fixedAlloc['Trương Thành Trung']='Rabity';
+  return c;
+}
+function load(){
+  try{const s=localStorage.getItem(LS); cfg = s? Object.assign(seedCfg(),JSON.parse(s)) : seedCfg();}
+  catch(e){ cfg=seedCfg(); }
+}
+function save(){ try{localStorage.setItem(LS,JSON.stringify(cfg));}catch(e){} }
+function pushUndo(){ undoStack.push(JSON.stringify(cfg)); if(undoStack.length>60)undoStack.shift(); syncUndo(); }
+function syncUndo(){ const b=document.getElementById('btnUndo'); b.textContent='↩ Undo ('+undoStack.length+')'; b.disabled=!undoStack.length; }
+function undo(){ if(!undoStack.length)return; cfg=JSON.parse(undoStack.pop()); save(); syncUndo(); render(); pill('Đã hoàn tác 1 bước','ok'); }
+
+let pillT;
+function pill(msg,kind){ const p=document.getElementById('pill'); p.textContent=msg; p.className='on '+(kind||'ok');
+  clearTimeout(pillT); pillT=setTimeout(()=>p.className='',4000); }
+
+/* ============================================================
+   ĐỊNH DẠNG
+   ============================================================ */
+const nf=new Intl.NumberFormat('vi-VN');
+const f0=v=>(v===null||v===undefined||isNaN(v))?'—':nf.format(Math.round(v));
+const fh=v=>(v===null||v===undefined)?'—':(Math.round(v*100)/100).toLocaleString('vi-VN');
+const fp=v=>(!isFinite(v))?'—':(Math.round(v*10)/10).toLocaleString('vi-VN')+'%';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dmy=d=>{const p=String(d).split('-');return p[2]+'/'+p[1];};
+
+/* ============================================================
+   EFFECTIVE — nguồn DUY NHẤT cho mọi bảng, export, hash
+   ============================================================ */
+function effective(){
+  const basis=cfg.basis;
+  // tổng giờ timesheet theo người → khoá phân bổ
+  const hByName={}; DATA.ts.forEach(r=>hByName[r.name]=(hByName[r.name]||0)+r.h);
+
+  const lines = DATA.ts.map(r=>{
+    let cost, warn=null;
+    if(basis==='timesheet'){ cost = r.h*r.rate; }
+    else{
+      const p=PAY[r.name];
+      if(p && hByName[r.name]>0){ cost = p.salary * (r.h/hByName[r.name]); }
+      else { cost = r.h*r.rate; warn='no-payroll'; }
+    }
+    const cc=cfg.clients[r.kh]||{bill:'fixed'};
+    return {...r, grp:taskGroup(r.task), cost, bucket:(cc.bill==='internal'?'absorb':'charge'), warn};
+  });
+
+  // nhân sự lương cố định (không log timesheet) → theo cấu hình phân bổ
+  const fixedLines = FIXED.map(p=>{
+    const to=cfg.fixedAlloc[p.name]||'OVERHEAD';
+    const isC = to!=='OVERHEAD';
+    return {id:'f_'+p.name, name:p.name, kh:(isC?to:'(Chi phí chung)'), ct:'OmniKey',
+      proj:'Lương cố định', grp:'Lương cố định', task:p.role||'Lương cố định tháng',
+      h:0, rate:null, cost:p.salary, date:null,
+      bucket:(isC && (cfg.clients[to]||{}).bill!=='internal')?'charge':'absorb', fixed:true};
+  });
+
+  // chi phí ngoài lương gộp
+  const other=[];
+  const bh = DATA.payroll.reduce((s,p)=>s+(p.bh_cty||0),0);
+  const ai = DATA.payroll.reduce((s,p)=>s+(p.other||0),0);
+  if(cfg.incBhCty && bh) other.push({key:'bh', label:'BHXH/BHYT/BHTN phần công ty (21,5%)', amt:bh, src:'Payroll cột AJ'});
+  if(cfg.incAi  && ai) other.push({key:'ai', label:'Hỗ trợ AI (Quỳnh, Quang)', amt:ai, src:'Payroll cột P'});
+
+  return {lines, fixedLines, other, hByName};
+}
+
+function passFilter(r){
+  if(filt.q){ const q=filt.q.toLowerCase();
+    if(!((r.task||'').toLowerCase().includes(q)||(r.proj||'').toLowerCase().includes(q))) return false; }
+  if(filt.people.size && !filt.people.has(r.name)) return false;
+  if(filt.clients.size && !filt.clients.has(r.kh)) return false;
+  if(filt.ent.size && !filt.ent.has(r.ct)) return false;
+  if(filt.d1 && r.date && r.date<filt.d1) return false;
+  if(filt.d2 && r.date && r.date>filt.d2) return false;
+  return true;
+}
+const filterOn=()=>!!(filt.q||filt.people.size||filt.clients.size||filt.ent.size||filt.d1||filt.d2);
+
+/* ============================================================
+   P&L
+   ============================================================ */
+function pnl(){
+  const E=effective();
+  const all=[...E.lines,...E.fixedLines];
+  const ent={}; ENTS.concat(['OmniKey']).forEach(e=>ent[e]=ent[e]||{rev:0,charge:0,absorb:0,revMissing:[]});
+  const byClient={};
+  all.forEach(l=>{
+    const e=l.ct; ent[e]=ent[e]||{rev:0,charge:0,absorb:0,revMissing:[]};
+    if(l.bucket==='charge') ent[e].charge+=l.cost; else ent[e].absorb+=l.cost;
+    const k=l.kh; byClient[k]=byClient[k]||{h:0,charge:0,absorb:0,ct:l.ct};
+    byClient[k].h+=l.h||0;
+    if(l.bucket==='charge') byClient[k].charge+=l.cost; else byClient[k].absorb+=l.cost;
+  });
+  E.other.forEach(o=>{ ent['OmniKey'].absorb+=o.amt; });
+
+  CLIENTS.forEach(k=>{
+    const c=cfg.clients[k]||{}; const e=(byClient[k]||{}).ct||'OmniKey';
+    if(c.bill!=='internal'){
+      if(c.rev!==null && c.rev!==undefined && c.rev!=='') ent[e].rev+=Number(c.rev);
+      else ent[e].revMissing.push(k);
+    }
+  });
+  const tot={rev:0,charge:0,absorb:0,revMissing:[]};
+  Object.values(ent).forEach(v=>{tot.rev+=v.rev;tot.charge+=v.charge;tot.absorb+=v.absorb;tot.revMissing.push(...v.revMissing);});
+  return {E,ent,byClient,tot};
+}
+
+/* ============================================================
+   HASH (FNV-1a) — phát hiện drift cấu hình
+   ============================================================ */
+function hash(o){ const s=JSON.stringify(o); let h1=0x811c9dc5,h2=0x01000193;
+  for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);
+    h1=(h1^c)>>>0; h1=Math.imul(h1,16777619)>>>0;
+    h2=(h2+c*(i+1))>>>0; h2=Math.imul(h2,2246822519)>>>0;}
+  return (h1.toString(16).padStart(8,'0')+h2.toString(16).padStart(8,'0')).slice(0,12);
+}
+const cfgHash=()=>hash({c:cfg.clients,f:cfg.fixedAlloc,b:cfg.basis,o:[cfg.incBhCty,cfg.incAi,cfg.allocOverhead]});
+
+/* ============================================================
+   RENDER — tổng điều phối
+   ============================================================ */
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('#segBasis button').forEach(b=>b.classList.toggle('active',b.dataset.b===cfg.basis));
+  document.getElementById('basisNote').innerHTML = cfg.basis==='payroll'
+    ? 'Pool = lương thực trả (Payroll), phân bổ theo tỉ trọng giờ timesheet của từng người.'
+    : 'Chi phí = giờ × đơn giá trên timesheet. Không khớp tiền thật đã trả — xem tab 8.';
+  const m=document.getElementById('main');
+  m.innerHTML = ({'1':t1,'2':t2,'3':t2b,'4':t3,'5':t3b,'6':t4,'7':t5,'8':t6})[tab]();
+  const n=DATA.ts.filter(passFilter).length;
+  document.getElementById('fCount').textContent = n+'/'+DATA.ts.length+' dòng khớp';
+  save();
+}
+
+/* ---------- TAB 1: TỔNG QUAN ---------- */
+function t1(){
+  const P=pnl(), t=P.tot;
+  const net=t.rev-t.charge-t.absorb;
+  const totCost=t.charge+t.absorb;
+  const hours=DATA.ts.reduce((s,r)=>s+r.h,0);
+  const missing=[...new Set(t.revMissing)];
+
+  let h=`<h2 class="sec">Tổng quan P&amp;L — kỳ 08/2026</h2>
+  <p class="hint">Mô hình 3 khối: (1) <b>Nhân sự</b> = master lương · (2) <b>Khách hàng × Pháp nhân</b> = chiều tổ hợp · (3) <b>Timesheet</b> = mixer nối người vào khách. Chi phí lấy từ Payroll, chia về khách theo giờ timesheet. Tab này luôn tính trên <b>toàn bộ kỳ</b>, không chịu ảnh hưởng bộ lọc.</p>`;
+
+  if(filterOn()) h+=`<div class="note">Bộ lọc đang bật nhưng <b>không áp vào tab 1</b> — P&amp;L phải tính trên toàn kỳ mới đúng. Bộ lọc áp cho tab 2, 4 và 6.</div>`;
+
+  if(missing.length) h+=`<div class="note">⚠️ <b>Chưa có nguồn doanh thu cho ${missing.length} khách hàng:</b> ${missing.map(esc).join(' · ')}.
+    Net income dưới đây <b>chỉ tính phần doanh thu đã có chứng từ</b> — chưa phải kết quả thật của kỳ.
+    Nhập tại <b>tab 7. Cấu hình doanh thu</b>.</div>`;
+
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="k">TỔNG GIỜ TIMESHEET</div><div class="v">${fh(hours)}</div><div class="s">${DATA.ts.length} dòng · ${NAMES.length} người log giờ</div></div>
+    <div class="kpi"><div class="k">TỔNG CHI PHÍ NHÂN SỰ</div><div class="v">${f0(totCost)}</div><div class="s">${cfg.basis==='payroll'?'gross + BH công ty':'timesheet + cố định + BH'}</div></div>
+    <div class="kpi acc"><div class="k">CHI PHÍ CÓ THỂ CHARGE</div><div class="v">${f0(t.charge)}</div><div class="s">${fp(totCost?t.charge/totCost*100:0)} tổng chi phí</div></div>
+    <div class="kpi neg"><div class="k">CHI PHÍ TỰ CHỊU</div><div class="v">${f0(t.absorb)}</div><div class="s">${fp(totCost?t.absorb/totCost*100:0)} tổng chi phí</div></div>
+    <div class="kpi"><div class="k">DOANH THU ĐÃ CÓ NGUỒN</div><div class="v">${f0(t.rev)}</div><div class="s">chưa VAT · ${CLIENTS.length-missing.length-1}/${CLIENTS.length-1} khách</div></div>
+    <div class="kpi ${missing.length?'wr':(net>=0?'acc':'neg')}"><div class="k">NET INCOME</div><div class="v">${missing.length?'⚠️ '+f0(net):f0(net)}</div><div class="s">${missing.length?'thiếu '+missing.length+' nguồn doanh thu':'đủ nguồn'}</div></div>
+  </div>`;
+
+  // P&L theo pháp nhân
+  const es=Object.keys(P.ent).filter(e=>P.ent[e].rev||P.ent[e].charge||P.ent[e].absorb);
+  const row=(lb,fn,cls)=>`<tr class="${cls||''}"><td>${lb}</td>`+es.map(e=>`<td class="num">${fn(P.ent[e])}</td>`).join('')+`<td class="num">${fn(t)}</td></tr>`;
+  h+=`<div class="card"><h3>P&amp;L theo pháp nhân</h3><div class="twrap"><table>
+    <thead><tr><th>Chỉ tiêu</th>${es.map(e=>`<th class="num">${esc(e)}</th>`).join('')}<th class="num">TỔNG</th></tr></thead><tbody>
+    ${row('Doanh thu (chưa VAT, đã có nguồn)',v=>f0(v.rev))}
+    ${row('− Chi phí có thể charge',v=>f0(v.charge))}
+    ${row('= Lợi nhuận gộp',v=>f0(v.rev-v.charge),'grp')}
+    ${row('− Chi phí tự chịu',v=>f0(v.absorb))}
+    ${row('= Net income',v=>f0(v.rev-v.charge-v.absorb),'tot')}
+    </tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Lương cố định và chi phí chung đều thuộc pháp nhân OmniKey (căn cứ: Payroll ghi "Omnikey tra luong thang 08.2026").</div></div>`;
+
+  // Contribution theo khách
+  const rows=CLIENTS.map(k=>{
+    const b=P.byClient[k]||{h:0,charge:0,absorb:0}; const c=cfg.clients[k]||{};
+    const rev=(c.rev===null||c.rev===''||c.rev===undefined)?null:Number(c.rev);
+    const cost=b.charge+b.absorb;
+    return {k,h:b.h,cost,rev,bill:c.bill,contrib:(rev===null?null:rev-b.charge),src:c.src};
+  }).sort((a,b)=>b.cost-a.cost);
+  h+=`<div class="card"><h3>Đóng góp theo khách hàng <span class="chip">doanh thu − chi phí charge</span></h3><div class="twrap"><table>
+    <thead><tr><th>Khách hàng</th><th>Mô hình</th><th class="num">Giờ</th><th class="num">Chi phí</th><th class="num">Doanh thu</th><th class="num">Đóng góp</th><th class="num">Biên</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    const bl={passthrough:'Pass-through',fixed:'Phí trọn gói',internal:'Nội bộ'}[r.bill]||r.bill;
+    h+=`<tr class="clk" onclick="showDetail('client','${esc(r.k)}')"><td><b>${esc(r.k)}</b></td>
+      <td><span class="chip ${r.bill==='internal'?'ng':'acc'}">${bl}</span></td>
+      <td class="num">${fh(r.h)}</td><td class="num">${f0(r.cost)}</td>
+      <td class="num">${r.bill==='internal'?'<span class="chip">n/a</span>':(r.rev===null?'<span class="miss">⚠️ chưa có nguồn</span>':f0(r.rev))}</td>
+      <td class="num" style="color:${r.contrib===null?'inherit':(r.contrib<0?'var(--neg)':(r.contrib===0?'var(--warn)':'var(--accent)'))}">${r.contrib===null?'—':f0(r.contrib)}</td>
+      <td class="num">${(r.contrib===null||!r.rev)?'—':fp(r.contrib/r.rev*100)}</td></tr>`;
+  });
+  h+=`<tr class="tot"><td colspan="2">TỔNG</td><td class="num">${fh(rows.reduce((s,r)=>s+r.h,0))}</td>
+    <td class="num">${f0(rows.reduce((s,r)=>s+r.cost,0))}</td><td class="num">${f0(t.rev)}</td>
+    <td class="num">${f0(t.rev-t.charge)}</td><td class="num">—</td></tr></tbody></table></div></div>`;
+
+  // Chi phí tự chịu — bóc tách
+  const abs=[];
+  CLIENTS.forEach(k=>{ if((cfg.clients[k]||{}).bill==='internal'){const b=P.byClient[k];if(b)abs.push([k+' (dự án nội bộ)',b.absorb]);} });
+  P.E.fixedLines.filter(l=>l.bucket==='absorb').forEach(l=>abs.push(['Lương cố định — '+l.name,l.cost]));
+  P.E.other.forEach(o=>abs.push([o.label,o.amt]));
+  h+=`<div class="card"><h3>Chi phí tự chịu gồm những gì</h3><div class="twrap"><table>
+    <thead><tr><th>Khoản</th><th class="num">Số tiền</th><th class="num">Tỉ trọng</th></tr></thead><tbody>
+    ${abs.sort((a,b)=>b[1]-a[1]).map(a=>`<tr><td>${esc(a[0])}</td><td class="num">${f0(a[1])}</td><td class="num">${fp(t.absorb?a[1]/t.absorb*100:0)}</td></tr>`).join('')}
+    <tr class="tot"><td>TỔNG TỰ CHỊU</td><td class="num">${f0(t.absorb)}</td><td class="num">100%</td></tr>
+    </tbody></table></div></div>`;
+  return h;
+}
+
+/* ---------- TAB 2: NHÂN SỰ ---------- */
+function t2(){
+  const E=effective();
+  const rows=NAMES.map(n=>{
+    const ls=E.lines.filter(l=>l.name===n);
+    const vis=ls.filter(passFilter);
+    const p=PAY[n]||{};
+    const ch=vis.filter(l=>l.bucket==='charge'), ab=vis.filter(l=>l.bucket==='absorb');
+    const sum=a=>a.reduce((s,l)=>s+l.cost,0), sh=a=>a.reduce((s,l)=>s+l.h,0);
+    // phân bổ theo khách để vẽ bar
+    const byC={}; vis.forEach(l=>byC[l.kh]=(byC[l.kh]||0)+l.h);
+    return {n,p,vis,h:sh(vis),cost:sum(vis),chH:sh(ch),chC:sum(ch),abC:sum(ab),byC,any:vis.length>0};
+  });
+  const fx=FIXED.map(p=>({n:p.name,p,fixed:true,to:cfg.fixedAlloc[p.name]||'OVERHEAD'}));
+  const T={h:0,cost:0,chC:0,abC:0}; rows.forEach(r=>{if(r.any){T.h+=r.h;T.cost+=r.cost;T.chC+=r.chC;T.abC+=r.abC;}});
+
+  let h=`<h2 class="sec">Phân tích theo nhân sự</h2>
+  <p class="hint">Chi phí mỗi người được chia về khách theo tỉ trọng giờ. <b>Charge</b> = giờ làm cho khách bên ngoài · <b>Tự chịu</b> = giờ cho dự án nội bộ. Bộ lọc bên trái có áp vào tab này.</p>`;
+  h+=`<div class="twrap"><table><thead><tr>
+    <th>Nhân sự</th><th>Hình thức</th><th class="num">Giờ</th><th class="num">Chi phí kỳ</th>
+    <th class="num">Charge</th><th class="num">Tự chịu</th><th class="num">% charge</th><th style="min-width:120px">Phân bổ theo khách</th>
+    <th class="num">Gross payroll</th><th class="num">Thực nhận</th></tr></thead><tbody>`;
+  rows.filter(r=>r.any||!filterOn()).sort((a,b)=>b.cost-a.cost).forEach(r=>{
+    const cs=Object.entries(r.byC).sort((a,b)=>b[1]-a[1]);
+    const bars=cs.map((c,i)=>`<i style="width:${r.h?c[1]/r.h*100:0}%;background:var(--c${Math.min(i+1,6)})" title="${esc(c[0])}: ${fh(c[1])}h"></i>`).join('');
+    h+=`<tr class="clk ${sel==='p:'+r.n?'sel':''}" onclick="showDetail('person','${esc(r.n)}')">
+      <td><b>${esc(r.n)}</b></td><td><span class="chip">${esc((r.p.form)||'—')}</span></td>
+      <td class="num">${fh(r.h)}</td><td class="num">${f0(r.cost)}</td>
+      <td class="num" style="color:var(--accent)">${f0(r.chC)}</td>
+      <td class="num" style="color:var(--neg)">${f0(r.abC)}</td>
+      <td class="num">${fp(r.cost?r.chC/r.cost*100:0)}</td>
+      <td><div class="bar">${bars}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${cs.slice(0,3).map(c=>esc(c[0])).join(' · ')}${cs.length>3?' +'+(cs.length-3):''}</div></td>
+      <td class="num">${f0(r.p.gross)}</td><td class="num">${f0(r.p.net)}</td></tr>`;
+  });
+  h+=`<tr class="tot"><td colspan="2">TỔNG NGƯỜI LOG GIỜ</td><td class="num">${fh(T.h)}</td><td class="num">${f0(T.cost)}</td>
+    <td class="num">${f0(T.chC)}</td><td class="num">${f0(T.abC)}</td><td class="num">${fp(T.cost?T.chC/T.cost*100:0)}</td><td></td>
+    <td class="num">${f0(rows.reduce((s,r)=>s+(r.p.gross||0),0))}</td><td class="num">${f0(rows.reduce((s,r)=>s+(r.p.net||0),0))}</td></tr>`;
+  h+=`<tr class="grp"><td colspan="10">Nhân sự lương cố định — không log timesheet, phân bổ theo cấu hình (tab 7)</td></tr>`;
+  fx.forEach(r=>{
+    h+=`<tr><td><b>${esc(r.n)}</b></td><td><span class="chip">${esc(r.p.form)}</span> ${esc(r.p.role||'')}</td>
+      <td class="num">—</td><td class="num">${f0(r.p.salary)}</td>
+      <td class="num" style="color:var(--accent)">${r.to!=='OVERHEAD'?f0(r.p.salary):'—'}</td>
+      <td class="num" style="color:var(--neg)">${r.to==='OVERHEAD'?f0(r.p.salary):'—'}</td>
+      <td class="num">—</td><td><span class="chip ${r.to==='OVERHEAD'?'ng':'acc'}">→ ${esc(r.to==='OVERHEAD'?'Chi phí chung':r.to)}</span></td>
+      <td class="num">${f0(r.p.gross)}</td><td class="num">${f0(r.p.net)}</td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  return h;
+}
+
+/* ---------- TAB 3: KHÁCH HÀNG & CÔNG VIỆC ---------- */
+function t3(){
+  const E=effective(), vis=E.lines.filter(passFilter);
+  let h=`<h2 class="sec">Khách hàng &amp; loại công việc</h2>
+  <p class="hint">Năm lát cắt của cùng một tập dòng timesheet: ai trả tiền · hạng mục nào · loại việc gì · đã giao cái gì · và từng dòng gốc.</p>
+  <div class="subnav seg" id="sub3">
+    <button data-s="kh" class="${sub3==='kh'?'active':''}">4.1 Khách hàng</button>
+    <button data-s="pj" class="${sub3==='pj'?'active':''}">4.2 Dự án</button>
+    <button data-s="gr" class="${sub3==='gr'?'active':''}">4.3 Nhóm task</button>
+    <button data-s="dl" class="${sub3==='dl'?'active':''}">4.4 Deliverables</button>
+    <button data-s="ts" class="${sub3==='ts'?'active':''}">4.5 Chi tiết timesheet</button>
+  </div>`;
+  if(sub3==='dl') return h+deliverables(vis);
+  if(sub3==='ts') return h+detailRows(E.lines);
+  if(sub3==='gr') h+=`<div class="note">Nhóm task là <b>suy ra tự động từ từ khoá</b> trong mô tả task, <b>chưa được xác nhận</b>. Dùng để nhìn xu hướng, không dùng để tính tiền. Bảng quy tắc ở tab 7.</div>`;
+
+  const key = sub3==='kh'?'kh':(sub3==='pj'?'proj':'grp');
+  const agg={}; vis.forEach(l=>{ const k=l[key]||'(trống)';
+    agg[k]=agg[k]||{h:0,cost:0,ch:0,ab:0,n:0,people:{}};
+    const a=agg[k]; a.h+=l.h; a.cost+=l.cost; a.n++;
+    if(l.bucket==='charge')a.ch+=l.cost; else a.ab+=l.cost;
+    a.people[l.name]=(a.people[l.name]||0)+l.h; });
+  const list=Object.entries(agg).sort((a,b)=>b[1].cost-a[1].cost);
+  const maxC=list.length?list[0][1].cost:1;
+  const T=list.reduce((s,[,a])=>({h:s.h+a.h,cost:s.cost+a.cost,ch:s.ch+a.ch,ab:s.ab+a.ab,n:s.n+a.n}),{h:0,cost:0,ch:0,ab:0,n:0});
+
+  h+=`<div class="twrap"><table><thead><tr>
+    <th>${sub3==='kh'?'Khách hàng':(sub3==='pj'?'Dự án':'Nhóm task')}</th><th class="num">Dòng</th><th class="num">Giờ</th>
+    <th class="num">Chi phí</th><th class="num">Charge</th><th class="num">Tự chịu</th><th style="min-width:130px">Tỉ trọng chi phí</th><th>Người thực hiện</th></tr></thead><tbody>`;
+  list.forEach(([k,a])=>{
+    const ppl=Object.entries(a.people).sort((x,y)=>y[1]-x[1]);
+    h+=`<tr class="clk ${sel===key+':'+k?'sel':''}" onclick="showDetail('${key}','${esc(k).replace(/'/g,"\\'")}')">
+      <td><b>${esc(k)}</b></td><td class="num">${a.n}</td><td class="num">${fh(a.h)}</td>
+      <td class="num">${f0(a.cost)}</td><td class="num" style="color:var(--accent)">${f0(a.ch)}</td>
+      <td class="num" style="color:var(--neg)">${f0(a.ab)}</td>
+      <td><div class="bar"><i style="width:${a.cost/maxC*100}%;background:var(--c2)"></i></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${fp(T.cost?a.cost/T.cost*100:0)}</div></td>
+      <td style="font-size:11.5px;color:var(--muted)">${ppl.slice(0,3).map(p=>esc(p[0])+' '+fh(p[1])+'h').join(' · ')}${ppl.length>3?' +'+(ppl.length-3):''}</td></tr>`;
+  });
+  h+=`<tr class="tot"><td>TỔNG</td><td class="num">${T.n}</td><td class="num">${fh(T.h)}</td><td class="num">${f0(T.cost)}</td>
+    <td class="num">${f0(T.ch)}</td><td class="num">${f0(T.ab)}</td><td class="num">100%</td><td></td></tr></tbody></table></div>`;
+  return h;
+}
+
+/* ============================================================
+   ANALYSIS — dùng chung cho 2 dashboard 360°
+   ============================================================ */
+function analysis(){
+  const P=pnl();
+  const all=[...P.E.lines,...P.E.fixedLines];
+  const chargeByClient={}, chargeByPerson={};
+  all.forEach(l=>{ if(l.bucket==='charge'){
+    chargeByClient[l.kh]=(chargeByClient[l.kh]||0)+l.cost;
+    chargeByPerson[l.name]=(chargeByPerson[l.name]||0)+l.cost; } });
+  const internalLineCost=P.E.lines.filter(l=>l.bucket==='absorb').reduce((s,l)=>s+l.cost,0);
+  const overheadCommon=P.tot.absorb-internalLineCost;   // lương cố định chung + BH cty + hỗ trợ AI
+  return {P,all,chargeByClient,chargeByPerson,internalLineCost,overheadCommon};
+}
+const revOf=k=>{const c=cfg.clients[k]||{};return (c.rev===null||c.rev===''||c.rev===undefined)?null:Number(c.rev);};
+
+/* Doanh thu quy về một nhân sự = Σ (doanh thu khách × tỉ trọng chi phí charge của người đó trong khách đó) */
+function personRevenue(n,A){
+  const byC={}; A.all.filter(l=>l.name===n&&l.bucket==='charge').forEach(l=>byC[l.kh]=(byC[l.kh]||0)+l.cost);
+  let rev=0; const missing=[];
+  Object.entries(byC).forEach(([k,c])=>{ const r=revOf(k);
+    if(r===null) missing.push(k); else rev+=r*(A.chargeByClient[k]?c/A.chargeByClient[k]:0); });
+  return {rev,missing,byC};
+}
+const ALLNAMES=[...new Set([...NAMES,...DATA.payroll.map(p=>p.name)])];
+
+/* Chi phí đã gánh đủ (fully loaded) — MỘT nguồn duy nhất cho cả dashboard lẫn bảng xếp hạng.
+   Nguyên tắc chống đếm hai lần: bên nào là nguồn của pool chi phí chung thì khi bật phân bổ
+   phần của chính nó về 0, vì đã được rải sang các bên còn lại. */
+function clientCost(x,A){
+  const cc=cfg.clients[x]||{}, ls=A.all.filter(l=>l.kh===x);
+  const direct=ls.reduce((s,l)=>s+l.cost,0);
+  const charge=ls.filter(l=>l.bucket==='charge').reduce((s,l)=>s+l.cost,0);
+  const alloc=(cfg.allocOverhead&&cc.bill!=='internal'&&A.P.tot.charge)?A.P.tot.absorb*(charge/A.P.tot.charge):0;
+  const loaded=cfg.allocOverhead?(cc.bill==='internal'?0:direct+alloc):direct;
+  return {ls,direct,charge,absorbOwn:direct-charge,alloc,loaded,
+          hours:ls.reduce((s,l)=>s+(l.h||0),0),internal:cc.bill==='internal'};
+}
+function personCost(n,A){
+  const ls=A.all.filter(l=>l.name===n);
+  const direct=ls.reduce((s,l)=>s+l.cost,0);
+  const charge=ls.filter(l=>l.bucket==='charge').reduce((s,l)=>s+l.cost,0);
+  const isOv=ls.length>0&&ls.every(l=>l.fixed)&&charge===0;
+  const alloc=(cfg.allocOverhead&&!isOv&&A.P.tot.charge)?A.overheadCommon*(charge/A.P.tot.charge):0;
+  const loaded=cfg.allocOverhead?(isOv?0:direct+alloc):direct;
+  return {ls,direct,charge,absorbOwn:direct-charge,alloc,loaded,isOv,
+          hours:ls.reduce((s,l)=>s+(l.h||0),0)};
+}
+
+function kpis(items){ return `<div class="kpis">`+items.map(i=>
+  `<div class="kpi ${i.cls||''}"><div class="k">${i.k}</div><div class="v">${i.v}</div><div class="s">${i.s||''}</div></div>`).join('')+`</div>`; }
+
+function dayChart(ls,color){
+  const d={}; ls.forEach(l=>{ if(l.date) d[l.date]=(d[l.date]||0)+(l.h||0); });
+  const ds=Object.keys(d).sort(); if(!ds.length) return '<div style="font-size:11.5px;color:var(--muted)">Không có dòng nào gắn ngày.</div>';
+  const mx=Math.max(...ds.map(k=>d[k])), W=Math.max(560,ds.length*24), H=110, pad=22, bw=(W-pad*2)/ds.length;
+  let b=''; ds.forEach((k,i)=>{ const hh=(H-34)*(d[k]/mx), x=pad+i*bw;
+    b+=`<rect x="${x+2}" y="${H-20-hh}" width="${bw-4}" height="${Math.max(hh,1)}" fill="${color||'var(--c2)'}"></rect>`;
+    b+=`<text x="${x+bw/2}" y="${H-7}" text-anchor="middle">${k.split('-')[2]}</text>`; });
+  return `<div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%">
+    <line x1="${pad}" y1="${H-20}" x2="${W-pad}" y2="${H-20}" stroke="var(--line)"></line>${b}
+    <text x="${pad}" y="12">cao nhất ${fh(mx)} h/ngày</text></svg></div>`;
+}
+function miniTable(title,map,tot,extra){
+  const rows=Object.entries(map).sort((a,b)=>b[1].cost-a[1].cost);
+  const mx=rows.length?rows[0][1].cost:1;
+  return `<div class="card"><h3>${title}</h3><div class="twrap"><table><thead><tr>
+    <th>${extra||'Hạng mục'}</th><th class="num">Giờ</th><th class="num">Chi phí</th><th class="num">Tỉ trọng</th><th style="min-width:110px"></th></tr></thead><tbody>
+    ${rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="num">${fh(v.h)}</td><td class="num">${f0(v.cost)}</td>
+      <td class="num">${fp(tot?v.cost/tot*100:0)}</td>
+      <td><div class="bar"><i style="width:${v.cost/mx*100}%;background:var(--c3)"></i></div></td></tr>`).join('')}
+    <tr class="tot"><td>TỔNG</td><td class="num">${fh(rows.reduce((s,r)=>s+r[1].h,0))}</td>
+      <td class="num">${f0(rows.reduce((s,r)=>s+r[1].cost,0))}</td><td class="num">100%</td><td></td></tr>
+    </tbody></table></div></div>`;
+}
+function groupBy(ls,key){ const m={}; ls.forEach(l=>{const k=l[key]||'(trống)';m[k]=m[k]||{h:0,cost:0,n:0};m[k].h+=l.h||0;m[k].cost+=l.cost;m[k].n++;}); return m; }
+
+function ovToggle(){ return `<label class="chkline" style="margin-bottom:10px">
+  <input type="checkbox" ${cfg.allocOverhead?'checked':''} onchange="setInc('allocOverhead',this.checked)">
+  <b>Phân bổ chi phí chung</b> theo tỉ trọng chi phí charge — bật để xem lãi lỗ đã gánh đủ chi phí (fully loaded)</label>`; }
+
+/* ---------- TAB 3: BÁO CÁO NHÂN SỰ 360° ---------- */
+function t2b(){
+  const A=analysis(), P=A.P;
+  if(!selPerson||!ALLNAMES.includes(selPerson)){
+    selPerson=ALLNAMES.slice().sort((a,b)=>
+      A.all.filter(l=>l.name===b).reduce((s,l)=>s+l.cost,0)-A.all.filter(l=>l.name===a).reduce((s,l)=>s+l.cost,0))[0];
+  }
+  const n=selPerson, p=PAY[n]||{}, C=personCost(n,A);
+  const {ls,hours,direct,charge,absorbOwn,alloc,loaded}=C, isOverheadPerson=C.isOv;
+  const PR=personRevenue(n,A);
+  const profit = PR.rev-loaded;
+
+  let h=`<h2 class="sec">Báo cáo nhân sự 360°</h2>
+  <p class="hint">Chọn một người để xem toàn bộ vòng đời chi phí: giờ bỏ ra ở khách nào, bao nhiêu charge được qua khách, doanh thu quy về và lãi lỗ. <b>Doanh thu quy về</b> = doanh thu của khách × tỉ trọng chi phí charge của người đó trong tổng chi phí charge của khách đó. Tab này luôn tính trên toàn kỳ, không chịu bộ lọc.</p>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <span class="flabel" style="margin:0">NHÂN SỰ</span>
+    <select style="max-width:280px" onchange="selPerson=this.value;render()">
+      ${ALLNAMES.map(x=>`<option${x===n?' selected':''}>${esc(x)}</option>`).join('')}</select>
+    <span class="chip">${esc(p.form||'—')}</span>${p.role?`<span class="chip">${esc(p.role)}</span>`:''}
+    <span class="chip mono">đơn giá ${f0(p.base)}</span></div>`;
+  h+=ovToggle();
+  if(PR.missing.length) h+=`<div class="note">⚠️ Người này có giờ charge cho <b>${PR.missing.map(esc).join(' · ')}</b> nhưng các khách đó <b>chưa có doanh thu</b>. Doanh thu quy về và lãi lỗ dưới đây <b>chưa đầy đủ</b>.</div>`;
+  if(isOverheadPerson&&cfg.allocOverhead) h+=`<div class="note">Người này thuộc <b>chi phí chung</b>. Khi bật phân bổ, toàn bộ ${f0(direct)} đã được rải sang các nhân sự có giờ charge, nên lãi lỗ riêng của người này bằng 0 để tổng công ty không bị đếm hai lần.</div>`;
+
+  h+=kpis([
+    {k:'GIỜ TRONG KỲ',v:fh(hours),s:ls.filter(l=>!l.fixed).length+' dòng timesheet'},
+    {k:'CHI PHÍ TRỰC TIẾP',v:f0(direct),s:cfg.basis==='payroll'?'từ lương thực trả':'giờ × đơn giá'},
+    {k:'CHARGE ĐƯỢC',v:f0(charge),s:fp(direct?charge/direct*100:0)+' chi phí',cls:'acc'},
+    {k:'TỰ CHỊU',v:f0(absorbOwn),s:'việc nội bộ / chi phí chung',cls:'neg'},
+    cfg.allocOverhead?{k:'CHI PHÍ CHUNG PHÂN BỔ',v:f0(alloc),s:'theo tỉ trọng charge'}:null,
+    {k:'DOANH THU QUY VỀ',v:f0(PR.rev),s:PR.missing.length?'thiếu '+PR.missing.length+' nguồn':'đủ nguồn'},
+    {k:'LÃI / LỖ',v:f0(profit),s:cfg.allocOverhead?'đã gánh chi phí chung':'trước chi phí chung',
+      cls:PR.missing.length?'wr':(profit>=0?'acc':'neg')}
+  ].filter(Boolean));
+
+  // theo khách hàng
+  const byC={}; ls.forEach(l=>{const k=l.kh;byC[k]=byC[k]||{h:0,cost:0,ch:0,ab:0};
+    byC[k].h+=l.h||0;byC[k].cost+=l.cost; if(l.bucket==='charge')byC[k].ch+=l.cost;else byC[k].ab+=l.cost;});
+  h+=`<div class="card"><h3>Chi phí phát sinh ở khách hàng nào</h3><div class="twrap"><table><thead><tr>
+    <th>Khách hàng</th><th class="num">Giờ</th><th class="num">Chi phí</th><th class="num">Charge</th><th class="num">Tự chịu</th>
+    <th class="num">Doanh thu quy về</th><th class="num">Lãi/lỗ</th></tr></thead><tbody>`;
+  Object.entries(byC).sort((a,b)=>b[1].cost-a[1].cost).forEach(([k,v])=>{
+    const r=revOf(k), share=A.chargeByClient[k]?v.ch/A.chargeByClient[k]:0;
+    const rv=(r===null||v.ch===0)?null:r*share;
+    const pf=rv===null?null:rv-v.cost;
+    h+=`<tr class="clk" onclick="selClient='${esc(k).replace(/'/g,"\\'")}';tab='5';render()">
+      <td><b>${esc(k)}</b></td><td class="num">${fh(v.h)}</td><td class="num">${f0(v.cost)}</td>
+      <td class="num" style="color:var(--accent)">${f0(v.ch)}</td><td class="num" style="color:var(--neg)">${v.ab?f0(v.ab):'—'}</td>
+      <td class="num">${rv===null?(v.ch?'<span class="miss">⚠️ chưa có nguồn</span>':'<span class="chip">n/a</span>'):f0(rv)}</td>
+      <td class="num" style="color:${pf===null?'inherit':(pf<0?'var(--neg)':'var(--accent)')}">${pf===null?'—':f0(pf)}</td></tr>`;});
+  h+=`<tr class="tot"><td>TỔNG</td><td class="num">${fh(hours)}</td><td class="num">${f0(direct)}</td>
+    <td class="num">${f0(charge)}</td><td class="num">${f0(absorbOwn)}</td><td class="num">${f0(PR.rev)}</td>
+    <td class="num">${f0(PR.rev-direct)}</td></tr></tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Bấm một dòng để nhảy sang báo cáo 360° của khách hàng đó.</div></div>`;
+
+  const nonFixed=ls.filter(l=>!l.fixed);
+  if(nonFixed.length){
+    h+=miniTable('Chi phí theo dự án',groupBy(nonFixed,'proj'),direct,'Dự án');
+    h+=miniTable('Chi phí theo nhóm task <span class="chip wr">suy tự động</span>',groupBy(nonFixed,'grp'),direct,'Nhóm task');
+    h+=`<div class="card"><h3>Nhịp làm việc theo ngày</h3>${dayChart(nonFixed)}</div>`;
+    const top=[...nonFixed].sort((a,b)=>b.h-a.h).slice(0,10);
+    h+=`<div class="card"><h3>10 việc tốn giờ nhất</h3><div class="twrap"><table><thead><tr>
+      <th>Ngày</th><th>Khách</th><th>Việc đã giao</th><th class="num">Giờ</th><th class="num">Chi phí</th></tr></thead><tbody>
+      ${top.map(l=>`<tr><td class="mono">${l.date?l.date.split('-').reverse().join('/'):'—'}</td><td>${esc(l.kh)}</td>
+        <td style="font-size:11.5px">${esc(parseTask(l.task).head)}</td><td class="num">${fh(l.h)}</td><td class="num">${f0(l.cost)}</td></tr>`).join('')}
+      </tbody></table></div></div>`;
+  }
+
+  // bảng lương
+  if(p.name||p.gross!==undefined){
+    h+=`<div class="card"><h3>Đối chiếu bảng lương</h3><div class="twrap"><table><tbody>
+      <tr><td>Giờ trên timesheet</td><td class="num">${fh(hours)}</td></tr>
+      <tr><td>Giờ / ngày công trên payroll</td><td class="num">${fh(p.units)}</td></tr>
+      <tr><td>Lệch</td><td class="num" style="color:${(hours-(p.units||0))?'var(--neg)':'inherit'}">${fh(hours-(p.units||0))}</td></tr>
+      <tr class="grp"><td>Lương gộp</td><td class="num">${f0(p.gross)}</td></tr>
+      <tr><td>Thuế TNCN khấu trừ</td><td class="num">${f0(p.pit)}</td></tr>
+      <tr><td>Bảo hiểm phần công ty</td><td class="num">${f0(p.bh_cty)}</td></tr>
+      <tr class="tot"><td>Thực chuyển cho nhân sự</td><td class="num">${f0(p.net)}</td></tr>
+      </tbody></table></div></div>`;
+  }
+
+  // ranking toàn bộ
+  h+=`<div class="card"><h3>Lãi lỗ toàn bộ nhân sự</h3><div class="twrap"><table><thead><tr>
+    <th>Nhân sự</th><th class="num">Giờ</th><th class="num">Chi phí</th><th class="num">% charge</th>
+    <th class="num">Doanh thu quy về</th><th class="num">Lãi/lỗ</th><th>Nguồn thiếu</th></tr></thead><tbody>`;
+  const rk=ALLNAMES.map(x=>{ const c=personCost(x,A), R=personRevenue(x,A);
+    return {x,h:c.hours,d:c.direct,c:c.charge,ld:c.loaded,rev:R.rev,pf:R.rev-c.loaded,miss:R.missing};
+  }).sort((a,b)=>b.pf-a.pf);
+  rk.forEach(r=>{ h+=`<tr class="clk ${r.x===n?'sel':''}" onclick="selPerson='${esc(r.x).replace(/'/g,"\\'")}';render()">
+    <td>${esc(r.x)}</td><td class="num">${r.h?fh(r.h):'—'}</td><td class="num">${f0(r.ld)}</td>
+    <td class="num">${fp(r.d?r.c/r.d*100:0)}</td><td class="num">${f0(r.rev)}</td>
+    <td class="num" style="color:${r.pf<0?'var(--neg)':'var(--accent)'}">${f0(r.pf)}</td>
+    <td style="font-size:11px;color:var(--warn)">${r.miss.map(esc).join(' · ')}</td></tr>`; });
+  h+=`<tr class="tot"><td>TỔNG</td><td class="num">${fh(rk.reduce((s,r)=>s+r.h,0))}</td>
+    <td class="num">${f0(rk.reduce((s,r)=>s+r.ld,0))}</td><td class="num">—</td>
+    <td class="num">${f0(rk.reduce((s,r)=>s+r.rev,0))}</td><td class="num">${f0(rk.reduce((s,r)=>s+r.pf,0))}</td><td></td></tr>
+    </tbody></table></div></div>`;
+  return h;
+}
+
+/* ---------- TAB 5: BÁO CÁO KHÁCH HÀNG 360° ---------- */
+function t3b(){
+  const A=analysis(), P=A.P;
+  if(!selClient||!CLIENTS.includes(selClient)){
+    selClient=CLIENTS.slice().sort((a,b)=>
+      A.all.filter(l=>l.kh===b).reduce((s,l)=>s+l.cost,0)-A.all.filter(l=>l.kh===a).reduce((s,l)=>s+l.cost,0))[0];
+  }
+  const k=selClient, cc=cfg.clients[k]||{}, C=clientCost(k,A);
+  const {ls,hours,direct,charge,absorbOwn,alloc,loaded}=C;
+  const rev=revOf(k);
+  const gross = rev===null?null:rev-charge;
+  const net = rev===null?null:rev-loaded;
+  const bl={passthrough:'Pass-through giờ',fixed:'Phí trọn gói',internal:'Nội bộ — không charge'}[cc.bill]||'—';
+
+  let h=`<h2 class="sec">Báo cáo khách hàng 360°</h2>
+  <p class="hint">Toàn cảnh một khách hàng: đã bỏ ra bao nhiêu chi phí, ai làm, làm gì, thu về bao nhiêu, lãi lỗ ra sao. Tab này luôn tính trên toàn kỳ, không chịu bộ lọc.</p>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <span class="flabel" style="margin:0">KHÁCH HÀNG</span>
+    <select style="max-width:240px" onchange="selClient=this.value;render()">
+      ${CLIENTS.map(x=>`<option${x===k?' selected':''}>${esc(x)}</option>`).join('')}</select>
+    <span class="chip ${cc.bill==='internal'?'ng':'acc'}">${bl}</span>
+    <span class="chip">pháp nhân ${esc((ls[0]||{}).ct||'—')}</span>
+    <button class="btn sm" onclick="tab='7';render()">Sửa doanh thu</button></div>`;
+  h+=ovToggle();
+  if(rev===null&&cc.bill!=='internal') h+=`<div class="note">⚠️ <b>Chưa có doanh thu cho ${esc(k)}.</b> Toàn bộ phần lãi lỗ dưới đây để trống — công cụ không suy ra số. Nguồn cần: hợp đồng hoặc hoá đơn kỳ 08/2026, nhập ở tab 7.</div>`;
+  if(cc.src) h+=`<div class="note ok">Nguồn doanh thu: ${esc(cc.src)}</div>`;
+  if(cc.bill==='internal'&&cfg.allocOverhead) h+=`<div class="note">Đây là <b>khách hàng nội bộ</b>. Khi bật phân bổ, toàn bộ ${f0(direct)} đã được rải sang các khách hàng có charge, nên tổng chi phí riêng của khối nội bộ bằng 0 để không đếm hai lần.</div>`;
+
+  h+=kpis([
+    {k:'GIỜ ĐÃ BỎ RA',v:fh(hours),s:ls.filter(l=>!l.fixed).length+' dòng · '+new Set(ls.map(l=>l.name)).size+' người'},
+    {k:'CHI PHÍ TRỰC TIẾP',v:f0(direct),s:cc.bill==='internal'?'toàn bộ tự chịu':'toàn bộ charge được'},
+    cfg.allocOverhead?{k:'CHI PHÍ CHUNG PHÂN BỔ',v:f0(alloc),s:fp(P.tot.charge?charge/P.tot.charge*100:0)+' tổng charge'}:null,
+    {k:'TỔNG CHI PHÍ',v:f0(loaded),s:cfg.allocOverhead?'fully loaded':'chưa gánh chi phí chung'},
+    {k:'DOANH THU',v:rev===null?'⚠️ —':f0(rev),s:'chưa VAT',cls:rev===null?'wr':''},
+    {k:'LÃI / LỖ',v:net===null?'⚠️ —':f0(net),s:net===null?'thiếu doanh thu':(rev?fp(net/rev*100)+' biên':''),
+      cls:net===null?'wr':(net>=0?'acc':'neg')},
+    {k:'CHI PHÍ / GIỜ',v:hours?f0(direct/hours):'—',s:'bình quân thực tế'},
+    {k:'DOANH THU / GIỜ',v:(rev===null||!hours)?'—':f0(rev/hours),s:'đơn giá thu hồi thực'}
+  ].filter(Boolean));
+
+  h+=`<div class="card"><h3>P&amp;L khách hàng ${esc(k)}</h3><div class="twrap"><table><tbody>
+    <tr><td>Doanh thu (chưa VAT)</td><td class="num">${rev===null?'<span class="miss">⚠️ chưa có nguồn</span>':f0(rev)}</td></tr>
+    <tr><td>− Chi phí nhân sự trực tiếp</td><td class="num">${f0(direct)}</td></tr>
+    <tr class="grp"><td>= Lợi nhuận gộp</td><td class="num">${gross===null?'—':f0(gross)}</td></tr>
+    ${cfg.allocOverhead?`<tr><td>− Chi phí chung phân bổ</td><td class="num">${f0(alloc)}</td></tr>`:''}
+    <tr class="tot"><td>= Lãi / lỗ</td><td class="num" style="color:${net===null?'inherit':(net<0?'var(--neg)':'var(--accent)')}">${net===null?'—':f0(net)}</td></tr>
+    </tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Chưa gồm chi phí ngoài nhân sự (văn phòng, xe, công cụ) vì không có trong file nguồn.</div></div>`;
+
+  // theo nhân sự
+  const byN={}; ls.forEach(l=>{byN[l.name]=byN[l.name]||{h:0,cost:0,n:0};byN[l.name].h+=l.h||0;byN[l.name].cost+=l.cost;byN[l.name].n++;});
+  const mx=Math.max(1,...Object.values(byN).map(v=>v.cost));
+  h+=`<div class="card"><h3>Ai đã làm cho khách này</h3><div class="twrap"><table><thead><tr>
+    <th>Nhân sự</th><th class="num">Giờ</th><th class="num">Chi phí</th><th class="num">Tỉ trọng</th>
+    <th class="num">Doanh thu quy về</th><th style="min-width:110px"></th></tr></thead><tbody>`;
+  Object.entries(byN).sort((a,b)=>b[1].cost-a[1].cost).forEach(([x,v])=>{
+    const rv=(rev===null||!charge)?null:rev*(v.cost/charge);
+    h+=`<tr class="clk" onclick="selPerson='${esc(x).replace(/'/g,"\\'")}';tab='3';render()">
+      <td><b>${esc(x)}</b></td><td class="num">${fh(v.h)}</td><td class="num">${f0(v.cost)}</td>
+      <td class="num">${fp(direct?v.cost/direct*100:0)}</td>
+      <td class="num">${rv===null?'—':f0(rv)}</td>
+      <td><div class="bar"><i style="width:${v.cost/mx*100}%;background:var(--c2)"></i></div></td></tr>`;});
+  h+=`<tr class="tot"><td>TỔNG</td><td class="num">${fh(hours)}</td><td class="num">${f0(direct)}</td><td class="num">100%</td>
+    <td class="num">${rev===null?'—':f0(rev)}</td><td></td></tr></tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Bấm một dòng để nhảy sang báo cáo 360° của nhân sự đó.</div></div>`;
+
+  const nf2=ls.filter(l=>!l.fixed);
+  if(nf2.length){
+    h+=miniTable('Chi phí theo dự án / hạng mục',groupBy(nf2,'proj'),direct,'Dự án');
+    h+=miniTable('Chi phí theo nhóm task <span class="chip wr">suy tự động</span>',groupBy(nf2,'grp'),direct,'Nhóm task');
+    h+=`<div class="card"><h3>Tiến độ theo ngày</h3>${dayChart(nf2,'var(--c1)')}</div>`;
+    h+=`<div class="card"><h3>Bảng kê việc đã giao <span class="chip">cơ sở tính phí</span></h3>
+      <div style="margin-bottom:8px"><button class="btn" onclick="csvDeliverables('${esc(k).replace(/'/g,"\\'")}')" title="Bảng kê phẳng để đính kèm hoá đơn. KHÔNG import ngược được.">📄 Xuất bảng kê CSV (đính kèm hoá đơn)</button></div>
+      ${deliverTable(nf2,false)}</div>`;
+  }
+
+  // ranking khách hàng
+  h+=`<div class="card"><h3>Lãi lỗ toàn bộ khách hàng</h3><div class="twrap"><table><thead><tr>
+    <th>Khách hàng</th><th class="num">Giờ</th><th class="num">Chi phí</th><th class="num">Doanh thu</th>
+    <th class="num">Lãi/lỗ</th><th class="num">Biên</th></tr></thead><tbody>`;
+  const rows=CLIENTS.map(x=>{ const c=clientCost(x,A), r2=revOf(x);
+    return {x,h:c.hours,c:c.loaded,r:r2,n:r2===null?null:r2-c.loaded};
+  }).sort((a,b)=>(b.n===null?-1e18:b.n)-(a.n===null?-1e18:a.n));
+  rows.forEach(r=>{ h+=`<tr class="clk ${r.x===k?'sel':''}" onclick="selClient='${esc(r.x).replace(/'/g,"\\'")}';render()">
+    <td>${esc(r.x)}</td><td class="num">${fh(r.h)}</td><td class="num">${f0(r.c)}</td>
+    <td class="num">${r.r===null?'<span class="miss">⚠️</span>':f0(r.r)}</td>
+    <td class="num" style="color:${r.n===null?'inherit':(r.n<0?'var(--neg)':'var(--accent)')}">${r.n===null?'—':f0(r.n)}</td>
+    <td class="num">${(r.n===null||!r.r)?'—':fp(r.n/r.r*100)}</td></tr>`; });
+  h+=`</tbody></table></div></div>`;
+  return h;
+}
+
+/* ---------- 4.4 DELIVERABLES ---------- */
+function parseTask(t){
+  const ln=String(t||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  return {head:ln[0]||'(không có mô tả)', items:ln.slice(1).map(s=>s.replace(/^[-•*\u2013]\s*/,''))};
+}
+function deliverTable(ls,showClient){
+  const key=l=>(showClient?l.kh+' › ':'')+l.proj;
+  const g={}; ls.forEach(l=>{const k=key(l);g[k]=g[k]||[];g[k].push(l);});
+  let h=`<div class="twrap"><table><thead><tr><th style="width:78px">Ngày</th><th>Đã giao gì</th>
+    <th style="width:150px">Người thực hiện</th><th class="num" style="width:60px">Giờ</th><th class="num" style="width:100px">Thành tiền</th></tr></thead><tbody>`;
+  Object.keys(g).sort().forEach(k=>{
+    const rows=g[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const sh=rows.reduce((s,l)=>s+l.h,0), sc=rows.reduce((s,l)=>s+l.cost,0);
+    h+=`<tr class="grp"><td colspan="3">${esc(k)}</td><td class="num">${fh(sh)}</td><td class="num">${f0(sc)}</td></tr>`;
+    rows.forEach(l=>{ const t=parseTask(l.task);
+      h+=`<tr><td class="mono" style="font-size:11px">${l.date?l.date.split('-').reverse().join('/'):'—'}</td>
+        <td><div style="font-size:12.5px">${esc(t.head)}</div>
+        ${t.items.length?`<ul style="margin:3px 0 0 14px;padding:0;font-size:11.5px;color:var(--muted)">${t.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}
+        <div style="margin-top:2px"><span class="chip wr">${esc(l.grp)}</span></div></td>
+        <td style="font-size:11.5px">${esc(l.name)}</td><td class="num">${fh(l.h)}</td><td class="num">${f0(l.cost)}</td></tr>`; });
+  });
+  const th=ls.reduce((s,l)=>s+l.h,0), tc=ls.reduce((s,l)=>s+l.cost,0);
+  h+=`<tr class="tot"><td colspan="3">TỔNG ${ls.length} hạng mục</td><td class="num">${fh(th)}</td><td class="num">${f0(tc)}</td></tr></tbody></table></div>`;
+  return h;
+}
+function deliverables(vis){
+  let h=`<div class="note ok">Nội dung cột <b>Đã giao gì</b> lấy <b>nguyên văn</b> từ mô tả task trong timesheet, tách dòng thành đầu mục con — không viết lại, không suy diễn. Đây là bảng kê dùng làm cơ sở tính phí, đính kèm hoá đơn hoặc biên bản nghiệm thu.</div>
+  <div style="margin-bottom:10px"><button class="btn" onclick="csvDeliverables(null)" title="Bảng kê phẳng theo bộ lọc hiện tại. KHÔNG import ngược được.">📄 Xuất bảng kê CSV (đính kèm hoá đơn)</button>
+    <span class="chip">${vis.length} hạng mục khớp bộ lọc</span></div>`;
+  if(!vis.length) return h+`<div class="note">Không có hạng mục nào khớp bộ lọc.</div>`;
+  return h+deliverTable(vis,true);
+}
+
+/* ---------- 4.5 CHI TIẾT TIMESHEET ---------- */
+function detailRows(lines){
+  const cols=[['date','Ngày'],['name','Nhân sự'],['kh','Khách'],['ct','Pháp nhân'],['proj','Dự án'],
+    ['grp','Nhóm task'],['task','Nội dung task'],['h','Giờ'],['rate','Đơn giá'],['cost','Chi phí'],['bucket','Phân loại']];
+  const nums=new Set(['h','rate','cost']);
+  const arr=lines.slice().sort((a,b)=>{
+    let x=a[sortK],y=b[sortK];
+    if(nums.has(sortK)){x=x||0;y=y||0;return (x-y)*sortD;}
+    return String(x||'').localeCompare(String(y||''))*sortD;});
+  let h=`<div style="margin-bottom:10px"><button class="btn" onclick="csvLines()" title="Toàn bộ dòng đang hiển thị. KHÔNG import ngược được.">📄 Xuất CSV chi tiết</button>
+    <span class="chip">${lines.filter(passFilter).length}/${lines.length} dòng khớp bộ lọc</span>
+    <span class="chip">bấm tiêu đề cột để sắp xếp</span></div>
+    <div class="twrap"><table><thead><tr>`;
+  cols.forEach(([k,lb])=>h+=`<th class="${nums.has(k)?'num':''}" style="cursor:pointer" onclick="setSort('${k}')">${lb}${sortK===k?(sortD>0?' ▲':' ▼'):''}</th>`);
+  h+=`</tr></thead><tbody>`;
+  arr.forEach(l=>{ const ok=passFilter(l);
+    if(!ok&&filt.mode==='hide')return;
+    const t=parseTask(l.task);
+    h+=`<tr class="${ok?'':'dim'}">
+      <td class="mono" style="font-size:11px">${l.date?l.date.split('-').reverse().join('/'):'—'}</td>
+      <td style="font-size:11.5px">${esc(l.name)}</td><td>${esc(l.kh)}</td><td style="font-size:11.5px">${esc(l.ct)}</td>
+      <td style="font-size:11.5px">${esc(l.proj)}</td><td><span class="chip wr">${esc(l.grp)}</span></td>
+      <td style="font-size:11.5px;max-width:420px">${esc(t.head)}${t.items.length?`<div style="color:var(--muted);font-size:11px">${t.items.map(esc).join(' · ')}</div>`:''}</td>
+      <td class="num">${fh(l.h)}</td><td class="num">${f0(l.rate)}</td><td class="num">${f0(l.cost)}</td>
+      <td><span class="chip ${l.bucket==='charge'?'acc':'ng'}">${l.bucket==='charge'?'Charge':'Tự chịu'}</span></td></tr>`; });
+  const v=lines.filter(passFilter);
+  h+=`<tr class="tot"><td colspan="7">TỔNG DÒNG KHỚP BỘ LỌC</td><td class="num">${fh(v.reduce((s,l)=>s+l.h,0))}</td>
+    <td class="num">—</td><td class="num">${f0(v.reduce((s,l)=>s+l.cost,0))}</td><td></td></tr></tbody></table></div>`;
+  return h;
+}
+function setSort(k){ if(sortK===k)sortD=-sortD; else {sortK=k;sortD=1;} render(); }
+
+/* ---------- CSV ---------- */
+function csv(rows,name){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""').replace(/\n/g,' | ')+'"';
+  const b=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);
+}
+function csvDeliverables(client){
+  const E=effective();
+  const ls=E.lines.filter(l=>client?l.kh===client:passFilter(l));
+  const rows=[['Ngay','Khach hang','Phap nhan','Du an','Da giao gi','Dau muc con','Nguoi thuc hien','Gio','Thanh tien']];
+  ls.sort((a,b)=>(a.kh+a.proj+(a.date||'')).localeCompare(b.kh+b.proj+(b.date||''))).forEach(l=>{
+    const t=parseTask(l.task);
+    rows.push([l.date?l.date.split('-').reverse().join('/'):'',l.kh,l.ct,l.proj,t.head,t.items.join(' | '),l.name,l.h,Math.round(l.cost)]);});
+  rows.push(['','','','','TONG','','',ls.reduce((s,l)=>s+l.h,0),Math.round(ls.reduce((s,l)=>s+l.cost,0))]);
+  csv(rows,'bang_ke_giao_nhan_'+(client?client.replace(/[^\w]+/g,'_'):'loc')+'_082026.csv');
+  pill('Đã xuất bảng kê CSV — file phẳng, không import ngược được','warn');
+}
+function csvLines(){
+  const E=effective(), ls=E.lines.filter(passFilter);
+  const rows=[['Ngay','Nhan su','Khach hang','Phap nhan','Du an','Nhom task','Noi dung task','Gio','Don gia','Chi phi','Phan loai']];
+  ls.forEach(l=>rows.push([l.date?l.date.split('-').reverse().join('/'):'',l.name,l.kh,l.ct,l.proj,l.grp,l.task,l.h,l.rate,Math.round(l.cost),l.bucket==='charge'?'Charge':'Tu chiu']));
+  csv(rows,'chi_tiet_timesheet_082026.csv');
+  pill('Đã xuất CSV chi tiết timesheet','warn');
+}
+
+/* ---------- TAB 4: THEO NGÀY ---------- */
+function t4(){
+  const E=effective(), vis=E.lines.filter(passFilter), all=E.lines;
+  const days={}; all.forEach(l=>{ if(!l.date)return;
+    days[l.date]=days[l.date]||{h:0,cost:0,vh:0,vcost:0,n:0,cl:{}};
+    days[l.date].h+=l.h; days[l.date].cost+=l.cost;
+    if(passFilter(l)){days[l.date].vh+=l.h;days[l.date].vcost+=l.cost;days[l.date].n++;
+      days[l.date].cl[l.kh]=(days[l.date].cl[l.kh]||0)+l.h;} });
+  const ds=Object.keys(days).sort();
+  if(!ds.length) return `<h2 class="sec">Theo ngày</h2><div class="note">Không có dòng nào khớp bộ lọc.</div>`;
+  const maxH=Math.max(...ds.map(d=>days[d].h));
+
+  // chart
+  const W=Math.max(660,ds.length*26), H=190, pad=26;
+  const bw=(W-pad*2)/ds.length;
+  let bars='';
+  ds.forEach((d,i)=>{
+    const x=pad+i*bw, hh=(H-40)*(days[d].h/maxH), y=H-24-hh;
+    bars+=`<rect x="${x+2}" y="${y}" width="${bw-4}" height="${Math.max(hh,1)}" fill="var(--c0)"></rect>`;
+    const vh=(H-40)*(days[d].vh/maxH);
+    bars+=`<rect x="${x+2}" y="${H-24-vh}" width="${bw-4}" height="${Math.max(vh,0)}" fill="var(--c1)"></rect>`;
+    if(ds.length<=31) bars+=`<text x="${x+bw/2}" y="${H-10}" text-anchor="middle">${dmy(d).split('/')[0]}</text>`;
+  });
+  const wd=['CN','T2','T3','T4','T5','T6','T7'];
+  const byWd={}; ds.forEach(d=>{const k=wd[new Date(d+'T00:00:00').getDay()];byWd[k]=byWd[k]||{h:0,cost:0};byWd[k].h+=days[d].vh;byWd[k].cost+=days[d].vcost;});
+
+  let h=`<h2 class="sec">Nhịp làm việc theo ngày</h2>
+  <p class="hint">Ngày lấy từ cột <span class="mono">Start time</span>, đã quy về múi giờ địa phương (+8h): 146/147 dòng lưu ở dạng 16:00 UTC — chính là 00:00 ngày hôm sau. Sau khi quy đổi, kỳ nằm gọn trong 01–31/08/2026.</p>
+  <div class="card"><h3>Giờ công theo ngày <span class="chip acc">đậm = khớp bộ lọc</span><span class="chip">nhạt = toàn kỳ</span></h3>
+   <div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%">
+     <line x1="${pad}" y1="${H-24}" x2="${W-pad}" y2="${H-24}" stroke="var(--line)"></line>${bars}
+     <text x="${pad}" y="14">cao nhất ${fh(maxH)} h/ngày</text></svg></div></div>`;
+
+  h+=`<div class="card"><h3>Theo thứ trong tuần</h3><div class="twrap"><table><thead><tr><th>Thứ</th><th class="num">Giờ</th><th class="num">Chi phí</th><th style="min-width:140px"></th></tr></thead><tbody>`;
+  const mw=Math.max(1,...Object.values(byWd).map(v=>v.h));
+  ['T2','T3','T4','T5','T6','T7','CN'].forEach(k=>{const v=byWd[k]||{h:0,cost:0};
+    h+=`<tr><td>${k}</td><td class="num">${fh(v.h)}</td><td class="num">${f0(v.cost)}</td>
+      <td><div class="bar"><i style="width:${v.h/mw*100}%;background:var(--c3)"></i></div></td></tr>`;});
+  h+=`</tbody></table></div></div>`;
+
+  h+=`<div class="card"><h3>Chi tiết từng ngày</h3><div class="twrap"><table><thead><tr>
+    <th>Ngày</th><th class="num">Dòng</th><th class="num">Giờ</th><th class="num">Chi phí</th><th>Khách hàng trong ngày</th></tr></thead><tbody>`;
+  ds.forEach(d=>{const v=days[d]; const dim=filterOn()&&v.n===0;
+    if(dim&&filt.mode==='hide')return;
+    const cl=Object.entries(v.cl).sort((a,b)=>b[1]-a[1]);
+    h+=`<tr class="${dim?'dim':''}"><td class="mono">${d.split('-').reverse().join('/')}</td>
+      <td class="num">${v.n}</td><td class="num">${fh(v.vh)}</td><td class="num">${f0(v.vcost)}</td>
+      <td style="font-size:11.5px;color:var(--muted)">${cl.map(c=>esc(c[0])+' '+fh(c[1])+'h').join(' · ')||'—'}</td></tr>`;});
+  h+=`</tbody></table></div></div>`;
+  return h;
+}
+
+/* ---------- TAB 5: CẤU HÌNH ---------- */
+function t5(){
+  let h=`<h2 class="sec">Cấu hình doanh thu &amp; phân bổ</h2>
+  <p class="hint">Đây là nơi <b>duy nhất</b> nhập số doanh thu. Mọi ô để trống sẽ hiện <b>⚠️ chưa có nguồn</b> ở tab 1 — công cụ không tự suy ra số. Mỗi thay đổi đều undo được.</p>
+  <div class="card"><h3>Doanh thu theo khách hàng <span class="chip">chưa VAT</span></h3>
+  <div class="twrap"><table><thead><tr><th>Khách hàng</th><th style="width:150px">Mô hình tính phí</th>
+    <th style="width:160px">Doanh thu kỳ 08/2026</th><th>Nguồn chứng từ</th></tr></thead><tbody>`;
+  CLIENTS.forEach(k=>{
+    const c=cfg.clients[k]||{};
+    h+=`<tr><td><b>${esc(k)}</b></td>
+      <td><select onchange="setBill('${esc(k)}',this.value)">
+        <option value="fixed"${c.bill==='fixed'?' selected':''}>Phí trọn gói</option>
+        <option value="passthrough"${c.bill==='passthrough'?' selected':''}>Pass-through giờ</option>
+        <option value="internal"${c.bill==='internal'?' selected':''}>Nội bộ — không charge</option></select></td>
+      <td>${c.bill==='internal'?'<span class="chip">không áp dụng</span>':
+        `<input class="num" type="number" step="1000" value="${c.rev===null||c.rev===undefined?'':c.rev}" placeholder="chưa có nguồn" onchange="setRev('${esc(k)}',this.value)">`}</td>
+      <td><input value="${esc(c.src||'')}" placeholder="hợp đồng / hoá đơn số…" onchange="setSrc('${esc(k)}',this.value)"></td></tr>`;
+  });
+  h+=`</tbody></table></div></div>`;
+
+  h+=`<div class="card"><h3>Phân bổ lương cố định</h3>
+  <p class="hint" style="margin-bottom:8px">Người hưởng lương cố định không log timesheet. Chọn charge về một khách hàng, hoặc để vào chi phí chung.</p>
+  <div class="twrap"><table><thead><tr><th>Nhân sự</th><th>Vai trò</th><th class="num">Lương kỳ</th><th style="width:200px">Phân bổ về</th></tr></thead><tbody>`;
+  FIXED.forEach(p=>{ const to=cfg.fixedAlloc[p.name]||'OVERHEAD';
+    h+=`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.role||'—')}</td><td class="num">${f0(p.salary)}</td>
+      <td><select onchange="setAlloc('${esc(p.name)}',this.value)">
+        <option value="OVERHEAD"${to==='OVERHEAD'?' selected':''}>Chi phí chung (tự chịu)</option>
+        ${CLIENTS.map(k=>`<option value="${esc(k)}"${to===k?' selected':''}>${esc(k)}</option>`).join('')}
+      </select></td></tr>`; });
+  h+=`</tbody></table></div>
+  <div class="note ok" style="margin-top:10px">Mặc định <b>Trương Thành Trung → Rabity</b> vì sheet <span class="mono">XHĐ Rabity</span> có dòng Fix 60.000.000 mang đúng tên này. Các trường hợp còn lại để ở chi phí chung cho tới khi có chứng từ.</div></div>`;
+
+  const bh=DATA.payroll.reduce((s,p)=>s+(p.bh_cty||0),0), ai=DATA.payroll.reduce((s,p)=>s+(p.other||0),0);
+  h+=`<div class="card"><h3>Chi phí ngoài lương gộp</h3>
+    <label class="chkline"><input type="checkbox" ${cfg.incBhCty?'checked':''} onchange="setInc('incBhCty',this.checked)">
+      Bảo hiểm phần công ty 21,5% — <span class="mono">${f0(bh)}</span> <span class="chip">Payroll cột AJ</span></label>
+    <label class="chkline"><input type="checkbox" ${cfg.incAi?'checked':''} onchange="setInc('incAi',this.checked)">
+      Hỗ trợ AI (Quỳnh, Quang) — <span class="mono">${f0(ai)}</span> <span class="chip">Payroll cột P</span></label>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Cả hai đều vào chi phí tự chịu vì không gắn được với một khách hàng cụ thể.</div></div>`;
+
+  h+=`<div class="card"><h3>Bản lưu cấu hình</h3>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      <input id="snapName" placeholder="tên bản lưu, ví dụ: chốt sau khi có HĐ VFX" style="max-width:340px">
+      <button class="btn" onclick="snap()">Lưu bản</button>
+      <span class="chip mono">hash hiện tại ${cfgHash()}</span></div>`;
+  if(!cfg.snaps.length) h+=`<div style="font-size:11.5px;color:var(--muted)">Chưa có bản lưu nào. Lưu một bản trước khi thử kịch bản doanh thu khác.</div>`;
+  else{ h+=`<div class="twrap"><table><thead><tr><th>Tên</th><th>Thời điểm</th><th>Hash</th><th></th></tr></thead><tbody>`;
+    cfg.snaps.forEach((s,i)=>{ h+=`<tr><td>${esc(s.name)}</td><td class="mono">${esc(s.at)}</td><td class="mono">${esc(s.hash)}</td>
+      <td><span class="nbtns"><button class="btn sm" onclick="restoreSnap(${i})">Khôi phục</button>
+      <button class="btn sm danger" onclick="delSnap(${i})">Xoá</button></span></td></tr>`; });
+    h+=`</tbody></table></div>`; }
+  h+=`</div>`;
+
+  h+=`<div class="card"><h3>Quy tắc suy nhóm task <span class="chip wr">tạm — chưa verify</span></h3>
+    <div class="twrap"><table><thead><tr><th>Nhóm</th><th>Từ khoá (khớp đầu tiên thắng)</th></tr></thead><tbody>
+    ${TASK_RULES.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td style="font-size:11.5px;color:var(--muted)">${r[1].map(esc).join(' · ')}</td></tr>`).join('')}
+    <tr><td><b>Khác</b></td><td style="font-size:11.5px;color:var(--muted)">không khớp quy tắc nào</td></tr>
+    </tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Đánh đổi: quy tắc từ khoá cố định trong bản v1.0, chưa sửa được trong giao diện. Nhóm task chỉ dùng để nhìn xu hướng, không dùng làm căn cứ tính tiền.</div></div>`;
+
+  h+=`<div class="card"><h3>Xoá dữ liệu cục bộ</h3>
+    <button class="btn danger" onclick="wipe()">Xoá cấu hình lưu trên máy này</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Chỉ xoá cấu hình đã lưu trong trình duyệt này. File Excel gốc và các file JSON đã export không bị ảnh hưởng.</div></div>`;
+  return h;
+}
+
+/* ---------- TAB 6: ĐỐI CHIẾU ---------- */
+function t6(){
+  const hByName={}; DATA.ts.forEach(r=>hByName[r.name]=(hByName[r.name]||0)+r.h);
+  const cByName={}; DATA.ts.forEach(r=>cByName[r.name]=(cByName[r.name]||0)+r.amt);
+
+  let h=`<h2 class="sec">Đối chiếu theo chuỗi</h2>
+  <p class="hint">Đối chiếu là một <b>chuỗi</b>, không phải một điểm: Timesheet → Payroll → Hoá đơn. Lệch ở khâu nào thì chỉ ra ở khâu đó.</p>`;
+
+  // 1. TS vs Payroll
+  let dH=0,dC=0; const rr=[];
+  Object.keys(hByName).forEach(n=>{ const p=PAY[n]||{};
+    const ph=p.units||0, pc=p.salary||0;
+    rr.push({n,tsH:hByName[n],tsC:cByName[n],pH:ph,pC:pc,dH:hByName[n]-ph,dC:cByName[n]-pc}); });
+  DATA.payroll.filter(p=>p.form==='Man hour'&&!hByName[p.name]).forEach(p=>
+    rr.push({n:p.name,tsH:0,tsC:0,pH:p.units||0,pC:p.salary||0,dH:-(p.units||0),dC:-(p.salary||0)}));
+  rr.forEach(r=>{dH+=r.dH;dC+=r.dC;});
+
+  h+=`<div class="note ${Math.abs(dC)>0?'':'ok'}">${Math.abs(dC)>0
+    ? `Timesheet ghi <b>${fh(dH)} giờ</b> nhiều hơn số giờ Payroll đã trả, tương đương <b>${f0(dC)} đ</b> chưa vào bảng lương. Cần chốt: giờ thừa là <i>chưa duyệt</i>, <i>trả kỳ sau</i>, hay <i>timesheet ghi sai</i>.`
+    : `Timesheet khớp Payroll.`}</div>`;
+
+  h+=`<div class="card"><h3>1 · Timesheet ↔ Payroll (theo người)</h3><div class="twrap"><table><thead><tr>
+    <th>Nhân sự</th><th class="num">Giờ timesheet</th><th class="num">Giờ payroll</th><th class="num">Lệch giờ</th>
+    <th class="num">Tiền theo timesheet</th><th class="num">Lương payroll</th><th class="num">Lệch tiền</th></tr></thead><tbody>`;
+  rr.sort((a,b)=>Math.abs(b.dC)-Math.abs(a.dC)).forEach(r=>{
+    h+=`<tr><td><b>${esc(r.n)}</b></td><td class="num">${fh(r.tsH)}</td><td class="num">${fh(r.pH)}</td>
+      <td class="num" style="color:${r.dH?'var(--neg)':'var(--muted)'}">${r.dH?fh(r.dH):'0'}</td>
+      <td class="num">${f0(r.tsC)}</td><td class="num">${f0(r.pC)}</td>
+      <td class="num" style="color:${r.dC?'var(--neg)':'var(--muted)'}">${r.dC?f0(r.dC):'0'}</td></tr>`;});
+  h+=`<tr class="tot"><td>TỔNG</td><td class="num">${fh(rr.reduce((s,r)=>s+r.tsH,0))}</td><td class="num">${fh(rr.reduce((s,r)=>s+r.pH,0))}</td>
+    <td class="num">${fh(dH)}</td><td class="num">${f0(rr.reduce((s,r)=>s+r.tsC,0))}</td>
+    <td class="num">${f0(rr.reduce((s,r)=>s+r.pC,0))}</td><td class="num">${f0(dC)}</td></tr></tbody></table></div></div>`;
+
+  // 2. Rabity invoice vs timesheet
+  const rab={}; DATA.ts.filter(r=>r.kh==='Rabity').forEach(r=>rab[r.name]=(rab[r.name]||0)+r.h);
+  h+=`<div class="card"><h3>2 · Hoá đơn Rabity ↔ giờ timesheet cho Rabity</h3><div class="twrap"><table><thead><tr>
+    <th>Nhân sự</th><th class="num">Giờ trên hoá đơn</th><th class="num">Giờ timesheet</th><th class="num">Lệch</th>
+    <th class="num">Tiền chưa VAT</th></tr></thead><tbody>`;
+  let ok=true;
+  DATA.invRabity.filter(i=>i.form==='Man hour').forEach(i=>{
+    const t=rab[i.name]||0, d=(i.units||0)-t; if(d)ok=false;
+    h+=`<tr class="${(i.units||t)?'':'dim'}"><td>${esc(i.name)}</td><td class="num">${fh(i.units)}</td><td class="num">${fh(t)}</td>
+      <td class="num" style="color:${d?'var(--neg)':'var(--muted)'}">${d?fh(d):'0'}</td><td class="num">${f0(i.pre)}</td></tr>`;});
+  DATA.invRabity.filter(i=>i.form!=='Man hour').forEach(i=>{
+    h+=`<tr><td>${esc(i.name)}</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${f0(i.pre)}</td></tr>`;});
+  const totPre=DATA.invRabity.reduce((s,i)=>s+i.pre,0);
+  h+=`<tr class="tot"><td>TỔNG HOÁ ĐƠN (chưa VAT)</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${f0(totPre)}</td></tr></tbody></table></div>
+   <div class="note ${ok?'ok':''}" style="margin-top:10px">${ok?'Giờ trên hoá đơn khớp tuyệt đối với timesheet.':'Giờ hoá đơn lệch timesheet — kiểm tra lại.'}
+   Đơn giá xuất hoá đơn <b>bằng đúng đơn giá lương</b>, và 60.000.000 lương cố định Giám đốc được xuất nguyên vẹn ⇒ tính theo <b>cơ sở Timesheet, biên lợi nhuận Rabity = 0</b>. Theo cơ sở Payroll biên nhích lên chút vì phần giờ ghi thừa chưa được trả lương — chênh lệch đó không phải lợi nhuận thật.</div></div>`;
+
+  // 3. Insurance check
+  const bp=PAY['Lê Thị Búp'];
+  if(bp){ const d=(bp.bh_nld||0)-553350;
+    h+=`<div class="card"><h3>3 · Kiểm tra bảo hiểm</h3><div class="twrap"><table><thead><tr>
+      <th>Chỉ tiêu</th><th class="num">Giá trị</th><th>Ghi chú</th></tr></thead><tbody>
+      <tr><td>Giảm trừ BHXH người lao động (cột T)</td><td class="num">${f0(553350)}</td><td>Payroll cột T</td></tr>
+      <tr><td>Cộng 10,5% tính trên mức đóng (cột AF)</td><td class="num">${f0(bp.bh_nld)}</td><td>5.310.000 × 10,5%</td></tr>
+      <tr class="tot"><td>Lệch</td><td class="num" style="color:var(--neg)">${f0(d)}</td><td>Cần kế toán xác nhận cột nào đúng</td></tr>
+      </tbody></table></div></div>`; }
+
+  // 4. Cost pool
+  const gross=DATA.payroll.reduce((s,p)=>s+p.gross,0), bh=DATA.payroll.reduce((s,p)=>s+(p.bh_cty||0),0);
+  h+=`<div class="card"><h3>4 · Tổng chi phí nhân sự công ty phải chịu</h3><div class="twrap"><table><tbody>
+    <tr><td>Lương gộp toàn bộ (Payroll cột Q)</td><td class="num">${f0(gross)}</td></tr>
+    <tr><td>+ Bảo hiểm phần công ty (cột AJ)</td><td class="num">${f0(bh)}</td></tr>
+    <tr class="tot"><td>= Chi phí nhân sự kỳ 08/2026</td><td class="num">${f0(gross+bh)}</td></tr>
+    <tr><td style="color:var(--muted)">Trong đó thực chuyển cho nhân sự (cột AA)</td><td class="num" style="color:var(--muted)">${f0(DATA.payroll.reduce((s,p)=>s+p.net,0))}</td></tr>
+    <tr><td style="color:var(--muted)">Thuế TNCN đã khấu trừ (cột X)</td><td class="num" style="color:var(--muted)">${f0(DATA.payroll.reduce((s,p)=>s+p.pit,0))}</td></tr>
+    </tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Đây mới là chi phí nhân sự. Net income ở tab 1 <b>chưa</b> gồm chi phí ngoài nhân sự (thuê văn phòng, xe, công cụ, phí ngân hàng…) vì không có trong file này.</div></div>`;
+  return h;
+}
+
+/* ============================================================
+   DETAIL PANEL
+   ============================================================ */
+function showDetail(type,key){
+  sel=type+':'+key;
+  const E=effective();
+  const d=document.getElementById('detail');
+  let ls, title;
+  if(type==='person'){ ls=E.lines.filter(l=>l.name===key&&passFilter(l)); title=key; }
+  else if(type==='client'||type==='kh'){ ls=E.lines.filter(l=>l.kh===key&&passFilter(l)); title=key; }
+  else if(type==='proj'){ ls=E.lines.filter(l=>l.proj===key&&passFilter(l)); title=key; }
+  else { ls=E.lines.filter(l=>l.grp===key&&passFilter(l)); title=key; }
+
+  const h=ls.reduce((s,l)=>s+l.h,0), c=ls.reduce((s,l)=>s+l.cost,0);
+  const top=[...ls].sort((a,b)=>b.h-a.h).slice(0,8);
+  let x=`<div style="font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:2px">${esc(title)}</div>
+    <div class="chip">${ls.length} dòng</div><div class="chip">${fh(h)} giờ</div><div class="chip acc">${f0(c)} đ</div>`;
+  if(type==='client'||type==='kh'){
+    const cc=cfg.clients[key]||{};
+    x+=`<div style="margin-top:8px;font-size:11.5px">Mô hình: <b>${{passthrough:'Pass-through',fixed:'Phí trọn gói',internal:'Nội bộ'}[cc.bill]||'—'}</b><br>
+      Doanh thu: ${cc.rev?'<b>'+f0(cc.rev)+'</b>':'<span class="miss">⚠️ chưa có nguồn</span>'}<br>
+      ${cc.src?'Nguồn: '+esc(cc.src):''}</div>`;
+  }
+  if(type==='person'){
+    const p=PAY[key];
+    if(p) x+=`<div style="margin-top:8px;font-size:11.5px">Hình thức: <b>${esc(p.form)}</b> · đơn giá ${f0(p.base)}<br>
+      Payroll: giờ ${fh(p.units)} · gross ${f0(p.gross)} · thực nhận ${f0(p.net)}<br>
+      Lệch timesheet: <b style="color:${(h-p.units)?'var(--neg)':'inherit'}">${fh(h-(p.units||0))} h</b></div>`;
+  }
+  x+=`<div style="margin-top:10px" class="flabel">DÒNG TỐN GIỜ NHẤT</div>`;
+  top.forEach(l=>{ x+=`<div style="border-top:1px solid var(--line);padding:5px 0;font-size:11.5px">
+    <div class="mono" style="font-size:9.5px;color:var(--muted)">${l.date?l.date.split('-').reverse().join('/'):'—'} · ${esc(l.kh)} · ${esc(l.proj)}</div>
+    <div>${esc((l.task||'').split('\n')[0].slice(0,110))}</div>
+    <div class="mono" style="font-size:10px;color:var(--muted)">${fh(l.h)} h · ${f0(l.cost)} đ · ${esc(l.grp)}</div></div>`; });
+  if(!ls.length) x+=`<div style="font-size:11.5px;color:var(--muted)">Không có dòng nào khớp bộ lọc hiện tại.</div>`;
+  d.innerHTML=x;
+  render();
+}
+
+/* ============================================================
+   MUTATIONS
+   ============================================================ */
+function setBill(k,v){ pushUndo(); cfg.clients[k].bill=v; if(v==='internal')cfg.clients[k].rev=null; render(); pill('Đã đổi mô hình tính phí: '+k,'ok'); }
+function setRev(k,v){ pushUndo(); cfg.clients[k].rev=(v===''?null:Number(v)); render(); pill(v===''?'Đã xoá doanh thu '+k:'Đã cập nhật doanh thu '+k,'ok'); }
+function setSrc(k,v){ pushUndo(); cfg.clients[k].src=v; save(); pill('Đã ghi nguồn chứng từ: '+k,'ok'); }
+function setAlloc(n,v){ pushUndo(); cfg.fixedAlloc[n]=v; render(); pill('Đã phân bổ '+n+' → '+(v==='OVERHEAD'?'chi phí chung':v),'ok'); }
+function setInc(k,v){ pushUndo(); cfg[k]=v; render();
+  pill(k==='allocOverhead'?('Phân bổ chi phí chung: '+(v?'BẬT — lãi lỗ đã gánh đủ':'TẮT — chỉ lãi gộp')):'Đã cập nhật chi phí ngoài lương','ok'); }
+function snap(){ const el=document.getElementById('snapName'); const nm=(el.value||'').trim();
+  if(!nm){ pill('Đặt tên cho bản lưu trước đã','warn'); el.focus(); return; }
+  pushUndo();
+  cfg.snaps.unshift({name:nm,at:new Date().toLocaleString('vi-VN'),hash:cfgHash(),
+    data:JSON.stringify({clients:cfg.clients,fixedAlloc:cfg.fixedAlloc,basis:cfg.basis,incBhCty:cfg.incBhCty,incAi:cfg.incAi,allocOverhead:cfg.allocOverhead})});
+  render(); pill('Đã lưu bản "'+nm+'"','ok'); }
+function restoreSnap(i){ const s=cfg.snaps[i];
+  if(!confirm('Khôi phục bản "'+s.name+'"?\n\nCấu hình hiện tại sẽ bị thay thế (vẫn undo lại được bằng nút ↩ Undo).\nCác bản lưu khác và file đã export KHÔNG bị ảnh hưởng.'))return;
+  pushUndo(); Object.assign(cfg,JSON.parse(s.data)); render(); pill('Đã khôi phục bản "'+s.name+'"','ok'); }
+function delSnap(i){ const s=cfg.snaps[i];
+  if(!confirm('Xoá bản lưu "'+s.name+'"?\n\nChỉ xoá bản lưu này. Cấu hình đang dùng và file đã export KHÔNG bị ảnh hưởng.'))return;
+  pushUndo(); cfg.snaps.splice(i,1); render(); pill('Đã xoá bản lưu','ok'); }
+function wipe(){ if(!confirm('Xoá cấu hình đã lưu trên máy này?\n\nMất: doanh thu đã nhập, phân bổ lương cố định, các bản lưu.\nKHÔNG mất: file Excel gốc, các file JSON đã export.'))return;
+  try{localStorage.removeItem(LS);}catch(e){} cfg=seedCfg(); undoStack=[]; syncUndo(); render(); pill('Đã xoá cấu hình cục bộ','warn'); }
+
+/* ============================================================
+   EXPORT — 2 loại, contract khác nhau
+   ============================================================ */
+function dl(obj,name){ const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+const stamp=()=>new Date().toISOString().slice(0,10);
+
+function exportSchema(){
+  const P=pnl(), t=P.tot;
+  const out={ _contract:'PHANG, chi gom dong hieu luc + P&L da chot. KHONG import nguoc duoc.',
+    tool:'omni-payroll-pnl', version:APP_VERSION, period:'08-2026', basis:cfg.basis,
+    generated_at:new Date().toISOString(), config_hash:cfgHash(),
+    revenue_missing:[...new Set(t.revMissing)],
+    pnl_total:{revenue:t.rev,cost_chargeable:t.charge,cost_absorbed:t.absorb,net_income:t.rev-t.charge-t.absorb},
+    pnl_by_entity:Object.fromEntries(Object.entries(P.ent).map(([k,v])=>[k,{revenue:v.rev,cost_chargeable:v.charge,cost_absorbed:v.absorb,net_income:v.rev-v.charge-v.absorb}])),
+    by_client:Object.entries(P.byClient).map(([k,v])=>({client:k,entity:v.ct,hours:v.h,cost_chargeable:v.charge,cost_absorbed:v.absorb,
+      revenue:(cfg.clients[k]||{}).rev??null, billing:(cfg.clients[k]||{}).bill, source:(cfg.clients[k]||{}).src||null})),
+    lines:[...P.E.lines,...P.E.fixedLines].map(l=>({date:l.date,person:l.name,client:l.kh,entity:l.ct,project:l.proj,
+      task_group:l.grp,hours:l.h,cost:Math.round(l.cost),bucket:l.bucket}))};
+  dl(out,'omni_pnl_schema_'+APP_VERSION+'_'+stamp()+'.json');
+  pill('Đã xuất Schema — file phẳng, không import ngược được','warn');
+}
+function exportModel(){
+  dl({_contract:'TOAN BO du lieu + cau hinh. IMPORT NGUOC DUOC.',tool:'omni-payroll-pnl',version:APP_VERSION,
+      generated_at:new Date().toISOString(),config_hash:cfgHash(),config:cfg,data:DATA},
+     'omni_pnl_model_'+APP_VERSION+'_'+stamp()+'.json');
+  pill('Đã xuất Full model — khôi phục lại được','ok');
+}
+
+/* ============================================================
+   FILTER UI
+   ============================================================ */
+function chkList(el,items,set){
+  el.innerHTML=items.map(v=>`<label class="chkline"><input type="checkbox" value="${esc(v)}"${set.has(v)?' checked':''}> ${esc(v)}</label>`).join('');
+  el.querySelectorAll('input').forEach(i=>i.onchange=()=>{ i.checked?set.add(i.value):set.delete(i.value); onFilter(); });
+}
+function onFilter(){ filt.q=document.getElementById('fq').value.trim();
+  filt.d1=document.getElementById('fd1').value; filt.d2=document.getElementById('fd2').value; render(); }
+function resetFilter(){ filt.q='';filt.people.clear();filt.clients.clear();filt.ent.clear();filt.d1='';filt.d2='';
+  document.getElementById('fq').value='';document.getElementById('fd1').value='';document.getElementById('fd2').value='';
+  buildFilters(); render(); pill('Đã xoá bộ lọc','ok'); }
+function buildFilters(){
+  chkList(document.getElementById('fPeople'),NAMES,filt.people);
+  chkList(document.getElementById('fClients'),CLIENTS,filt.clients);
+  chkList(document.getElementById('fEnt'),ENTS,filt.ent);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.querySelectorAll('[data-ver]').forEach(e=>e.textContent=APP_VERSION);
+document.querySelectorAll('[data-stamp]').forEach(e=>e.textContent=BUILD_STAMP);
+document.querySelector('#tabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.tab;render();});
+document.getElementById('segBasis').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  pushUndo(); cfg.basis=b.dataset.b; render(); pill('Cơ sở chi phí: '+(cfg.basis==='payroll'?'Payroll':'Timesheet'),'ok');});
+document.getElementById('segDim').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  filt.mode=b.dataset.d; document.querySelectorAll('#segDim button').forEach(x=>x.classList.toggle('active',x===b)); render();});
+document.getElementById('main').addEventListener('click',e=>{const b=e.target.closest('#sub3 button');if(!b)return;sub3=b.dataset.s;render();});
+
+// resizer
+(function(){ const rz=document.getElementById('rz'), lf=document.getElementById('left');
+  try{const w=localStorage.getItem(LS+'_w'); if(w)lf.style.width=w+'px';}catch(e){}
+  let on=false; rz.addEventListener('mousedown',()=>{on=true;document.body.style.userSelect='none';});
+  window.addEventListener('mousemove',e=>{if(!on)return;const x=Math.min(560,Math.max(240,e.clientX));lf.style.width=x+'px';});
+  window.addEventListener('mouseup',()=>{if(!on)return;on=false;document.body.style.userSelect='';
+    try{localStorage.setItem(LS+'_w',parseInt(lf.style.width));}catch(e){}});
+})();
+
+load(); buildFilters(); syncUndo(); render();
+</script>
+</body>
+</html>
