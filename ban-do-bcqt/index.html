@@ -1,0 +1,294 @@
+<title>Bản đồ BCQT sáu ngành</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@500;600&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F5EF; --bg2:#EFEBE0; --card:#FFFFFF; --ink:#1E3932; --mut:#5C6B66; --dim:#637069;
+  --line:#DFDBD0; --g:#00704A; --gs:#D4E9E2; --forest:#1E3932; --deep:#14261F; --gold:#8A6D12; --golds:#FDF5DC;
+  --warn:#A6603A; --warns:#FBEDE4; --onDark:#FFFFFF; --onDarkMut:#D4E9E2;
+  --serif:'Noto Serif Display',Georgia,serif; --sans:'Outfit',system-ui,sans-serif; --mono:'DM Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14261F; --bg2:#1A2E27; --card:#1E3932; --ink:#F2F0E8; --mut:#B9C7C0; --dim:#9AAEA4;
+  --line:#2F4D43; --g:#6FCB9F; --gs:#24493D; --forest:#0F1F19; --deep:#0B1712; --gold:#D9BD5C; --golds:#3A3520;
+  --warn:#E3907A; --warns:#40291F; --onDark:#F2F0E8; --onDarkMut:#B9D9CC; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14261F; --bg2:#1A2E27; --card:#1E3932; --ink:#F2F0E8; --mut:#B9C7C0; --dim:#9AAEA4;
+  --line:#2F4D43; --g:#6FCB9F; --gs:#24493D; --forest:#0F1F19; --deep:#0B1712; --gold:#D9BD5C; --golds:#3A3520;
+  --warn:#E3907A; --warns:#40291F; --onDark:#F2F0E8; --onDarkMut:#B9D9CC; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 60px}
+header.top{padding-block:26px 8px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{height:34px;width:auto}
+.brand b{font-weight:600;font-size:13px;color:#14376D}
+:root[data-theme="dark"] .brand b{color:var(--onDarkMut)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand b{color:var(--onDarkMut)}}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:0}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4.4vw,44px);line-height:1.12;margin:4px 0 6px;text-wrap:balance}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(21px,2.6vw,27px);line-height:1.2;margin:0 0 10px;text-wrap:balance}
+h3{font-size:15px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 8px;max-width:72ch}
+.lead{font-size:clamp(16px,1.9vw,19px);color:var(--mut);max-width:64ch}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding-block:8px;margin-bottom:22px;scrollbar-width:thin}
+nav.tabs a{flex:0 0 auto;text-decoration:none;color:var(--mut);font-size:14px;font-weight:500;padding:7px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+nav.tabs a:hover{color:var(--g);border-color:var(--line)}
+nav.tabs a.on{background:var(--forest);color:var(--onDark);border-color:var(--forest)}
+nav.tabs a:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+section.pg{display:none}
+section.pg.on{display:block}
+.block{margin-top:30px}
+.lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:stretch}
+.earn{background:var(--forest);color:var(--onDark);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.earn .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--onDarkMut)}
+.earn p{font-family:var(--serif);font-size:clamp(18px,2.1vw,22px);line-height:1.35;margin:0;color:var(--onDark)}
+.src{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:6px}
+.tagsrc{display:inline-block;font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--dim);background:var(--card)}
+/* chain */
+.chain{display:flex;gap:0;overflow-x:auto;padding-bottom:4px}
+.st{flex:1 0 132px;position:relative;background:var(--card);border:1px solid var(--line);padding:12px 14px 12px 22px;min-height:118px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);margin-right:-8px;display:flex;flex-direction:column;gap:4px}
+.st:first-child{clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%);padding-left:14px}
+.st b{font-size:13.5px;line-height:1.25}
+.st span{font-size:12px;color:var(--mut);line-height:1.35}
+.st .m{font-family:var(--mono);font-size:10.5px;font-weight:500;margin-top:auto}
+.st .m.in{color:var(--g)} .st .m.out{color:var(--warn)} .st .m.both{color:var(--gold)}
+.st.hl{background:var(--gs);border-color:var(--g)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+/* map */
+.mapw{overflow-x:auto}
+.map{display:grid;gap:4px;min-width:760px;font-size:12px;line-height:1.3}
+.map>div{border-radius:8px;padding:7px 9px}
+.map .h{background:var(--forest);color:var(--onDark);font-family:var(--mono);font-size:10.5px;text-align:center;display:flex;align-items:center;justify-content:center}
+.map .h.x{background:transparent}
+.map .ln{background:var(--bg2);font-weight:600;font-size:12.5px;display:flex;flex-direction:column;justify-content:center}
+.map .ln span{font-weight:400;font-size:10.5px;color:var(--mut)}
+.map .c{background:var(--card);border:1px solid var(--line)}
+.map .c.on{background:var(--gs);border-color:var(--g)}
+.map .c{display:flex;align-items:center;justify-content:center;min-height:44px}
+.map .dot{width:12px;height:12px;border-radius:50%;background:var(--g);display:block}
+.map .k{background:var(--deep);color:var(--onDark);font-size:11.5px}
+.map .k b{display:block;color:var(--onDarkMut);font-size:11px;margin-bottom:2px}
+/* stack */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.stack{display:flex;flex-direction:column;gap:5px}
+.ti{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;background:var(--card);border:1px solid var(--line);font-size:13.5px}
+.ti .s{font-family:var(--mono);font-weight:500;text-align:center}
+.ti.plus .s{color:var(--g)} .ti.minus .s{color:var(--warn)}
+.ti.sub{background:var(--gs);border-color:var(--g);font-weight:600}
+.ti.fin{background:var(--forest);color:var(--onDark);border-color:var(--forest);font-weight:600}
+.ti .v{font-family:var(--mono);font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.ti.fin .v{color:var(--onDarkMut)}
+.ti.minus{margin-left:22px} .ti.plus{margin-left:22px}
+.note{border-left:3px solid var(--g);background:var(--card);padding:10px 14px;border-radius:0 10px 10px 0;font-size:14px}
+.note.w{border-left-color:var(--warn);background:var(--warns)}
+.note.gd{border-left-color:var(--gold);background:var(--golds)}
+/* metrics */
+.mets{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.met{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.met b{font-size:14.5px}
+.met .f{font-family:var(--mono);font-size:11.5px;color:var(--g);background:var(--gs);border-radius:6px;padding:4px 8px;align-self:flex-start}
+.met span{font-size:12.5px;color:var(--mut)}
+/* inventory */
+.inv{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.inv .badge{width:92px;height:92px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:600;font-size:13px;line-height:1.2}
+.inv .badge.yes{background:var(--warns);color:var(--warn);border:2px solid var(--warn)}
+.inv .badge.no{background:var(--gs);color:var(--g);border:2px dashed var(--g)}
+.inv .badge small{font-family:var(--mono);font-size:10px;font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 11px;background:var(--bg)}
+/* pitfalls */
+.pits{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.pit{background:var(--warns);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:12px;padding:12px 14px;font-size:13.5px}
+.pit b{display:block;color:var(--warn);font-size:12px;font-family:var(--mono);font-weight:500;margin-bottom:4px}
+.qs{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.qs li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.qs li i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--g);border:1px solid var(--g);border-radius:999px;padding:0 8px;flex:0 0 auto;margin-top:3px}
+/* overview */
+.ovw{overflow-x:auto}
+table.ov{border-collapse:collapse;width:100%;min-width:760px;background:var(--card);font-size:13px}
+table.ov th{background:var(--forest);color:var(--onDark);font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:9px 10px}
+table.ov td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.ov td a{color:var(--ink);font-weight:600;text-decoration:none;border-bottom:1px solid var(--g)}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block}
+.dots i.on{background:var(--g)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ic{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;transition:border-color .15s}
+.ic:hover{border-color:var(--g)}
+.ic .n{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+.ic b{font-family:var(--serif);font-size:19px;font-weight:600}
+.ic span{font-size:13px;color:var(--mut)}
+.ic em{font-style:normal;font-size:12px;color:var(--g);margin-top:auto}
+footer{margin-top:40px;border-top:1px solid var(--line);padding-top:12px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+@media(max-width:820px){.hero,.two,.cards{grid-template-columns:1fr}.inv{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="okKey" viewBox="22 4 42 80">
+    <circle cx="43" cy="25" r="13.2" fill="none" stroke="#F8BD2D" stroke-width="7.6"/>
+    <path d="M36.2 36 H49.8 V73.5 L45.4 79 H40.6 L36.2 73.5 Z" fill="#F8BD2D"/>
+    <path d="M44.4 50.5 H49.8 V73.5 L45.4 79 H44.4 Z" fill="#14376D"/>
+    <rect x="45.4" y="55.5" width="2.4" height="2.4" fill="#fff"/><rect x="45.4" y="60.5" width="2.4" height="2.4" fill="#fff"/><rect x="45.4" y="65.5" width="2.4" height="2.4" fill="#fff"/>
+  </symbol></defs></svg>
+
+<div class="wrap">
+  <header class="top">
+    <div style="flex:1 1 420px">
+      <div class="brand"><svg viewBox="0 0 42 80" aria-hidden="true"><use href="#okKey"/></svg><b>OmniKey Training · AI for Finance · Buổi 2 · Case 02</b></div>
+      <p class="eyebrow" style="margin-top:14px">Tài liệu tham khảo · báo cáo quản trị theo ngành</p>
+      <h1>Bản đồ báo cáo quản trị cho sáu ngành</h1>
+      <p class="lead">Cùng mười bước và hai bản thiết kế. Mỗi ngành khác nhau ở chuỗi giá trị, đơn vị quản trị, khoản mục, chỉ số và cách tồn kho vận động.</p>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Chọn ngành"></nav>
+  <main id="pages"></main>
+  <footer>Trương Thành Trung · FCCA, CPA Việt Nam · home.basicnlogic.com · <span id="ver"></span><br>Trang đại lý ô tô dùng số của demo case 02 (7 tháng, triệu đồng). Hai trang bán lẻ đa kênh và SaaS tham khảo dự án thực tế đã ẩn danh. Các trang còn lại là khung tham khảo. Không trang nào chứa số liệu của doanh nghiệp thật.</footer>
+</div>
+
+<script>
+const APP_VERSION='v1.0 · 27/09/2026';
+document.getElementById('ver').textContent=APP_VERSION;
+
+/* in = tiền vào, out = tiền ra, both = cả hai */
+const IND=[
+{id:'oto',name:'Đại lý ô tô',tag:'case 02 · số của demo',short:'Nhận xe từ hãng, bán lẻ tại showroom, sống nhờ thưởng hãng và xưởng dịch vụ',
+ earn:'Bán xe gần như hòa vốn ở front; lợi nhuận đến từ thưởng của hãng và xưởng dịch vụ sau bán.',
+ chain:[['Nhận xe từ hãng','Giá mua buôn, chiết khấu nhà máy, bù giá','out'],['Bán xe','Doanh thu xe, quà tặng, lương doanh số','in'],['Khai thác đi kèm','Phụ kiện, bảo hiểm, xe cũ','in'],['Thưởng từ hãng','Back margin theo chương trình, theo quý','in',1],['Dịch vụ sau bán','Bảo dưỡng, bảo hành, đồng sơn','in',1],['Vận hành điểm bán','Lương cố định, mặt bằng, khấu hao','out'],['Hội sở','Quản lý chung, lãi vay nhập xe','out']],
+ units:[['Kinh doanh xe','5 showroom · bộ phận KD','Lợi nhuận góp','Số xe · CM 5,3% · lãi 17.678'],['Xưởng dịch vụ','3 showroom có xưởng','Lợi nhuận','CM 37,3% · lãi 3.675'],['Hội sở','bộ phận HO, VP','Chi phí','1.249 mỗi tháng']],
+ grid:[[1,1,1,1,0,1,0],[0,0,0,0,1,1,0],[0,0,0,1,0,0,1]],
+ stack:[['Doanh thu xe','','552.895'],['Giá vốn xe','-','531.627'],['Bù trừ giá, hoa hồng, khai thác đi kèm','+-','−9.039'],['Front margin','=','12.228'],['Back margin · thưởng hãng','+','16.969'],['Lợi nhuận góp khối xe','=','29.197'],['Opex showroom','-','11.519'],['Lãi xưởng dịch vụ','+','3.675'],['Lãi showroom','=','21.353'],['Chi phí công ty, thu nhập khác','+-','−6.964'],['Lãi trước thuế','==','14.389']],
+ stackNote:'Số của demo case 02, 7 tháng, triệu đồng.',
+ mets:[['Lãi trên mỗi xe','Lãi trước thuế ÷ số xe','Đo hiệu quả toàn chuỗi trên đơn vị khách hiểu được'],['Front và back','Front % · back % trên doanh thu xe','Cho thấy phụ thuộc vào chính sách hãng tới đâu'],['Biên góp xưởng','CM xưởng ÷ doanh thu xưởng','Xưởng là đệm lợi nhuận khi bán xe chậm'],['Ngày tồn xe','Xe tồn ÷ xe bán bình quân ngày','Mỗi ngày tồn là lãi vay nhập xe'],['Back theo quý','Thưởng hãng cộng theo quý','Tránh đọc sai lãi tháng cuối quý']],
+ inv:[1,'Xe tồn tại showroom và kho','Lãi vay vốn nhập xe là chi phí của tồn kho; thưởng nhập sỉ khuyến khích nhập nhiều hơn sức bán.',['Ngày tồn theo dòng xe','Xe tồn quá hạn','Lãi vay trên mỗi xe tồn']],
+ pits:[['Gộp back vào giá vốn','Front trông cao, không thấy phụ thuộc vào hãng'],['Phân bổ chi phí hội sở về showroom','Trưởng showroom chịu phần không điều khiển được'],['Đọc back theo tháng','Tháng cuối quý trông lãi đột biến'],['Đếm xe hai quy tắc','Tổng các showroom khác tầng công ty']],
+ qs:['Chính sách thưởng của hãng quý sau đổi thì showroom nào còn lãi?','Showroom không có xưởng có đáng giữ không?','Back margin là thành tích của ai?']},
+
+{id:'banle',name:'Bán lẻ đa kênh',tag:'tham khảo dự án thực tế · đã ẩn danh',short:'Đặt sản xuất theo mùa, bán qua sỉ, cửa hàng, sàn và online',
+ earn:'Lãi nằm ở tỷ lệ bán đủ giá trước khi phải xả hàng, và ở chi phí của từng kênh bán.',
+ chain:[['Thiết kế, đặt sản xuất','Giá mua, chi phí phát triển mẫu','out'],['Kho trung tâm','Lưu kho, luân chuyển, hàng lỗi','out'],['Bán sỉ đại lý','Chiết khấu sỉ, công nợ','in'],['Cửa hàng','Mặt bằng, nhân viên ca','both',1],['Sàn thương mại điện tử','Phí sàn, quảng cáo, hàng hoàn','both',1],['Online riêng','Quảng cáo, vận chuyển','both'],['Xả hàng cuối mùa','Giảm giá sâu, thanh lý','in']],
+ units:[['Ngành hàng','nhóm sản phẩm, mùa','Lợi nhuận gộp','Tỷ lệ bán hết, bán đủ giá'],['Kênh sỉ','key account, đại lý','Lợi nhuận góp','Biên sau chiết khấu, ngày thu tiền'],['Cửa hàng','store, cụm cửa hàng','Lợi nhuận góp','Doanh thu trên m², lượt khách'],['Kênh online và sàn','từng sàn, website','Lợi nhuận góp','Chi phí có một khách, tỷ lệ hoàn']],
+ grid:[[1,1,0,0,0,0,1],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0],[0,0,0,0,1,1,0]],
+ stack:[['Doanh thu gộp theo kênh',''],['Giảm giá, chiết khấu, hàng hoàn','-'],['Doanh thu thuần','='],['Giá vốn theo mùa, theo mã hàng','-'],['Lợi nhuận gộp','='],['Chi phí của kênh: mặt bằng, phí sàn, quảng cáo, vận chuyển','-'],['Lợi nhuận góp từng kênh','='],['Kho trung tâm, thiết kế, hội sở','-'],['Lợi nhuận','==']],
+ stackNote:'Cấu trúc tầng, không có số.',
+ mets:[['Tỷ lệ bán hết theo mùa','Số lượng bán ÷ số lượng nhập của mùa','Mùa chưa bán hết là tồn kho sắp phải xả'],['Tỷ lệ bán đủ giá','Doanh thu giá gốc ÷ tổng doanh thu','Lãi gộp thật nằm ở phần bán đủ giá'],['Doanh thu trên m²','Doanh thu cửa hàng ÷ diện tích','So các cửa hàng khác quy mô'],['Chi phí có một khách','Chi phí quảng cáo ÷ khách mới','So kênh online với cửa hàng'],['Khách quay lại','Khách mua lần hai ÷ khách mới','Giá trị vòng đời của khách']],
+ inv:[1,'Hàng theo mùa, size, màu','Hàng mùa cũ mất giá rất nhanh; giá vốn bình quân che mất phần tồn kho đang mất giá.',['Tuổi tồn theo mùa','Tồn theo size, màu','Kế hoạch xả hàng']],
+ pits:[['So kênh trên doanh thu','Kênh sàn doanh thu lớn nhưng góp âm sau phí'],['Hàng hoàn ghi nhận trễ','Doanh thu sàn tháng này bị thổi phồng'],['Giá vốn bình quân','Che hàng mùa cũ đang mất giá'],['Phân bổ marketing đều các kênh','Không biết kênh nào thật sự đem khách']],
+ qs:['Kênh nào góp lợi nhuận sau khi trừ chi phí của chính kênh đó?','Còn bao nhiêu tồn kho của mùa trước, và xả ở đâu?','Khách từ kênh nào quay lại nhiều nhất?']},
+
+{id:'saas',name:'SaaS',tag:'tham khảo dự án thực tế · đã ẩn danh',short:'Thu phí thuê bao định kỳ; lãi đến từ giữ khách lâu hơn chi phí có khách',
+ earn:'Mỗi khách là một dòng doanh thu định kỳ; lãi đến từ giữ khách đủ lâu để vượt chi phí có được khách.',
+ chain:[['Phát triển sản phẩm','Đội sản phẩm, kỹ thuật','out'],['Marketing, bán hàng','Quảng cáo, đội bán, hoa hồng đối tác','out'],['Kích hoạt, triển khai','Onboarding, đào tạo khách','out'],['Thuê bao định kỳ','Phí tháng, phí năm thu trước','in',1],['Mở rộng, bán thêm','Thêm người dùng, thêm module','in',1],['Chăm sóc, giữ chân','Hỗ trợ khách, hạ tầng máy chủ','out'],['Rời bỏ','Doanh thu mất đi','out']],
+ units:[['Sản phẩm','từng module, gói','Lợi nhuận gộp','Biên gộp, mức dùng'],['Phân khúc khách','quy mô, ngành','Doanh thu định kỳ','NRR, tỷ lệ rời bỏ'],['Kênh bán','trực tiếp, đối tác','Chi phí có khách','CAC, thời gian hoàn vốn'],['Nghiên cứu và phát triển','đội sản phẩm','Chi phí','Chi phí trên tính năng']],
+ grid:[[1,0,0,1,1,1,0],[0,0,1,1,1,0,1],[0,1,0,0,0,0,0],[1,0,0,0,0,0,0]],
+ stack:[['Doanh thu định kỳ đầu kỳ',''],['Khách mới','+'],['Mở rộng từ khách cũ','+'],['Thu hẹp, rời bỏ','-'],['Doanh thu định kỳ cuối kỳ','='],['Chi phí phục vụ: hạ tầng, chăm sóc khách','-'],['Lợi nhuận gộp','='],['Marketing, bán hàng, phát triển, quản lý','-'],['Lợi nhuận','==']],
+ stackNote:'Hai tầng: cầu nối doanh thu định kỳ, rồi lợi nhuận. Không có số.',
+ mets:[['Doanh thu định kỳ tháng (MRR)','Tổng phí thuê bao quy về tháng','Nhịp tăng trưởng thật, không lẫn tiền thu trước'],['Giữ chân doanh thu (NRR)','(Đầu kỳ + mở rộng − thu hẹp − rời bỏ) ÷ đầu kỳ','Trên 100% là khách cũ tự tăng trưởng'],['Tỷ lệ rời bỏ','Khách rời bỏ ÷ khách đầu kỳ','Xô thủng: rời bỏ cao thì bán thêm cũng không đầy'],['CAC','Chi phí marketing, bán hàng ÷ khách mới','So theo kênh bán'],['LTV ÷ CAC','Giá trị vòng đời ÷ chi phí có khách','Kênh nào đáng đổ thêm tiền']],
+ inv:[0,'Không tồn kho hàng','Thứ "tồn" là doanh thu đã thu tiền nhưng chưa thực hiện, và công suất đội triển khai.',['Doanh thu chưa thực hiện','Tiền thu trước theo năm','Công suất triển khai']],
+ pits:[['Ghi doanh thu theo tiền thu','Tháng bán gói năm trông tăng vọt'],['Gộp khách dùng thử','Tỷ lệ rời bỏ và CAC bị méo'],['Hoa hồng đối tác ghi một lần','Chi phí có khách tháng đầu bị đội'],['Lẫn chi phí phục vụ với phát triển','Biên gộp không so được giữa các kỳ']],
+ qs:['Khách cũ đang tự tăng hay đang rời đi?','Kênh bán nào có LTV ÷ CAC tốt nhất?','Tháng nào tiền thu trước che mất tăng trưởng thật?']},
+
+{id:'logistics',name:'Logistics dịch vụ',tag:'khung tham khảo',short:'Bán công suất xe, kho, nhân lực; lãi đến từ lấp đầy công suất',
+ earn:'Chi phí cố định của xe và kho đã bỏ ra; lãi đến từ lấp đầy công suất và chọn đúng khách, đúng tuyến.',
+ chain:[['Đầu tư, thuê phương tiện và kho','Khấu hao, thuê dài hạn','out'],['Ký hợp đồng khách','Giá theo tuyến, theo khối lượng','in'],['Kho bãi','Nhập, lưu, xuất hàng cho khách','both',1],['Vận tải tuyến','Nhiên liệu, cầu đường, tài xế','both',1],['Giao nhận chặng cuối','Thuê ngoài, giao lại','both'],['Chứng từ, thông quan','Phí dịch vụ, chi hộ','in']],
+ units:[['Key account','khách lớn, hợp đồng','Lợi nhuận góp','Biên theo khách, ngày thu tiền'],['Tuyến','cặp điểm đi, điểm đến','Lợi nhuận góp','Lấp đầy, chạy rỗng, chi phí trên km'],['Kho','từng kho','Lợi nhuận','Lấp đầy diện tích, năng suất bốc xếp'],['Đội xe','phương tiện','Chi phí','Giờ chạy, sửa chữa, khấu hao']],
+ grid:[[0,1,0,0,0,1],[0,0,0,1,1,0],[1,0,1,0,0,0],[1,0,0,1,0,0]],
+ stack:[['Doanh thu dịch vụ (không gồm chi hộ)',''],['Chi phí biến đổi: nhiên liệu, cầu đường, thuê ngoài','-'],['Lợi nhuận góp theo chuyến, theo khách','='],['Chi phí cố định công suất: khấu hao xe, thuê kho, lương cố định','-'],['Lợi nhuận theo tuyến, theo kho','='],['Hội sở','-'],['Lợi nhuận','==']],
+ stackNote:'Cấu trúc tầng, không có số.',
+ mets:[['Tỷ lệ lấp đầy','Khối lượng chở ÷ tải trọng','Công suất bỏ trống là chi phí không thu hồi'],['Tỷ lệ chạy rỗng','Km không hàng ÷ tổng km','Điểm đắt nhất của tuyến một chiều'],['Chi phí trên km','Chi phí tuyến ÷ km chạy','So tuyến, so đội xe'],['Giao đúng hạn','Chuyến đúng hạn ÷ tổng chuyến','Giữ khách lớn'],['Biên theo khách','Lợi nhuận góp ÷ doanh thu khách','Khách lớn chưa chắc là khách lãi']],
+ inv:[0,'Không tồn kho hàng','Thứ "tồn" là công suất nhàn rỗi; vốn lưu động nằm ở công nợ khách lớn và tiền chi hộ.',['Công suất nhàn rỗi','Công nợ phải thu','Tiền chi hộ chưa thu']],
+ pits:[['Phân bổ chi phí bình quân các tuyến','Tuyến lỗ được tuyến lãi che'],['Tính chi hộ vào doanh thu','Doanh thu phồng, biên bị pha loãng'],['Chỉ nhìn doanh thu khách lớn','Khách lớn đàm phán giá sát, biên âm']],
+ qs:['Tuyến nào đang chạy rỗng chiều về?','Khách lớn nào có biên âm sau chi phí thật?','Mở thêm xe hay thuê ngoài cho mùa cao điểm?']},
+
+{id:'bds',name:'Bất động sản',tag:'khung tham khảo',short:'Phát triển dự án dài năm; tiền về theo tiến độ, lãi ghi nhận khi bàn giao',
+ earn:'Tiền về theo tiến độ bán, nhưng lãi chỉ ghi nhận khi bàn giao; báo cáo phải đi theo từng dự án, từng giai đoạn.',
+ chain:[['Quỹ đất, pháp lý','Tiền đất, chi phí pháp lý','out'],['Thiết kế, xây dựng','Chi phí xây dựng, hạ tầng','out'],['Mở bán','Tiền thu theo tiến độ, chưa là doanh thu','in',1],['Bàn giao','Ghi nhận doanh thu và giá vốn','both',1],['Cho thuê, vận hành','Tiền thuê định kỳ','in'],['Quản lý tòa nhà','Phí dịch vụ, chi phí vận hành','both']],
+ units:[['Dự án','từng dự án','Lợi nhuận dự án','Biên gộp dự án, dòng tiền dự án'],['Giai đoạn','phân kỳ trong dự án','Lợi nhuận','Tiến độ bán, tiến độ xây'],['Loại sản phẩm','căn hộ, nhà phố, thương mại','Lợi nhuận gộp','Giá bán trên m²'],['Mảng cho thuê','tòa nhà, khu thương mại','Lợi nhuận','Tỷ lệ lấp đầy, giá thuê']],
+ grid:[[1,1,1,1,0,0],[0,1,1,1,0,0],[0,0,1,1,0,0],[0,0,0,0,1,1]],
+ stack:[['Doanh thu bàn giao',''],['Giá vốn: đất, xây dựng, lãi vay vốn hóa','-'],['Lợi nhuận gộp dự án','='],['Hoa hồng môi giới, marketing','-'],['Quản lý dự án, hội sở','-'],['Lợi nhuận dự án','=='],['Song song: dòng tiền dự án theo tiến độ thu, chi','+-']],
+ stackNote:'Cấu trúc tầng, không có số. Lợi nhuận và dòng tiền phải đọc song song.',
+ mets:[['Tiến độ bán','Số căn đã bán ÷ tổng số căn','Rủi ro tồn kho thành phẩm'],['Giá bán trên m²','Giá trị hợp đồng ÷ diện tích','So giai đoạn, so loại sản phẩm'],['Biên gộp dự án','Lợi nhuận gộp ÷ doanh thu dự án','Theo dõi từ lúc lập ngân sách đến lúc quyết toán'],['Thu so với chi theo tiến độ','Tiền thu lũy kế − tiền chi lũy kế','Nhu cầu vốn của dự án'],['Tỷ lệ lấp đầy','Diện tích cho thuê ÷ tổng diện tích','Mảng cho thuê']],
+ inv:[1,'Tồn kho lớn, chu kỳ nhiều năm','Dở dang và thành phẩm là tài sản lớn nhất; người mua trả trước theo tiến độ.',['Dở dang theo dự án','Thành phẩm chưa bán','Tiền người mua trả trước']],
+ pits:[['Đọc lãi theo kỳ báo cáo','Lãi phụ thuộc thời điểm bàn giao, không phản ánh hoạt động kỳ đó'],['Lãi vay vốn hóa','Che chi phí vốn thật của dự án'],['Phân bổ hạ tầng chung','Giai đoạn đầu gánh chi phí của giai đoạn sau']],
+ qs:['Dự án nào đang cần thêm vốn trước khi bàn giao?','Biên gộp dự án đang lệch bao nhiêu so ngân sách ban đầu?','Giai đoạn nào bán chậm hơn tiến độ xây?']},
+
+{id:'fnb',name:'F&B chuỗi',tag:'khung tham khảo',short:'Bán món tại cửa hàng và qua ứng dụng; lãi nằm ở nguyên liệu và nhân công trên doanh thu',
+ earn:'Mỗi đồng doanh thu phải gánh nguyên liệu, nhân công và mặt bằng; lãi nằm ở kiểm soát hao hụt và ca làm.',
+ chain:[['Mua nguyên liệu','Giá mua, hao hụt vận chuyển','out'],['Bếp trung tâm','Sơ chế, chia định lượng','out'],['Cửa hàng chế biến','Nhân công ca, điện, gas','out'],['Bán tại chỗ','Doanh thu tại cửa hàng','in',1],['Mang đi','Doanh thu mang đi','in'],['Ứng dụng giao hàng','Doanh thu trừ phí ứng dụng','both',1]],
+ units:[['Cửa hàng','từng điểm bán','Lợi nhuận cửa hàng','Doanh thu mỗi ngày, lãi bốn bức tường'],['Kênh bán','tại chỗ, mang đi, ứng dụng','Lợi nhuận góp','Biên sau phí ứng dụng'],['Món, nhóm món','thực đơn','Lợi nhuận gộp','Biên món, tỷ trọng bán'],['Bếp trung tâm','sơ chế','Chi phí','Hao hụt so định mức']],
+ grid:[[0,0,1,1,1,0],[0,0,0,1,1,1],[1,0,1,0,0,0],[1,1,0,0,0,0]],
+ stack:[['Doanh thu gộp',''],['Chiết khấu, phí ứng dụng','-'],['Doanh thu thuần','='],['Nguyên liệu theo định mức và hao hụt','-'],['Lợi nhuận gộp','='],['Nhân công ca, mặt bằng, điện nước','-'],['Lãi cửa hàng (bốn bức tường)','='],['Vùng, bếp trung tâm, hội sở','-'],['Lợi nhuận','==']],
+ stackNote:'Cấu trúc tầng, không có số.',
+ mets:[['Chi phí nguyên liệu trên doanh thu','Nguyên liệu ÷ doanh thu thuần','Chỉ số theo dõi hằng tuần'],['Chi phí nhân công trên doanh thu','Nhân công ÷ doanh thu thuần','Xếp ca theo giờ cao điểm'],['Hao hụt so định mức','Xuất kho thực tế − định mức theo món bán','Nơi thất thoát lớn nhất'],['Doanh thu cùng cửa hàng','So cùng cửa hàng, cùng kỳ','Tách tăng trưởng thật khỏi mở mới'],['Giá trị hóa đơn, lượt khách','Doanh thu ÷ số hóa đơn','Hai đòn bẩy doanh thu']],
+ inv:[1,'Tồn kho ngắn ngày','Nguyên liệu hỏng nhanh; hao hụt quan trọng hơn tuổi tồn. Kiểm kê theo ngày hoặc tuần.',['Hao hụt theo món','Kiểm kê ngày','Hủy hàng hết hạn']],
+ pits:[['Giá vốn theo xuất kho','Che hao hụt so với định mức'],['Ghi phí ứng dụng vào chi phí bán hàng','Doanh thu phồng, không so được kênh'],['Phân bổ bếp trung tâm theo doanh thu','Cửa hàng dùng ít vẫn gánh nhiều']],
+ qs:['Cửa hàng nào hao hụt vượt định mức?','Kênh ứng dụng còn lãi sau phí không?','Tăng trưởng đến từ cửa hàng cũ hay từ mở mới?']}
+];
+const AX=[['Tồn kho hàng hóa',{oto:3,banle:3,saas:0,logistics:0,bds:3,fnb:2}],['Chu kỳ vốn dài',{oto:2,banle:2,saas:1,logistics:1,bds:3,fnb:1}],['Nhiều kênh bán',{oto:1,banle:3,saas:2,logistics:1,bds:2,fnb:3}],['Chi phí cố định cao',{oto:2,banle:2,saas:2,logistics:3,bds:2,fnb:2}],['Doanh thu định kỳ',{oto:1,banle:0,saas:3,logistics:2,bds:1,fnb:0}],['Quản trị theo dự án',{oto:0,banle:0,saas:0,logistics:1,bds:3,fnb:0}]];
+
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const dots=n=>'<span class="dots" aria-label="'+n+' trên 3">'+[1,2,3].map(k=>'<i class="'+(k<=n?'on':'')+'"></i>').join('')+'</span>';
+const mlab={in:'↓ tiền vào',out:'↑ tiền ra',both:'↕ cả hai'};
+
+function page(d){
+  const cols=d.chain.length;
+  let chain=d.chain.map(s=>`<div class="st${s[3]?' hl':''}"><b>${esc(s[0])}</b><span>${esc(s[1])}</span><span class="m ${s[2]}">${mlab[s[2]]}</span></div>`).join('');
+  let map=`<div class="map" style="grid-template-columns:130px repeat(${cols},minmax(0,1fr)) 170px"><div class="h x"></div>`+d.chain.map((s,i)=>`<div class="h">${i+1} ${esc(s[0])}</div>`).join('')+`<div class="h x" style="color:var(--dim)">Trách nhiệm · KPI</div>`;
+  d.units.forEach((u,r)=>{map+=`<div class="ln">${esc(u[0])}<span>${esc(u[1])}</span></div>`;
+    d.grid[r].forEach((v,c)=>{map+=`<div class="c${v?' on':''}" aria-label="${v?'có':'không'}">${v?'<i class="dot"></i>':''}</div>`;});
+    map+=`<div class="k"><b>${esc(u[2])}</b>${esc(u[3])}</div>`;});
+  map+='</div>';
+  const sgn={'':'','+':'+','-':'−','+-':'±','=':'=','==':'='};
+  const cls={'':'','+':'plus','-':'minus','+-':'plus','=':'sub','==':'fin'};
+  let stack=d.stack.map(t=>`<div class="ti ${cls[t[1]]}"><span class="s">${sgn[t[1]]}</span><span>${esc(t[0])}</span><span class="v">${t[2]?esc(t[2]):''}</span></div>`).join('');
+  let mets=d.mets.map(m=>`<div class="met"><b>${esc(m[0])}</b><span class="f">${esc(m[1])}</span><span>${esc(m[2])}</span></div>`).join('');
+  const inv=d.inv;
+  let pits=d.pits.map(p=>`<div class="pit"><b>Bẫy</b><strong>${esc(p[0])}</strong><br>${esc(p[1])}</div>`).join('');
+  let qs=d.qs.map((q,i)=>`<li><i>${i+1}</i><span>${esc(q)}</span></li>`).join('');
+  return `<section class="pg" id="pg-${d.id}" aria-labelledby="h-${d.id}">
+  <div class="hero"><div><p class="eyebrow">Ngành · <span class="tagsrc">${esc(d.tag)}</span></p><h2 id="h-${d.id}" style="font-size:clamp(26px,3.4vw,36px);margin-top:8px">${esc(d.name)}</h2><p class="lead">${esc(d.short)}</p></div>
+   <div class="earn"><span class="k">Doanh nghiệp kiếm tiền thế nào</span><p>${esc(d.earn)}</p></div></div>
+  <div class="block"><p class="lbl">1 · Chuỗi giá trị — tiền vào, tiền ra ở từng chặng</p><div class="chain">${chain}</div>
+   <div class="legend"><span><i style="background:var(--g)"></i>tiền vào</span><span><i style="background:var(--warn)"></i>tiền ra</span><span><i style="background:var(--gold)"></i>cả hai</span><span><i style="background:var(--gs);border:1px solid var(--g)"></i>chặng tạo lãi chính</span></div></div>
+  <div class="block"><p class="lbl">2 · Bản đồ thiết kế — chuỗi giá trị × đơn vị quản trị</p><div class="mapw">${map}</div>
+   <p class="src">Cột: thiết kế 1 · hệ thống khoản mục theo chuỗi giá trị · Hàng: thiết kế 2 · đơn vị được giao quyền, trách nhiệm, KPI</p></div>
+  <div class="block two"><div><p class="lbl">3 · Các tầng lợi nhuận</p><div class="stack">${stack}</div><p class="src">${esc(d.stackNote)}</p></div>
+   <div><p class="lbl">4 · Tồn kho và chuỗi cung ứng</p><div class="inv"><div class="badge ${inv[0]?'yes':'no'}">${inv[0]?'Có tồn kho':'Không tồn kho'}<small>${inv[0]?'hàng hóa':'hàng hóa'}</small></div><div><b>${esc(inv[1])}</b><p style="margin:4px 0 0;font-size:14px;color:var(--mut)">${esc(inv[2])}</p><div class="chips">${inv[3].map(c=>'<span class="chip">'+esc(c)+'</span>').join('')}</div></div></div>
+   <p class="lbl" style="margin-top:20px">6 · Câu hỏi Ban giám đốc sẽ hỏi</p><ul class="qs">${qs}</ul></div></div>
+  <div class="block"><p class="lbl">5 · Chỉ số chính — công thức và vì sao ngành này nhìn nó</p><div class="mets">${mets}</div></div>
+  <div class="block"><p class="lbl">7 · Bẫy thường gặp khi thiết kế</p><div class="pits">${pits}</div></div>
+  </section>`;
+}
+function overview(){
+  const cards=IND.map((d,i)=>`<a class="ic" href="#${d.id}"><span class="n">${String(i+1).padStart(2,'0')} · ${esc(d.tag)}</span><b>${esc(d.name)}</b><span>${esc(d.short)}</span><em>Mở bản đồ →</em></a>`).join('');
+  let tb='<table class="ov"><thead><tr><th>Đặc điểm</th>'+IND.map(d=>`<th>${esc(d.name)}</th>`).join('')+'</tr></thead><tbody>'+AX.map(a=>'<tr><td>'+esc(a[0])+'</td>'+IND.map(d=>'<td>'+dots(a[1][d.id])+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+  return `<section class="pg" id="pg-tong">
+   <div class="hero"><div><h2>Mười bước giữ nguyên, nội dung bản đồ thay đổi</h2><p class="lead">Vị trí trên chuỗi giá trị quyết định cách tổ chức đơn vị quản trị. Cơ cấu chi phí quyết định hệ thống khoản mục. Cách kiếm tiền quyết định bộ chỉ số. Có hay không có tồn kho quyết định chuỗi cung ứng có đi vào báo cáo hay không.</p></div>
+   <div class="earn"><span class="k">Cách dùng tài liệu này</span><p>Chọn ngành gần với doanh nghiệp của anh/chị, đọc bảy phần theo thứ tự, rồi vẽ bản đồ cho doanh nghiệp mình ở buổi 4.</p></div></div>
+   <div class="block"><p class="lbl">Sáu ngành</p><div class="cards">${cards}</div></div>
+   <div class="block"><p class="lbl">So sánh nhanh · đánh giá định tính, ba mức</p><div class="ovw">${tb}</div></div>
+   <div class="block"><p class="lbl">Bảy phần của mỗi trang ngành</p><div class="mets">
+    <div class="met"><b>1 · Chuỗi giá trị</b><span>Các chặng tạo ra hoặc tiêu hao giá trị, tiền vào hay tiền ra</span></div>
+    <div class="met"><b>2 · Bản đồ thiết kế</b><span>Chuỗi giá trị × đơn vị quản trị, cột cuối là trách nhiệm và KPI</span></div>
+    <div class="met"><b>3 · Các tầng lợi nhuận</b><span>Cộng theo cách ngành đó kiếm tiền</span></div>
+    <div class="met"><b>4 · Tồn kho và chuỗi cung ứng</b><span>Thứ gì đang "tồn" và làm tốn vốn</span></div>
+    <div class="met"><b>5 · Chỉ số chính</b><span>Công thức và lý do ngành này nhìn chỉ số đó</span></div>
+    <div class="met"><b>6 · Câu hỏi của Ban giám đốc</b><span>Báo cáo phải trả lời được</span></div>
+    <div class="met"><b>7 · Bẫy thiết kế</b><span>Chỗ báo cáo hay che mất sự thật</span></div>
+   </div></div>
+  </section>`;
+}
+document.getElementById('pages').innerHTML=overview()+IND.map(page).join('');
+document.getElementById('tabs').innerHTML='<a href="#tong">Tổng quan</a>'+IND.map(d=>`<a href="#${d.id}">${esc(d.name)}</a>`).join('');
+function show(){
+  let id=(location.hash||'#tong').slice(1); if(!document.getElementById('pg-'+id)) id='tong';
+  document.querySelectorAll('section.pg').forEach(s=>s.classList.toggle('on',s.id==='pg-'+id));
+  document.querySelectorAll('#tabs a').forEach(a=>{const on=a.getAttribute('href')==='#'+id;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  window.scrollTo(0,0);
+}
+addEventListener('hashchange',show); show();
+</script>
