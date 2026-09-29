@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CFO gọi, CHRO trả lời</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+/* Layout: split hero (forest | cream) → sticky pill tabs → one panel per tab; each case = beat strip + timeline + script blocks + simulator spec + takeaway by audience */
+:root{
+  --s-cream:#F7F5EF; --s-cream-warm:#EFEBE0; --s-white:#FFFFFF;
+  --s-green:#00704A; --s-forest:#1E3932; --s-deep:#14261F; --s-green-soft:#D4E9E2;
+  --s-ink:#1E3932; --s-muted:#5C6B66; --s-dim:#637069;
+  --s-line:#DFDBD0; --s-line-dark:#2C4A40;
+  --s-gold:#C9A227; --s-warn:#A6603A;
+  --s-warn-bg:#FDF6F1; --s-gold-bg:#FDFAF0;
+  --s-on-forest:#FFFFFF; --s-on-forest-dim:#B9CFC6;
+  --s-serif:'Noto Serif Display',Georgia,'Times New Roman',serif;
+  --s-sans:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --s-mono:'DM Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --s-r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --s-cream:#101916; --s-cream-warm:#16221E; --s-white:#1A2723;
+  --s-green:#3FB68A; --s-forest:#1E3932; --s-deep:#0B1411; --s-green-soft:#1C3A30;
+  --s-ink:#E4EEE9; --s-muted:#A9B8B1; --s-dim:#98A8A1;
+  --s-line:#2A3934; --s-line-dark:#2C4A40;
+  --s-gold:#D9B84A; --s-warn:#D08A60; --s-warn-bg:#2A1E17; --s-gold-bg:#27230F;
+  --s-on-forest:#FFFFFF; --s-on-forest-dim:#B9CFC6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --s-cream:#101916; --s-cream-warm:#16221E; --s-white:#1A2723;
+  --s-green:#3FB68A; --s-forest:#1E3932; --s-deep:#0B1411; --s-green-soft:#1C3A30;
+  --s-ink:#E4EEE9; --s-muted:#A9B8B1; --s-dim:#98A8A1;
+  --s-line:#2A3934; --s-line-dark:#2C4A40;
+  --s-gold:#D9B84A; --s-warn:#D08A60; --s-warn-bg:#2A1E17; --s-gold-bg:#27230F;
+  --s-on-forest:#FFFFFF; --s-on-forest-dim:#B9CFC6; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--s-cream);color:var(--s-ink);font-family:var(--s-sans);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--s-serif);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5.4vw,50px);line-height:1.12;letter-spacing:-.015em}
+h2{font-size:clamp(22px,3.4vw,30px);line-height:1.2}
+h3{font-size:17px;font-weight:600;margin:0}
+p{margin:0}
+.eyebrow{font-family:var(--s-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--s-dim)}
+.meta{font-family:var(--s-mono);font-size:11px;color:var(--s-dim)}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.stack-l{display:flex;flex-direction:column;gap:36px}
+.num{font-variant-numeric:tabular-nums}
+
+/* hero split */
+.split{display:grid;grid-template-columns:1fr 1fr}
+.pane-green{background:var(--s-forest);color:var(--s-on-forest);display:flex;flex-direction:column;justify-content:center;gap:14px;padding:52px 40px}
+.pane-green .eyebrow{color:var(--s-on-forest-dim)}
+.pane-green p{color:var(--s-on-forest-dim);max-width:44ch}
+.pane-light{background:var(--s-cream-warm);padding:44px 40px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:15px}
+.facts dt{font-family:var(--s-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--s-dim);padding-top:3px}
+.facts dd{margin:0}
+@media(max-width:820px){.split{grid-template-columns:1fr}.pane-green,.pane-light{padding:36px 20px}}
+
+/* tabs */
+.tabbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--s-cream);border-bottom:1px solid var(--s-line)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-block:12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1.5px solid var(--s-green);color:var(--s-green);background:transparent;border-radius:999px;padding:7px 18px;font:500 14px var(--s-sans);cursor:pointer;white-space:nowrap}
+.tab:hover{background:var(--s-green-soft)}
+.tab[aria-selected="true"]{background:var(--s-green);color:var(--s-white)}
+.tab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,112,74,.25)}
+.panel{padding-block:36px 64px}
+
+/* card, notes, quote */
+.card{border-radius:var(--s-r);border:1px solid var(--s-line);background:var(--s-white);padding:20px 22px;min-width:0}
+.note{border-left:3px solid var(--s-green);background:var(--s-white);padding:14px 18px;border-radius:0 10px 10px 0}
+.note.warn{border-left-color:var(--s-warn);background:var(--s-warn-bg)}
+.note.gold{border-left-color:var(--s-gold);background:var(--s-gold-bg)}
+.quote{font-family:var(--s-serif);font-style:italic;font-size:18px;line-height:1.55;border-left:3px solid var(--s-green);background:var(--s-green-soft);padding:16px 20px;border-radius:0 12px 12px 0}
+.fill{font-family:var(--s-mono);font-size:12.5px;color:var(--s-warn);background:var(--s-warn-bg);padding:1px 6px;border-radius:4px;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+ul,ol{margin:0;padding-left:20px}
+li+li{margin-top:6px}
+.card h3{margin-bottom:8px}
+
+/* section header */
+.sec-head{display:flex;flex-direction:column;gap:6px;max-width:70ch}
+.sec-head p{color:var(--s-muted)}
+
+/* beat strip: real sequence of the 5-beat loop */
+.beats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:1px solid var(--s-line);border-radius:var(--s-r);overflow:hidden;background:var(--s-white)}
+.beat{padding:14px 16px;border-right:1px solid var(--s-line);display:flex;flex-direction:column;gap:4px;min-width:0}
+.beat:last-child{border-right:0}
+.beat .t{font-family:var(--s-mono);font-size:11px;color:var(--s-dim)}
+.beat b{font-size:15px}
+.beat span{font-size:13.5px;color:var(--s-muted);line-height:1.5}
+@media(max-width:820px){.beats{grid-template-columns:1fr}.beat{border-right:0;border-bottom:1px solid var(--s-line)}.beat:last-child{border-bottom:0}}
+
+/* role chips */
+.chip{display:inline-block;font-family:var(--s-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
+.r-mc{color:var(--s-muted)}
+.r-cfo{color:var(--s-warn)}
+.r-chro{color:var(--s-green)}
+.r-vote{color:var(--s-gold)}
+.r-tool{color:var(--s-ink)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border-radius:var(--s-r);border:1px solid var(--s-line)}
+table{width:100%;border-collapse:collapse;background:var(--s-white);font-size:14.5px}
+th{background:var(--s-forest);color:var(--s-on-forest);font-family:var(--s-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:10px 14px;font-weight:400;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--s-line);vertical-align:top}
+tbody tr:nth-child(even){background:var(--s-cream-warm)}
+tbody tr:last-child td{border-bottom:0}
+td.t{font-family:var(--s-mono);font-size:12.5px;white-space:nowrap;color:var(--s-dim)}
+td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td{font-weight:600}
+
+/* script lines */
+.lines{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.lines li{margin:0;display:grid;grid-template-columns:28px 1fr;gap:10px}
+.lines .n{font-family:var(--s-mono);font-size:12px;color:var(--s-dim);padding-top:3px}
+.lines .say{font-family:var(--s-serif);font-style:italic;font-size:17px;line-height:1.5}
+.lines .why{display:block;font-size:14px;color:var(--s-muted);margin-top:3px}
+.keep{font-family:var(--s-mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--s-warn);border:1px solid var(--s-warn);border-radius:4px;padding:1px 6px;margin-left:6px;white-space:nowrap}
+
+.formula{font-family:var(--s-mono);font-size:14px;background:var(--s-cream-warm);border-radius:10px;padding:14px 16px;line-height:1.6;overflow-x:auto}
+.vote{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vote div{border:1.5px solid var(--s-line);border-radius:12px;padding:14px 16px;background:var(--s-white)}
+.vote .a{border-color:var(--s-warn)}
+.vote .b{border-color:var(--s-green)}
+.vote small{font-family:var(--s-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+.vote .a small{color:var(--s-warn)} .vote .b small{color:var(--s-green)}
+@media(max-width:560px){.vote{grid-template-columns:1fr}}
+
+.footer{border-top:1px solid var(--s-line);padding-block:20px 32px}
+.src{font-size:13.5px;color:var(--s-muted)}
+.src a{color:var(--s-green)}
+a{color:var(--s-green)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="split">
+  <div class="pane-green">
+    <span class="eyebrow">Workshop 120 phút · Nhân sự × Tài chính</span>
+    <h1>CFO gọi, CHRO trả lời</h1>
+    <p>Một vấn đề, hai góc nhìn. Ba case chi phí nhân sự: tuyển, nuôi và lọc, giữ chân. Mỗi case kết thúc bằng một công cụ mô phỏng để hai phía cùng ra quyết định.</p>
+  </div>
+  <div class="pane-light">
+    <span class="eyebrow">Đề cương kịch bản · <span data-ver></span></span>
+    <dl class="facts">
+      <dt>CFO</dt><dd>Trung, vai CFO khó tính, giữ lập luận kiểm soát và dựng công cụ mô phỏng</dd>
+      <dt>CHRO</dt><dd>Nguyệt, phân tích case và góc nhìn ẩn của nhân sự <span class="fill">[[CẦN XÁC NHẬN]]</span></dd>
+      <dt>MC</dt><dd>Dẫn tình huống, điều phối vote <span class="fill">[[CẦN ĐIỀN: tên MC]]</span></dd>
+      <dt>Khán giả</dt><dd>① TPNS, GĐNS · ② TP Tài chính, phân tích tài chính, FP&amp;A, CFO · ③ Tư vấn BHNT doanh nghiệp</dd>
+      <dt>Lịch</dt><dd><span class="fill">[[CẦN ĐIỀN: ngày, địa điểm, sĩ số]]</span></dd>
+    </dl>
+    <p class="meta" data-stamp></p>
+  </div>
+</header>
+
+<nav class="tabbar" aria-label="Các phần của đề cương">
+  <div class="wrap"><div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-tong" aria-controls="p-tong" data-k="tong">Kịch bản tổng thể</button>
+    <button class="tab" role="tab" id="t-c1" aria-controls="p-c1" data-k="c1">Case 1 · Tuyển</button>
+    <button class="tab" role="tab" id="t-c2" aria-controls="p-c2" data-k="c2">Case 2 · Nuôi &amp; lọc</button>
+    <button class="tab" role="tab" id="t-c3" aria-controls="p-c3" data-k="c3">Case 3 · Giữ chân</button>
+    <button class="tab" role="tab" id="t-cta" aria-controls="p-cta" data-k="cta">CTA</button>
+  </div></div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ TAB 1: TỔNG THỂ ============ -->
+<section class="panel stack-l" id="p-tong" role="tabpanel" aria-labelledby="t-tong">
+
+  <div class="sec-head">
+    <span class="eyebrow">Mục tiêu</span>
+    <h2>Sau 120 phút, mỗi nhóm khán giả mang về một thứ dùng được ngay</h2>
+    <p>Workshop, không phải lớp học. Không giảng khái niệm trước. Mỗi case bắt đầu bằng một khoản chi gây tranh cãi, để khán giả chọn phe trước khi thấy con số.</p>
+  </div>
+
+  <div class="grid3">
+    <div class="card"><span class="chip r-chro">Nhóm ①</span><h3 style="margin-top:10px">TPNS, GĐNS</h3><p>Trình được một đề xuất nhân sự bằng ngôn ngữ của CFO: chi phí thay thế, hòa vốn, đường cong năng suất.</p></div>
+    <div class="card"><span class="chip r-cfo">Nhóm ②</span><h3 style="margin-top:10px">Tài chính, FP&amp;A, CFO</h3><p>Nhìn thấy các chi phí ẩn mà sổ sách không ghi: vị trí để trống, thung lũng ramp-up, nghỉ việc đáng tiếc.</p></div>
+    <div class="card"><span class="chip r-vote">Nhóm ③</span><h3 style="margin-top:10px">Tư vấn BHNT doanh nghiệp</h3><p>Hiểu CFO khách hàng sẽ phản biện gói BHNT ra sao, và cách trả lời bằng phép so sánh cùng ngân sách.</p></div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head">
+      <span class="eyebrow">Nhịp lặp của mỗi case · 30 phút</span>
+      <h2>Năm nhịp, lặp lại ba lần</h2>
+      <p>Luật chơi giống nhau cho cả ba case. Đến case 2, khán giả đã quen nhịp nên thời gian dành trọn cho nội dung.</p>
+    </div>
+    <div class="beats">
+      <div class="beat"><span class="t">0–3′</span><b><span class="chip r-mc">MC</span></b><span>Nêu tình huống bằng một slide số liệu và một email gây sốc</span></div>
+      <div class="beat"><span class="t">3–8′</span><b><span class="chip r-cfo">CFO</span></b><span>Lập luận kiểm soát của tài chính, 4–5 câu, từ nhẹ đến nặng</span></div>
+      <div class="beat"><span class="t">8–16′</span><b><span class="chip r-chro">CHRO</span></b><span>Phân tích case, lật các chi phí và lợi ích ẩn của nhân sự</span></div>
+      <div class="beat"><span class="t">16–19′</span><b><span class="chip r-vote">Vote</span></b><span>Khán giả chọn phe. Kết quả tách theo 3 nhóm khán giả</span></div>
+      <div class="beat"><span class="t">19–30′</span><b><span class="chip r-tool">Tool</span></b><span>CFO dựng mô phỏng, CHRO đưa giả định, khán giả gọi số. Chốt mô hình quyết định</span></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Run of show</span><h2>Lịch chạy 120 phút</h2></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Phút</th><th>Ai</th><th>Nội dung</th><th>Ghi chú dàn dựng</th></tr></thead>
+      <tbody>
+        <tr><td class="t">0–3</td><td><span class="chip r-mc">MC</span></td><td>Mở màn. Vote khởi động: "Anh chị thuộc nhóm nào?" (3 lựa chọn). Câu mồi: "Lần gần nhất nhân sự và tài chính tranh cãi vì một khoản chi là khi nào?"</td><td>Câu hỏi nhóm khán giả dùng để tách kết quả vote cả ba case</td></tr>
+        <tr><td class="t">3–8</td><td><span class="chip r-cfo">CFO</span> <span class="chip r-chro">CHRO</span></td><td>Khẩu chiến mở màn, mỗi người 60 giây. CFO: "Nhân sự tiêu tiền, tài chính giữ tiền." CHRO: "Tài chính đếm tiền, nhân sự tạo ra những người làm ra tiền."</td><td>Không giới thiệu tiểu sử dài. Tiểu sử để trên slide nền</td></tr>
+        <tr><td class="t">8–10</td><td><span class="chip r-mc">MC</span></td><td>Luật chơi: 5 nhịp, vote sau khi nghe hai phía, công cụ mô phỏng phân xử</td><td>Hiển thị dải 5 nhịp trên màn hình</td></tr>
+        <tr><td class="t">10–40</td><td>Cả ba</td><td><b>Case 1 · "300 triệu cho một cái CV"</b></td><td>Tab Case 1</td></tr>
+        <tr><td class="t">40–70</td><td>Cả ba</td><td><b>Case 2 · "Cắt 25% sale doanh số thấp nhất"</b></td><td>Tab Case 2</td></tr>
+        <tr><td class="t">70–100</td><td>Cả ba</td><td><b>Case 3 · "Thưởng tiền cho nóng hay mua BHNT?"</b></td><td>Tab Case 3</td></tr>
+        <tr><td class="t">100–108</td><td><span class="chip r-cfo">CFO</span> <span class="chip r-chro">CHRO</span></td><td>Tổng hợp: kết quả vote 3 case theo 3 nhóm khán giả, ba mô hình quyết định trên một trang</td><td>Khoảnh khắc "phe tài chính vote cho ai" thường tạo tiếng cười</td></tr>
+        <tr><td class="t">108–118</td><td><span class="chip r-mc">MC</span> <span class="chip r-chro">CHRO</span></td><td>CTA: khóa 1 ngày ngân sách nhân sự 2027 và tư vấn gói BHNT giữ chân</td><td>Tab CTA</td></tr>
+        <tr><td class="t">118–120</td><td><span class="chip r-mc">MC</span></td><td>Đóng, quét QR đăng ký và khảo sát</td><td></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card stack">
+      <h3>Nguyên tắc đóng vai</h3>
+      <ul>
+        <li><b>CFO không thua trắng.</b> Mỗi case, CFO giữ một luận điểm đứng vững đến cuối (đánh dấu <span class="keep">giữ đến cuối</span>). Nếu nhân sự thắng tuyệt đối, khán giả nhóm ② sẽ đọc thành "phe nhân sự dạy phe tài chính".</li>
+        <li><b>Công cụ mô phỏng là trọng tài.</b> Không bên nào tuyên bố thắng. Công cụ cho thấy đáp án phụ thuộc giả định của từng doanh nghiệp.</li>
+        <li><b>Không bán hàng trong case.</b> Không nhắc sản phẩm hay hãng bảo hiểm cụ thể trong case 3. Mọi lời chào chỉ nằm ở phần CTA.</li>
+        <li><b>Số liệu:</b> mọi con số tình huống là số minh họa, ghi rõ trên slide. Quy định thuế ở case 3 trích nguồn chính thức.</li>
+      </ul>
+    </div>
+    <div class="card stack">
+      <h3>Hạ tầng vote</h3>
+      <ul>
+        <li>Slido hoặc Mentimeter qua QR, câu hỏi nhóm khán giả đặt từ đầu để tách kết quả theo nhóm.</li>
+        <li>Phương án dự phòng: thẻ hai màu phát tại bàn. Nâu đất cho CFO, xanh cho CHRO.</li>
+        <li>MC đọc kết quả theo nhóm: "Nhóm tài chính 70% theo CFO, nhóm nhân sự 80% theo CHRO. Công cụ sẽ phân xử."</li>
+      </ul>
+      <p class="meta">Mỗi vote tối đa 3 phút, kể cả đọc kết quả.</p>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Ba công cụ mô phỏng</span><h2>Ai sẽ mở lại công cụ lần thứ hai?</h2>
+      <p>Theo quy tắc trước khi build tool đào tạo: mỗi công cụ phải có người dùng lại sau buổi. Ba công cụ cũng là quà tặng cho người đăng ký ở phần CTA.</p></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Công cụ</th><th>Câu hỏi quyết định</th><th>Ai mở lại, khi nào</th></tr></thead>
+      <tbody>
+        <tr><td><b>① Headhunt hay tự tuyển</b></td><td>Vị trí này có đáng trả phí headhunt không? Phí tối đa bao nhiêu thì còn đáng?</td><td>TPNS trước khi ký hợp đồng headhunt tiếp theo. CFO khi duyệt đề nghị tuyển</td></tr>
+        <tr><td><b>② Đường cong thâm niên sale</b></td><td>Cắt người, dừng tuyển hay dựng cổng lọc? Kết quả sau 12 tháng khác nhau thế nào?</td><td>GĐ kinh doanh và FP&amp;A khi lên định biên sale năm 2027</td></tr>
+        <tr><td><b>③ BHNT hay trả lương</b></td><td>Cùng một ngân sách, trả bằng lương hay bằng BHNT? Cần giữ thêm bao nhiêu người để hòa vốn?</td><td>TPNS khi làm tờ trình phúc lợi. Tư vấn BHNT khi gặp CFO khách hàng. Đầu vào của dịch vụ tư vấn ở CTA 2</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Chuẩn bị</span><h2>Checklist trước ngày diễn</h2></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Hạng mục</th><th>Người phụ trách</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+        <tr><td>Slide bối cảnh 3 case, mỗi case 2–3 slide, số minh họa ghi rõ</td><td>Trung</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+        <tr><td>3 công cụ mô phỏng HTML, chạy offline, có sẵn kịch bản demo</td><td>Trung</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+        <tr><td>Câu hỏi vote trên Slido/Mentimeter và thẻ hai màu dự phòng</td><td>MC, BTC</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+        <tr><td>Handout 1 trang: ba mô hình quyết định</td><td>Trung, Nguyệt</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+        <tr><td>Kế toán thuế rà phần thuế case 3 (NĐ 320/2025, NĐ 253/2026)</td><td>Nguyệt, Hương</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+        <tr><td>Form đăng ký CTA và QR, kịch bản follow-up trong 48 giờ</td><td>Nguyệt, Hương</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+        <tr><td>Tập dượt đối đáp CFO – CHRO, tối thiểu một lần chạy đủ 120 phút</td><td>Cả hai</td><td><span class="fill">[[CẦN LÀM]]</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="note gold">
+    <b>Giả định đã dùng trong đề cương:</b> Nguyệt đóng vai CHRO. Hương là tư vấn BHNT, tham gia phần CTA 2, không đứng trên sân khấu trong case. Chưa có MC, ngày diễn và sĩ số. Case 3 dùng số liệu 40 nhân sự từ bài phân tích BHNT đã có.
+  </div>
+</section>
+
+<!-- ============ TAB 2: CASE 1 ============ -->
+<section class="panel stack-l" id="p-c1" role="tabpanel" aria-labelledby="t-c1" hidden>
+  <div class="sec-head">
+    <span class="eyebrow">Case 1 · Tuyển · phút 10–40</span>
+    <h2>"300 triệu cho một cái CV"</h2>
+    <p>Câu hỏi chủ đạo: headhunt đắt hay rẻ là câu hỏi sai. Câu hỏi đúng là headhunt cho vị trí nào.</p>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phút</th><th>Ai</th><th>Làm gì</th><th>Trên màn hình</th></tr></thead>
+    <tbody>
+      <tr><td class="t">10–13</td><td><span class="chip r-mc">MC</span></td><td>Đọc tình huống, chiếu email của CFO</td><td>Slide số liệu + email "Dừng toàn bộ hợp đồng headhunt"</td></tr>
+      <tr><td class="t">13–18</td><td><span class="chip r-cfo">CFO</span></td><td>4 lập luận kiểm soát</td><td>Một con số mỗi lập luận: 300 tr · 6 tỷ · 2/6 · 25%</td></tr>
+      <tr><td class="t">18–26</td><td><span class="chip r-chro">CHRO</span></td><td>6 góc nhìn ẩn</td><td>Chi phí để trống, ứng viên thụ động, chi phí tuyển sai</td></tr>
+      <tr><td class="t">26–29</td><td><span class="chip r-vote">Vote</span></td><td>Chọn phe, đọc kết quả theo nhóm</td><td>Biểu đồ vote tách 3 nhóm</td></tr>
+      <tr><td class="t">29–40</td><td><span class="chip r-tool">Tool</span></td><td>Chạy công cụ ① với hai vị trí, chốt ma trận và cách tiết kiệm</td><td>Công cụ ①, ma trận 2×2</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid2">
+    <div class="card stack">
+      <span class="chip r-mc" style="align-self:flex-start">MC nêu tình huống</span>
+      <p class="quote">"Một công ty phân phối, 500 nhân sự. Năm qua chi 1,8 tỷ cho headhunter để tuyển đúng 6 người. Cùng năm đó, 120 vị trí khác chỉ tốn 400 triệu. Hai trong sáu người đã nghỉ trước 12 tháng. Sáng nay CFO gửi email cho CHRO, tiêu đề: Dừng toàn bộ hợp đồng headhunt."</p>
+    </div>
+    <div class="card stack">
+      <h3>Số liệu tình huống <span class="meta">(số minh họa)</span></h3>
+      <div class="tbl-wrap"><table>
+        <tbody>
+          <tr><td>Phí headhunt năm qua</td><td class="r">1,8 tỷ · 6 vị trí</td></tr>
+          <tr><td>Phí bình quân mỗi vị trí</td><td class="r">300 triệu</td></tr>
+          <tr><td>Lương năm bình quân vị trí</td><td class="r">1,2 tỷ → phí 25%</td></tr>
+          <tr><td>Tuyển 120 vị trí khác</td><td class="r">400 triệu</td></tr>
+          <tr><td>Tỷ trọng ngân sách cho 6 người</td><td class="r">82%</td></tr>
+          <tr><td>Nghỉ trước 12 tháng</td><td class="r">2/6</td></tr>
+        </tbody>
+      </table></div>
+      <p class="meta">Mức 25% khớp mặt bằng: contingency 20–30%, retained 30–35% lương năm đầu (freeC).</p>
+    </div>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-cfo" style="align-self:flex-start">CFO · lập luận kiểm soát · 5 phút</span>
+    <ol class="lines">
+      <li><span class="n">1</span><span><span class="say">"300 triệu. Biên lãi ròng 5% thì đó là lãi của 6 tỷ doanh thu, chỉ để mua một cái CV."</span><span class="why">Quy chi phí về doanh thu phải bán thêm. Mở bằng cú sốc.</span></span></li>
+      <li><span class="n">2</span><span><span class="say">"Hai người nghỉ trước 12 tháng. Mình trả 600 triệu để thuê hai người đi ngang qua công ty."</span><span class="why">Tấn công chất lượng đầu ra của kênh.</span></span></li>
+      <li><span class="n">3</span><span><span class="say">"Phòng nhân sự có bốn người làm tuyển dụng. Họ làm gì mà vẫn phải thuê ngoài?"</span><span class="why">Chất vấn năng lực nội bộ. Câu này gây nóng, CHRO sẽ phản đòn.</span></span></li>
+      <li><span class="n">4</span><span><span class="say">"Phí tính theo phần trăm lương. Headhunter càng đẩy lương ứng viên lên thì càng được nhiều tiền. Họ đứng về phía ai?"</span><span class="keep">giữ đến cuối</span><span class="why">Động cơ lệch của cơ chế phí. Luận điểm này dẫn thẳng vào phần "cách tiết kiệm".</span></span></li>
+    </ol>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-chro" style="align-self:flex-start">CHRO · phân tích và góc nhìn ẩn · 8 phút</span>
+    <ol class="lines">
+      <li><span class="n">1</span><span><b>Chi phí để trống vị trí.</b> Giám đốc kinh doanh vùng trống thêm 4 tháng thì mất bao nhiêu biên? CFO thấy 300 triệu trên hóa đơn. Khoản mất do chờ không nằm trên chứng từ nào.</span></li>
+      <li><span class="n">2</span><span><b>Ứng viên thụ động.</b> Người giỏi cấp này thường không nộp CV. Kênh nội bộ chỉ chạm tới người đang đi tìm việc.</span></li>
+      <li><span class="n">3</span><span><b>Bảo mật.</b> Thay người đang ngồi ghế hoặc lấy người từ đối thủ thì không thể đăng tuyển công khai.</span></li>
+      <li><span class="n">4</span><span><b>Chi phí tuyển sai.</b> Tuyển sai một giám đốc kéo theo lương đã trả, đội xáo trộn, mất khách, tuyển lại. Phí headhunt là khoản bảo hiểm chất lượng, với điều kiện hợp đồng có bảo hành.</span></li>
+      <li><span class="n">5</span><span><b>Phản đòn hai người nghỉ.</b> Họ nghỉ vì sao? Onboarding kém hay hứa một đằng làm một nẻo là lỗi tích hợp, không phải lỗi kênh. Hợp đồng có bảo hành thì hai người đó đã được thay miễn phí chưa?</span></li>
+      <li><span class="n">6</span><span><b>Tuyển nội bộ không miễn phí.</b> Bốn người tuyển dụng đang lo 120 vị trí tuyến dưới. Cộng thêm số giờ CEO ngồi phỏng vấn.</span></li>
+    </ol>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-vote" style="align-self:flex-start">Vote · 3 phút</span>
+    <h3>"Dừng toàn bộ hợp đồng headhunt?"</h3>
+    <div class="vote">
+      <div class="a"><small>Ủng hộ CFO</small>Dừng. Tự tuyển toàn bộ, kể cả cấp quản lý.</div>
+      <div class="b"><small>Ủng hộ CHRO</small>Tiếp tục headhunt cho các vị trí chủ chốt.</div>
+    </div>
+    <p class="meta">MC đọc kết quả theo 3 nhóm khán giả rồi chuyển: "Công cụ sẽ phân xử."</p>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Công cụ ① · 11 phút</span><h2>Headhunt hay tự tuyển</h2>
+      <p>CFO điều khiển công cụ. CHRO cung cấp giả định nhân sự: chi phí để trống, xác suất tuyển sai. Khán giả gọi số cho vị trí thứ hai.</p></div>
+    <div class="grid2">
+      <div class="card stack">
+        <h3>Đầu vào</h3>
+        <ul>
+          <li>Lương năm của vị trí; phí headhunt (% lương hoặc phí cố định)</li>
+          <li>Chi phí tự tuyển (giờ phỏng vấn, đăng tin, công cụ)</li>
+          <li>Chi phí chờ mỗi tháng (biên mất khi vị trí trống)</li>
+          <li>Số tháng headhunt rút ngắn được so với tự tuyển</li>
+          <li>Chi phí một lần tuyển sai; xác suất tuyển sai của từng kênh</li>
+        </ul>
+      </div>
+      <div class="card stack">
+        <h3>Đầu ra</h3>
+        <ul>
+          <li>Giá trị ròng của headhunt so với tự tuyển</li>
+          <li>Phí tối đa còn đáng trả (dùng để đàm phán)</li>
+          <li>Kết luận: headhunt retained · contingency · tự tuyển</li>
+        </ul>
+      </div>
+    </div>
+    <div class="formula">Headhunt đáng chi khi:<br>(Số tháng rút ngắn × chi phí chờ/tháng) + (Mức giảm xác suất tuyển sai × chi phí tuyển sai)<br>&gt; Phí headhunt − chi phí tự tuyển</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Kịch bản demo (số minh họa)</th><th>GĐ kinh doanh vùng</th><th>Kế toán trưởng (thay người nghỉ hưu, còn 6 tháng)</th></tr></thead>
+      <tbody>
+        <tr><td>Rút ngắn thời gian</td><td class="r">3 tháng × 80 tr = 240 tr</td><td class="r">0, không gấp</td></tr>
+        <tr><td>Giảm rủi ro tuyển sai</td><td class="r">10% × 1,5 tỷ = 150 tr</td><td class="r">5% × 0,6 tỷ = 30 tr</td></tr>
+        <tr class="total"><td>Giá trị so với phí 300 tr</td><td class="r">390 tr → headhunt</td><td class="r">30 tr → tự tuyển</td></tr>
+      </tbody>
+    </table></div>
+    <p class="quote">Cùng một công thức, hai đáp án.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card stack">
+      <h3>Mô hình chốt: ma trận tác động × khan hiếm</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th></th><th>Ứng viên khan hiếm</th><th>Ứng viên sẵn có</th></tr></thead>
+        <tbody>
+          <tr><td><b>Tác động cao</b></td><td>Headhunt retained, đòi bảo hành</td><td>Tự tuyển, dồn tiền vào đánh giá ứng viên</td></tr>
+          <tr><td><b>Tác động thấp</b></td><td>Contingency, phí cố định, nhiều bên cạnh tranh</td><td>Nội bộ, giới thiệu nội bộ, job board</td></tr>
+        </tbody>
+      </table></div>
+      <p class="meta">Tác động = chi phí chờ + chi phí tuyển sai.</p>
+    </div>
+    <div class="card stack">
+      <h3>Cách hạ chi phí tuyển cấp cao <span class="meta">(luận điểm 4 của CFO thắng)</span></h3>
+      <ul>
+        <li><b>Hợp đồng:</b> phí cố định theo cấp thay vì % lương; bảo hành thay thế 3–6 tháng; trả theo mốc, giữ phần cuối đến khi qua thử việc; gom việc cho 1–2 đối tác để có giá theo khối lượng.</li>
+        <li><b>Kênh rẻ hơn:</b> thưởng giới thiệu nội bộ; mời cựu nhân viên giỏi quay lại; một chuyên viên săn ứng viên nội bộ. <i>Ước tính</i> 600–800 tr/năm, hòa vốn nếu tự lấp 3/6 vị trí.</li>
+        <li><b>Giảm nhu cầu tuyển ngoài:</b> kế hoạch kế thừa; onboarding 90 ngày để không phải tuyển lại.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Mang về theo nhóm</span></div>
+    <div class="grid3">
+      <div class="card"><span class="chip r-chro">① TPNS, GĐNS</span><p style="margin-top:10px">Trình đề nghị headhunt bằng chi phí để trống và chi phí tuyển sai, không bằng "thị trường khó tuyển".</p></div>
+      <div class="card"><span class="chip r-cfo">② Tài chính</span><p style="margin-top:10px">Duyệt phí headhunt theo vị trí, không cắt đồng loạt. Đòi điều khoản phí cố định và bảo hành.</p></div>
+      <div class="card"><span class="chip r-vote">③ Tư vấn BHNT</span><p style="margin-top:10px">Ngôn ngữ "chi phí thay thế một người" là cầu nối để nói chuyện với CFO về phúc lợi giữ chân ở case 3.</p></div>
+    </div>
+  </div>
+
+  <p class="src">Nguồn: mức phí headhunt 20–35% lương năm đầu — <a href="https://blog.freec.asia/bao-gia-dich-vu-headhunter-tai-viet-nam/" target="_blank" rel="noopener">freeC, Báo giá dịch vụ headhunter tại Việt Nam</a>. Các số còn lại là số minh họa.</p>
+</section>
+
+<!-- ============ TAB 3: CASE 2 ============ -->
+<section class="panel stack-l" id="p-c2" role="tabpanel" aria-labelledby="t-c2" hidden>
+  <div class="sec-head">
+    <span class="eyebrow">Case 2 · Nuôi và lọc · phút 40–70</span>
+    <h2>"Cắt 25% sale doanh số thấp nhất"</h2>
+    <p>Câu hỏi chủ đạo: cùng một bộ dữ liệu, hai cách cắt lát cho ra hai chính sách ngược nhau.</p>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phút</th><th>Ai</th><th>Làm gì</th><th>Trên màn hình</th></tr></thead>
+    <tbody>
+      <tr><td class="t">40–43</td><td><span class="chip r-mc">MC</span></td><td>Đọc tình huống, chiếu chỉ đạo của CEO</td><td>Doanh thu đi ngang, chi phí sale tăng</td></tr>
+      <tr><td class="t">43–48</td><td><span class="chip r-cfo">CFO</span></td><td>4 lập luận, trong đó có phản đòn thiên lệch người sống sót</td><td>Xếp hạng doanh số 40 người</td></tr>
+      <tr><td class="t">48–56</td><td><span class="chip r-chro">CHRO</span></td><td>Cắt lát lại dữ liệu theo thâm niên. Lật bảng cohort</td><td>Bảng cohort: 10 người thấp nhất đều dưới 6 tháng</td></tr>
+      <tr><td class="t">56–59</td><td><span class="chip r-vote">Vote</span></td><td>Chọn phe</td><td>Kết quả theo nhóm</td></tr>
+      <tr><td class="t">59–70</td><td><span class="chip r-tool">Tool</span></td><td>Chạy công cụ ②: phương án A và B sau 12 tháng. Chốt mô hình Seeding – Nurturing – Filtering</td><td>Đường cong thâm niên, cổng lọc</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="card stack">
+    <span class="chip r-mc" style="align-self:flex-start">MC nêu tình huống</span>
+    <p class="quote">"Đội sale năm ngoái 30 người, năm nay 40. Doanh thu đứng yên quanh 9,95 tỷ mỗi tháng. Lương cứng tăng một phần ba, hoa hồng cũng tăng. CEO chỉ đạo: cắt 25% sale có doanh số thấp nhất ngay trong quý này. CFO đồng ý. CHRO xin tám phút."</p>
+  </div>
+
+  <div class="stack">
+    <h3>Dữ liệu tình huống <span class="meta">(số minh họa)</span></h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Thâm niên</th><th>Doanh thu/người/tháng</th><th>Năm ngoái</th><th>Năm nay</th><th>Đóng góp/người/tháng*</th></tr></thead>
+      <tbody>
+        <tr><td>0–6 tháng</td><td class="r">50 tr</td><td class="r">5</td><td class="r"><b>14</b></td><td class="r"><b>−3,5 tr</b></td></tr>
+        <tr><td>6–12 tháng</td><td class="r">180 tr</td><td class="r">5</td><td class="r">8</td><td class="r">+18,6 tr</td></tr>
+        <tr><td>12–24 tháng</td><td class="r">350 tr</td><td class="r">8</td><td class="r">8</td><td class="r">+47,5 tr</td></tr>
+        <tr><td>Trên 24 tháng</td><td class="r">500 tr</td><td class="r">12</td><td class="r"><b>10</b></td><td class="r">+73 tr</td></tr>
+        <tr class="total"><td>Tổng doanh thu/tháng</td><td></td><td class="r">9,95 tỷ</td><td class="r">9,94 tỷ</td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="meta">*Đóng góp = doanh thu × (biên gộp 20% − hoa hồng 3%) − lương cứng 12 tr. Toàn bộ là giả định minh họa.</p>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-cfo" style="align-self:flex-start">CFO · lập luận kiểm soát · 5 phút</span>
+    <ol class="lines">
+      <li><span class="n">1</span><span><span class="say">"Mười bốn người mới, mỗi người đang lỗ 3,5 triệu mỗi tháng. Tôi đang trả lương cho người học việc."</span></span></li>
+      <li><span class="n">2</span><span><span class="say">"Tăng một phần ba đầu người mà doanh thu không tăng một đồng. Tuyển để làm gì?"</span></span></li>
+      <li><span class="n">3</span><span><span class="say">"Chị bảo năng suất tăng theo thâm niên. Hay là người giỏi ở lại, người kém tự đi, nên nhìn vào thì thấy thâm niên cao là giỏi?"</span><span class="why">Thiên lệch người sống sót (survivorship bias). Câu phản đòn sắc nhất, CHRO phải nhận chứ không né.</span></span></li>
+      <li><span class="n">4</span><span><span class="say">"Hoa hồng tăng nhanh hơn doanh thu vì tính trên doanh thu, không trên lãi gộp, không trên tiền thực thu. Sale cứ giảm giá để đạt bậc."</span><span class="keep">giữ đến cuối</span></span></li>
+    </ol>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-chro" style="align-self:flex-start">CHRO · phân tích và góc nhìn ẩn · 8 phút</span>
+    <ol class="lines">
+      <li><span class="n">1</span><span><b>Cắt lát lại dữ liệu.</b> Xếp theo thâm niên thì 10 người doanh số thấp nhất đều là người mới dưới 6 tháng. Lệnh "cắt 25% thấp nhất" thực chất là "cắt lứa tuyển mới".</span></li>
+      <li><span class="n">2</span><span><b>Doanh thu đi ngang vì đổi cơ cấu.</b> Đội mất 2 senior và thay bằng 9 người mới đang nằm trong thung lũng ramp-up, không phải vì cả đội kém.</span></li>
+      <li><span class="n">3</span><span><b>Cắt bây giờ là chịu lỗ đúng lúc sắp sinh lời.</b> Mỗi người mới đã tốn khoảng 21 triệu tiền lỗ ramp-up cộng chi phí tuyển. Điểm hòa vốn rơi vào khoảng tháng 7–8.</span></li>
+      <li><span class="n">4</span><span><b>Vấn đề thật là cái xô thủng.</b> Năm ngoái 10 người nghỉ, phần lớn trước tháng 6, tức rời đi trước điểm hòa vốn. Công ty tuyển 20 người chỉ để bù lỗ hổng.</span></li>
+      <li><span class="n">5</span><span><b>Nhận phản đòn survivorship bias và biến nó thành công cụ.</b> Có cả hai hiệu ứng, nên lọc là cần. Nhưng lọc so với đường cong của lứa mình, không so với senior 5 năm.</span></li>
+      <li><span class="n">6</span><span><b>Senior có thể đang giữ lead.</b> Nếu khách tốt đều chia cho người cũ, đường cong của người mới bị kéo dài một cách nhân tạo. Đó là lỗi của khâu nuôi dưỡng.</span></li>
+    </ol>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-vote" style="align-self:flex-start">Vote · 3 phút</span>
+    <h3>"Cắt 10 người có doanh số thấp nhất trong quý này?"</h3>
+    <div class="vote">
+      <div class="a"><small>Ủng hộ CFO</small>Cắt. Giảm lương cứng ngay.</div>
+      <div class="b"><small>Ủng hộ CHRO</small>Không cắt theo xếp hạng. Dừng tuyển, dựng cổng lọc theo đường cong.</div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Công cụ ② · 11 phút</span><h2>Đường cong thâm niên sale</h2>
+      <p>CFO nhập cơ cấu đội và giả định tài chính. CHRO nhập tỷ lệ sống sót theo lứa và thời gian ramp-up. So hai phương án sau 12 tháng.</p></div>
+    <div class="grid2">
+      <div class="card stack">
+        <h3>Đầu vào</h3>
+        <ul>
+          <li>Số người theo 4 lứa thâm niên; doanh thu bình quân mỗi lứa</li>
+          <li>Biên gộp, tỷ lệ hoa hồng (trên doanh thu hoặc trên lãi gộp), lương cứng</li>
+          <li>Tỷ lệ sống sót và tốc độ lên lứa sau mỗi 6 tháng</li>
+          <li>Công tắc phương án: A cắt 10 thấp nhất · B dừng tuyển 6 tháng + cổng lọc</li>
+        </ul>
+      </div>
+      <div class="card stack">
+        <h3>Đầu ra</h3>
+        <ul>
+          <li>Đóng góp theo tháng trong 12 tháng tới của hai phương án</li>
+          <li>Điểm hòa vốn của một người mới</li>
+          <li>Tỷ trọng người đang ramp-up trong đội (so với trần mục tiêu)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Kịch bản demo (số minh họa)</th><th>Hôm nay</th><th>Sau 12 tháng</th></tr></thead>
+      <tbody>
+        <tr><td>A · Cắt 10 người thấp nhất</td><td class="r">Tiết kiệm 120 tr lương, mất 500 tr doanh thu → ròng +35 tr/tháng</td><td class="r">Không có senior kế cận, phải tuyển lại</td></tr>
+        <tr><td>B · Giữ, dừng tuyển, cổng lọc</td><td class="r">Chịu lỗ ramp-up thêm vài tháng</td><td class="r">Giả sử 6/10 còn lại, 250 tr/người → +183 tr/tháng</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Mô hình chốt</span><h2>Seeding – Nurturing – Filtering</h2>
+      <p>Ba khâu của quản trị dòng chảy nhân tài (talent pipeline), tương ứng Buy – Build &amp; Bind – Bounce trong workforce planning.</p></div>
+    <div class="grid3">
+      <div class="card stack"><span class="eyebrow">Seeding · Talent acquisition</span><h3>Tuyển theo công thức</h3>
+        <div class="formula" style="font-size:13px">Số tuyển mới/năm = tỷ lệ nghỉ dự kiến × quy mô + mức tăng quy mô mục tiêu</div>
+        <p>Trần người đang ramp-up, ví dụ tối đa 25% đội. Năm nay 14/40 = 35%, tức seeding quá tay.</p></div>
+      <div class="card stack"><span class="eyebrow">Nurturing · Development &amp; Retention</span><h3>Kéo đường cong sang trái</h3>
+        <ul><li>Quỹ lead dành riêng cho người mới</li><li>Senior kèm cặp, có hoa hồng kèm cặp</li><li>Cổng đào tạo sản phẩm trước khi ra thị trường</li></ul></div>
+      <div class="card stack"><span class="eyebrow">Filtering · Performance management</span><h3>Lọc theo cổng</h3>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td>Tháng 3</td><td class="r">≥ 50% đường chuẩn</td></tr>
+          <tr><td>Tháng 6</td><td class="r">≥ 70%</td></tr>
+          <tr><td>Tháng 12</td><td class="r">≥ 85%, không đạt thì dừng</td></tr>
+          <tr><td>Senior</td><td class="r">Giảm &gt; 20% thì xem lại</td></tr>
+        </tbody></table></div>
+        <p class="meta">Ngưỡng minh họa.</p></div>
+    </div>
+    <div class="note">
+      <b>Giảm lương cứng mà không cắt người</b> (đáp ứng mục tiêu của CEO): ramp draw, tức lương cứng kèm khoản ứng trước hoa hồng giảm dần trong giai đoạn đầu; senior chuyển dần tỷ trọng sang hoa hồng; hoa hồng tính trên lãi gộp và tiền thực thu, đúng luận điểm CFO giữ đến cuối.
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Mang về theo nhóm</span></div>
+    <div class="grid3">
+      <div class="card"><span class="chip r-chro">① TPNS, GĐNS</span><p style="margin-top:10px">Phân tích nghỉ việc theo lứa tuyển. Đặt cổng lọc theo đường cong thay vì xếp hạng tuyệt đối.</p></div>
+      <div class="card"><span class="chip r-cfo">② Tài chính</span><p style="margin-top:10px">Lên định biên sale 2027 theo tỷ trọng người đang ramp-up. Sửa cơ chế hoa hồng theo lãi gộp.</p></div>
+      <div class="card"><span class="chip r-vote">③ Tư vấn BHNT</span><p style="margin-top:10px">Nhóm senior vượt qua thung lũng là nhóm cần công cụ giữ chân nhất: đầu mối cho case 3.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4: CASE 3 ============ -->
+<section class="panel stack-l" id="p-c3" role="tabpanel" aria-labelledby="t-c3" hidden>
+  <div class="sec-head">
+    <span class="eyebrow">Case 3 · Giữ chân · phút 70–100</span>
+    <h2>"Thưởng tiền cho nóng hay mua BHNT?"</h2>
+    <p>Câu hỏi chủ đạo: thuế quyết định trả bằng gì; mục tiêu giữ chân quyết định trả cho ai và ràng buộc thế nào.</p>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phút</th><th>Ai</th><th>Làm gì</th><th>Trên màn hình</th></tr></thead>
+    <tbody>
+      <tr><td class="t">70–73</td><td><span class="chip r-mc">MC</span></td><td>Đọc tình huống, chiếu tờ trình bị trả về</td><td>Tờ trình + dòng phê của CFO</td></tr>
+      <tr><td class="t">73–78</td><td><span class="chip r-cfo">CFO</span></td><td>5 lập luận, tấn công vào giả định của mô hình</td><td>Mục "giả định và giới hạn" của bảng tính</td></tr>
+      <tr><td class="t">78–86</td><td><span class="chip r-chro">CHRO</span></td><td>4 lớp lập luận: đúng câu hỏi, thuế, giữ chân, hòa vốn</td><td>Bản đồ 3 ngưỡng: 5 tr · 3 tr · 10%</td></tr>
+      <tr><td class="t">86–89</td><td><span class="chip r-vote">Vote</span></td><td>Chọn phe</td><td>Kết quả theo nhóm</td></tr>
+      <tr><td class="t">89–100</td><td><span class="chip r-tool">Tool</span></td><td>Chạy công cụ ③ với 40 nhân sự. Bài tập nhanh B = 45, P = 4 và câu bẫy d = 0. Chốt 3 câu hỏi cổng</td><td>Công cụ ③, bảng độ nhạy</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid2">
+    <div class="card stack">
+      <span class="chip r-mc" style="align-self:flex-start">MC nêu tình huống</span>
+      <p class="quote">"CHRO trình đề xuất mua bảo hiểm nhân thọ cho 40 nhân sự chủ chốt, 3 đến 5 triệu mỗi người mỗi tháng, gần 2 tỷ một năm. CFO trả lại tờ trình với đúng một dòng: Anh em cần tiền, không cần bảo hiểm. Chuyển thành thưởng Tết."</p>
+    </div>
+    <div class="card stack">
+      <h3>Số liệu tình huống <span class="meta">(mô phỏng đào tạo)</span></h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Nhóm</th><th>Người</th><th>Phí/người/tháng</th><th>Thu nhập tính thuế nền</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td class="r">10</td><td class="r">3 tr</td><td class="r">20 tr</td></tr>
+          <tr><td>B</td><td class="r">20</td><td class="r">4 tr</td><td class="r">45 tr</td></tr>
+          <tr><td>C</td><td class="r">10</td><td class="r">5 tr</td><td class="r">80 tr</td></tr>
+          <tr class="total"><td>Tổng</td><td class="r">40</td><td class="r">160 tr/tháng</td><td class="r">1,92 tỷ/năm</td></tr>
+        </tbody>
+      </table></div>
+      <p class="meta">Nguồn: bài phân tích BHNT cho trưởng phòng nhân sự và bảng tính 40 nhân sự (30/09/2026). Thu nhập là số giả định để tập huấn.</p>
+    </div>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-cfo" style="align-self:flex-start">CFO · lập luận kiểm soát · 5 phút</span>
+    <p class="meta">CFO mạnh nhất khi tấn công đúng vào phần "giả định và giới hạn" của chính mô hình CHRO dùng.</p>
+    <ol class="lines">
+      <li><span class="n">1</span><span><span class="say">"Con số 360 triệu của chị chưa trừ phí hợp đồng, phí quản lý, chưa tính giá trị hoàn lại khi hủy, chưa chiết khấu theo thời gian. Trừ hết rồi còn bao nhiêu?"</span><span class="keep">giữ đến cuối</span></span></li>
+      <li><span class="n">2</span><span><span class="say">"Có 4 triệu mỗi tháng là thuế sẽ phải nộp khi đáo hạn. Chị đang ghi một nghĩa vụ tương lai thành một khoản lợi."</span></span></li>
+      <li><span class="n">3</span><span><span class="say">"Năm sau công ty lỗ thì phần lợi thuế thu nhập doanh nghiệp 32 triệu mỗi tháng còn không?"</span></span></li>
+      <li><span class="n">4</span><span><span class="say">"Nhóm A chỉ được lợi 0,3 triệu mỗi người mỗi tháng. Với các bạn này, đưa tiền mặt có khi còn được cảm kích hơn."</span><span class="keep">giữ đến cuối</span></span></li>
+      <li><span class="n">5</span><span><span class="say">"Ai đã dùng hết trần 3 triệu cho hợp đồng hưu trí khác thì toàn bộ phép tính phải làm lại."</span></span></li>
+    </ol>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-chro" style="align-self:flex-start">CHRO · 4 lớp lập luận · 8 phút</span>
+    <div class="grid2">
+      <div class="stack">
+        <h3>Lớp 1 · CFO đang so sai phép so sánh</h3>
+        <p>"Chi 1,92 tỷ hay không chi" khác với "cùng 1,92 tỷ, trả bằng lương hay bằng BHNT".</p>
+        <ul>
+          <li>So với không chi: chi phí sau thuế TNDN 128 tr/tháng, khoảng 1,54 tỷ/năm.</li>
+          <li>So với trả lương cùng ngân sách: chi phí công ty không đội thêm đồng nào, vì mức phí nằm trong trần 5 tr được trừ TNDN.</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>Lớp 2 · Cùng một đồng chi, nhân viên nhận nhiều hơn</h3>
+        <ul>
+          <li>Chênh tổng thuế so với trả lương: khoảng <b>360 tr/năm</b>, bình quân 9 tr/người/năm, gần 19% ngân sách. Số danh nghĩa, giả định thận trọng q = 100%.</li>
+          <li>Lợi ích tăng theo thu nhập: A 0,3 · B 0,7 · C 1,3 tr/người/tháng. Vì vậy phí chia 3/4/5 tr theo nhóm.</li>
+          <li>Không nói "tiết kiệm 360 tr thuế năm 2026": phần 10% thuộc các kỳ đáo hạn tương lai.</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>Lớp 3 · Giá trị giữ chân</h3>
+        <ul>
+          <li>Tiền mặt trả cho quá khứ. Quyền lợi tích lũy theo thâm niên mua sự gắn bó tương lai.</li>
+          <li>Đối thủ dễ trả lương cao hơn, khó mua lại quyền lợi chưa nhận.</li>
+          <li>Tín hiệu cam kết chạm tới gia đình nhân viên; lớp bảo vệ rủi ro cho người chủ chốt.</li>
+          <li>Điều kiện: hợp đồng phải rõ bên mua, người thụ hưởng, quyền lợi khi nghỉ việc. Thiếu phần này thì không có "còng tay vàng".</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>Lớp 4 · Hòa vốn giữ chân</h3>
+        <div class="formula" style="font-size:13px">1,54 tỷ/năm ÷ 400 tr chi phí thay thế một người<br>≈ 4 người trên 40</div>
+        <p class="meta">Chi phí thay thế 400 tr là số minh họa, nối với case 1.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Bản đồ 3 ngưỡng CHRO trình bày</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Ngưỡng</th><th>Áp cho</th><th>Quy tắc</th><th>Căn cứ</th></tr></thead>
+      <tbody>
+        <tr><td class="r"><b>5 tr</b>/người/tháng</td><td>Thuế TNDN của công ty</td><td>Phần chi BHNT, hưu trí vượt 5 tr không được trừ. Phải ghi điều kiện, mức hưởng trong HĐLĐ hoặc quy chế; hoàn thành BH bắt buộc</td><td>NĐ 320/2025, điểm đ khoản 4 Điều 10</td></tr>
+        <tr><td class="r"><b>3 tr</b>/người/tháng</td><td>Giảm trừ TNCN của nhân viên</td><td>BHNT, hưu trí tự nguyện, hưu trí bổ sung được trừ tổng tối đa 3 tr, gộp phần công ty và nhân viên đóng</td><td>NĐ 253/2026, điểm a khoản 2 Điều 46</td></tr>
+        <tr><td class="r"><b>10%</b></td><td>TNCN khi đáo hạn</td><td>Khi công ty mua chưa tính vào thu nhập chịu thuế. Khi đáo hạn, hãng BH khấu trừ 10% trên phí tích lũy phần công ty mua vượt trần 3 tr</td><td>NĐ 253/2026, điểm b khoản 3 Điều 50</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card stack">
+    <span class="chip r-vote" style="align-self:flex-start">Vote · 3 phút</span>
+    <h3>"Duyệt gói BHNT hay chuyển thành thưởng Tết?"</h3>
+    <div class="vote">
+      <div class="a"><small>Ủng hộ CFO</small>Chuyển 1,92 tỷ thành thưởng tiền mặt.</div>
+      <div class="b"><small>Ủng hộ CHRO</small>Duyệt gói BHNT cho 40 nhân sự chủ chốt.</div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Công cụ ③ · 11 phút</span><h2>BHNT hay trả lương, cùng ngân sách</h2>
+      <p>Dựng lại từ bảng tính 40 nhân sự. CFO bật lần lượt các "công tắc phản biện" của mình để khán giả thấy kết quả đổi ra sao.</p></div>
+    <div class="grid2">
+      <div class="card stack">
+        <h3>Đầu vào</h3>
+        <ul>
+          <li>Theo nhóm: số người, phí/người/tháng, thu nhập tính thuế nền</li>
+          <li>Trần giảm trừ còn trống d; tỷ lệ phí tích lũy q; thuế TNDN dùng được c</li>
+          <li>Chi phí thay thế một người; tỷ lệ nghỉ hiện tại của nhóm</li>
+          <li>Chi phí hợp đồng ước tính <span class="fill">[[CẦN: hãng BH xác nhận]]</span></li>
+        </ul>
+      </div>
+      <div class="card stack">
+        <h3>Đầu ra</h3>
+        <ul>
+          <li>Chênh tổng thuế BHNT so với trả lương, theo nhóm và tổng</li>
+          <li>Chi phí sau thuế TNDN so với không chi</li>
+          <li>Số người cần giữ thêm để hòa vốn</li>
+          <li>Bảng độ nhạy phí × bậc thuế</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Công tắc demo</th><th>Kết quả hiển thị</th><th>Ai bật</th></tr></thead>
+      <tbody>
+        <tr><td>Phương án đề xuất 40 người</td><td>Chênh thuế ~30 tr/tháng phí, ~360 tr/năm danh nghĩa</td><td><span class="chip r-chro">CHRO</span></td></tr>
+        <tr><td>Nhóm A tăng phí lên 8 tr</td><td>Kết quả âm: vượt trần 5 tr phản tác dụng với người thu nhập thấp</td><td><span class="chip r-cfo">CFO</span></td></tr>
+        <tr><td>d = 0 (đã dùng hết trần 3 tr)</td><td>Lợi ích TNCN của người đó mất gần hết</td><td><span class="chip r-cfo">CFO</span></td></tr>
+        <tr><td>c = 0 (công ty lỗ)</td><td>Lợi ích TNDN so với không chi biến mất; chênh so với trả lương không đổi</td><td><span class="chip r-cfo">CFO</span></td></tr>
+        <tr><td>Tỷ lệ nghỉ giảm 4 người/năm</td><td>Chính sách hòa vốn</td><td><span class="chip r-chro">CHRO</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="note">
+      <b>Bài tập 3 phút cho khán giả:</b> một người có B = 45 tr, P = 4 tr, còn trọn d = 3 tr. Tự mua: thu nhập tính thuế 46 tr. Công ty đóng: 42 tr. Cùng bậc 20% nên chênh 0,8 tr, trừ 0,1 tr thuế khi đáo hạn, còn <b>0,7 tr/người/tháng</b>.<br>
+      <b>Câu bẫy:</b> người này đã dùng hết trần 3 tr cho bảo hiểm hưu trí thì sao? Phải đặt d = 0 và tính lại.
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Mô hình chốt</span><h2>Ba câu hỏi cổng trước khi duyệt một phúc lợi</h2></div>
+    <div class="grid3">
+      <div class="card stack"><span class="eyebrow">Cổng 1</span><h3>Chi thêm hay thay hình thức chi?</h3><p>Mỗi câu hỏi có phép so sánh riêng. Không cộng lợi ích TNDN hai lần.</p></div>
+      <div class="card stack"><span class="eyebrow">Cổng 2</span><h3>Có nằm trong các trần không?</h3><p>5 tr trần TNDN, 3 tr trần giảm trừ TNCN, phần trần mỗi người còn trống.</p></div>
+      <div class="card stack"><span class="eyebrow">Cổng 3</span><h3>Để giữ người hay để thưởng người?</h3><p>Giữ: vesting, người thụ hưởng, KPI tỷ lệ nghỉ đáng tiếc, rà soát 12 tháng. Thưởng: tiền mặt hoặc thưởng trả chậm.</p></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Công cụ</th><th>Giữ chân</th><th>Thuế người nhận</th><th>Cam kết chi phí</th><th>Linh hoạt</th></tr></thead>
+      <tbody>
+        <tr><td>Thưởng tiền mặt</td><td>Thấp</td><td>Thuế suất biên</td><td>Không, biến đổi</td><td>Cao</td></tr>
+        <tr><td>Thưởng trả chậm 3 đợt/3 năm</td><td>Trung bình – cao</td><td>Thuế suất biên</td><td>Thấp, dừng được</td><td>Cao</td></tr>
+        <tr><td>BHNT có vesting</td><td>Cao</td><td>Giảm trừ trong trần 3 tr; 10% phần vượt khi đáo hạn</td><td>Cao, nhiều năm</td><td>Thấp</td></tr>
+      </tbody>
+    </table></div>
+    <p class="quote">Thuế quyết định trả bằng gì. Mục tiêu giữ chân quyết định trả cho ai và ràng buộc thế nào.</p>
+  </div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Mang về theo nhóm</span></div>
+    <div class="grid3">
+      <div class="card"><span class="chip r-chro">① TPNS, GĐNS</span><p style="margin-top:10px">Khung tờ trình phúc lợi: so sánh cùng ngân sách, phí theo nhóm thu nhập, KPI giữ chân và điều kiện dừng.</p></div>
+      <div class="card"><span class="chip r-cfo">② Tài chính</span><p style="margin-top:10px">Danh sách câu hỏi phản biện: chi phí hợp đồng, nghĩa vụ thuế tương lai, khả năng dùng lợi ích TNDN.</p></div>
+      <div class="card"><span class="chip r-vote">③ Tư vấn BHNT</span><p style="margin-top:10px">Chuẩn bị trước 5 câu CFO sẽ hỏi. Trình bằng phép so sánh cùng ngân sách, không trình "tiết kiệm thuế".</p></div>
+    </div>
+  </div>
+
+  <div class="note warn">Phần thuế là thông tin tham khảo để thiết kế case, không phải tư vấn thuế. Các điều khoản NĐ 253/2026 lấy theo bài phân tích BHNT đã có; cần kế toán thuế rà trước khi lên slide.</div>
+  <p class="src">Nguồn: <a href="https://vanban.chinhphu.vn/?docid=216219&amp;pageid=27160" target="_blank" rel="noopener">NĐ 320/2025/NĐ-CP, Cổng văn bản Chính phủ</a> · <a href="https://xaydungchinhsach.chinhphu.vn/thue-thu-nhap-ca-nhan-doi-voi-thu-nhap-tu-tien-luong-tien-cong-119260703141953435.htm" target="_blank" rel="noopener">NĐ 253/2026, Điều 46</a> · <a href="https://xaydungchinhsach.chinhphu.vn/quy-dinh-moi-ve-khau-tru-thue-thu-nhap-ca-nhan-119260703150410707.htm" target="_blank" rel="noopener">NĐ 253/2026, Điều 50</a> · <a href="https://xaydungchinhsach.chinhphu.vn/chi-tiet-bieu-thue-thu-nhap-ca-nhan-luy-tien-tung-phan-119260327091407544.htm" target="_blank" rel="noopener">Biểu thuế TNCN lũy tiến</a> · Bài phân tích và bảng tính BHNT 40 nhân sự (30/09/2026).</p>
+</section>
+
+<!-- ============ TAB 5: CTA ============ -->
+<section class="panel stack-l" id="p-cta" role="tabpanel" aria-labelledby="t-cta" hidden>
+  <div class="sec-head">
+    <span class="eyebrow">CTA · phút 108–118</span>
+    <h2>Từ ba case đến ngân sách 2027 của chính doanh nghiệp anh chị</h2>
+    <p>Lời chào chỉ xuất hiện ở đây. Cầu nối: cả ba case đều cho thấy đúng hay sai phụ thuộc số liệu của chính doanh nghiệp, và mùa lập ngân sách 2027 đang bắt đầu.</p>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phút</th><th>Ai</th><th>Làm gì</th></tr></thead>
+    <tbody>
+      <tr><td class="t">108–110</td><td><span class="chip r-mc">MC</span></td><td>Câu chuyển: "Ba case, ba công cụ, và một điểm chung: không ai thắng nếu chưa có số liệu của chính mình."</td></tr>
+      <tr><td class="t">110–113</td><td><span class="chip r-cfo">CFO</span> <span class="chip r-chro">CHRO</span></td><td>Giới thiệu CTA 1: khóa 1 ngày, hai người cùng dạy</td></tr>
+      <tr><td class="t">113–116</td><td><span class="chip r-chro">CHRO</span></td><td>Giới thiệu CTA 2: tư vấn gói BHNT giữ chân. Hương tham gia phần hỏi đáp tại bàn sau buổi</td></tr>
+      <tr><td class="t">116–118</td><td><span class="chip r-mc">MC</span></td><td>QR đăng ký: nhận 3 công cụ mô phỏng, chọn quan tâm CTA 1 hoặc CTA 2</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="split" style="border-radius:var(--s-r);overflow:hidden">
+    <div class="pane-green">
+      <span class="eyebrow">CTA 1 · Khóa đào tạo 1 ngày</span>
+      <h2 style="color:var(--s-on-forest)">Tối ưu tổng chi phí nhân sự khi lập ngân sách 2027</h2>
+      <p>Nguyệt và Trung cùng dạy. Học viên mang số liệu thật của doanh nghiệp mình.</p>
+    </div>
+    <div class="pane-light">
+      <dl class="facts">
+        <dt>Đối tượng</dt><dd>TPNS, GĐNS; khuyến khích đi cặp cùng TP Tài chính hoặc FP&amp;A của cùng doanh nghiệp</dd>
+        <dt>Đầu ra</dt><dd>Bản cầu nối quỹ lương 2026 → 2027 của chính doanh nghiệp, đối chiếu từ trên xuống và từ dưới lên</dd>
+        <dt>Chi tiết</dt><dd><span class="fill">[[CẦN ĐIỀN: ngày, học phí, địa điểm, sĩ số]]</span></dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Khối</th><th>Nội dung</th><th>Dẫn chính</th><th>Nối từ workshop</th></tr></thead>
+    <tbody>
+      <tr><td class="t">Sáng 1</td><td>Tổng chi phí nhân sự đầy đủ: đo đủ, so với biên gộp, cơ cấu cố định và biến đổi</td><td>Trung</td><td>Tài liệu nền</td></tr>
+      <tr><td class="t">Sáng 2</td><td>Chi phí tuyển và giữ: chi phí thay thế, kênh tuyển, hòa vốn chính sách giữ người</td><td>Nguyệt</td><td>Case 1, case 3</td></tr>
+      <tr><td class="t">Chiều 1</td><td>Định biên theo năng suất: đường cong thâm niên, Seeding – Nurturing – Filtering</td><td>Nguyệt + Trung</td><td>Case 2</td></tr>
+      <tr><td class="t">Chiều 2</td><td>Cân quỹ lương 2027: tăng lương định kỳ, định biên, hiệu ứng cả năm, tiết kiệm do tuyển chậm, thay đổi cơ cấu. Thực hành trên số liệu của học viên</td><td>Trung</td><td>Mục 6 tài liệu nền</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="split rev" style="border-radius:var(--s-r);overflow:hidden">
+    <div class="pane-light">
+      <dl class="facts">
+        <dt>Đối tượng</dt><dd>Doanh nghiệp có nhóm nhân sự chủ chốt cần giữ chân; người ra quyết định là TPNS, GĐNS cùng CFO</dd>
+        <dt>Đầu ra</dt><dd>Tờ trình cho CFO có mô phỏng cùng ngân sách, phí theo nhóm, điều kiện vesting, KPI giữ chân</dd>
+        <dt>Chi tiết</dt><dd><span class="fill">[[CẦN ĐIỀN: phí tư vấn, buổi chẩn đoán miễn phí hay có phí]]</span></dd>
+      </dl>
+    </div>
+    <div class="pane-green">
+      <span class="eyebrow">CTA 2 · Tư vấn chuyên sâu</span>
+      <h2 style="color:var(--s-on-forest)">Xây dựng gói BHNT giữ chân nhân sự chủ chốt</h2>
+      <p>Nguyệt và Hương. Bắt đầu từ công cụ ③ với số liệu thật.</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Bước</th><th>Việc làm</th><th>Dữ liệu cần từ doanh nghiệp</th></tr></thead>
+    <tbody>
+      <tr><td class="t">1 · Chẩn đoán</td><td>Xác định nhóm chủ chốt theo giá trị × rủi ro nghỉ; đo tỷ lệ nghỉ đáng tiếc hiện tại</td><td>Danh sách nhân sự, lịch sử nghỉ việc 2 năm</td></tr>
+      <tr><td class="t">2 · Mô phỏng</td><td>Chạy công cụ ③: so sánh cùng ngân sách, độ nhạy, hòa vốn giữ chân</td><td>Thu nhập tính thuế theo người, trần 3 tr đã dùng</td></tr>
+      <tr><td class="t">3 · Thiết kế</td><td>Mức phí theo nhóm, vesting, bên mua và người thụ hưởng, quyền lợi khi nghỉ việc</td><td>Chính sách đãi ngộ hiện hành</td></tr>
+      <tr><td class="t">4 · Hồ sơ và đo lường</td><td>Quy chế, HĐLĐ để đủ điều kiện chi phí; KPI và mốc rà soát 12 tháng</td><td>Quy chế tài chính, tình trạng BH bắt buộc</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="stack">
+    <div class="sec-head"><span class="eyebrow">Chào theo nhóm khán giả</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Nhóm</th><th>CTA chính</th><th>Câu chào</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip r-chro">① TPNS, GĐNS</span></td><td>CTA 1 và CTA 2</td><td>"Mang ngân sách nhân sự 2027 của anh chị đến lớp, ra về với bản cầu nối quỹ lương đã cân."</td></tr>
+        <tr><td><span class="chip r-cfo">② Tài chính, FP&amp;A</span></td><td>CTA 1, đi cặp cùng nhân sự</td><td>"Lần đầu tiên nhân sự và tài chính ngồi cùng một bảng tính trước khi họp ngân sách."</td></tr>
+        <tr><td><span class="chip r-vote">③ Tư vấn BHNT</span></td><td><span class="fill">[[CẦN CHỐT]]</span></td><td>Đề xuất cần anh chốt: mời hợp tác giới thiệu khách, hay chỉ nhận bộ 3 công cụ qua form</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card stack">
+      <h3>Cơ chế thu lead</h3>
+      <ul>
+        <li>QR form 3 trường: nhóm khán giả, quan tâm CTA 1 hoặc CTA 2, doanh nghiệp và quy mô.</li>
+        <li>Quà ngay khi đăng ký: bộ 3 công cụ mô phỏng và handout ba mô hình quyết định.</li>
+        <li>Follow-up trong 48 giờ: CTA 1 do BTC gửi lịch khóa; CTA 2 do Nguyệt hoặc Hương gọi đặt buổi chẩn đoán.</li>
+      </ul>
+    </div>
+    <div class="note warn">
+      <b>Giữ uy tín của case 3.</b> Khán giả nhóm ② sẽ nghi case 3 là quảng cáo BHNT nếu CHRO bán hàng ngay trong case. Giữ nguyên hai luận điểm CFO "giữ đến cuối", không nhắc hãng hay sản phẩm cụ thể trước phút 108. CTA 2 mạnh hơn khi khán giả đã thấy CFO phản biện thật.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap footer">
+  <p class="meta">Workshop Nhân sự × Tài chính · Đề cương kịch bản <span data-ver></span> · <span data-stamp></span> · Số liệu tình huống là số minh họa trừ khi có nguồn.</p>
+</footer>
+
+<script>
+const APP_VERSION='v1';
+const BUILD_STAMP='30/09/2026 · 3 case + CTA, chờ chốt MC, lịch, giá';
+document.querySelectorAll('[data-ver]').forEach(e=>e.textContent=APP_VERSION);
+document.querySelectorAll('[data-stamp]').forEach(e=>e.textContent=BUILD_STAMP);
+
+const tabs=[...document.querySelectorAll('.tab')];
+function show(k,push){
+  if(!tabs.some(t=>t.dataset.k===k)) k='tong';
+  tabs.forEach(t=>{
+    const on=t.dataset.k===k;
+    t.setAttribute('aria-selected',on);
+    t.tabIndex=on?0:-1;
+    document.getElementById('p-'+t.dataset.k).hidden=!on;
+  });
+  if(push){ try{history.replaceState(null,'','#'+k)}catch(e){} }
+}
+tabs.forEach((t,i)=>{
+  t.addEventListener('click',()=>{show(t.dataset.k,true);window.scrollTo({top:document.querySelector('.tabbar').offsetTop,behavior:'auto'})});
+  t.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+      const n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];
+      n.focus(); show(n.dataset.k,true);
+    }
+  });
+});
+show((location.hash||'').replace('#',''),false);
+</script>
+</body>
+</html>
